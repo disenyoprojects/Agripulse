@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* AgriPulse official brand colors (source: Brand Guide PDF) */
+  --color-primary-green: #2D5016;
+  --color-accent-gold: #F4A300;
+  --color-cream: #F8F7F2;
+  --color-soil: #2C2C2C;
+  --color-sky: #0066CC;
+
+  /* Extended palette used across existing pages */
+  --color-earth-medium: #4A7C2C;
+  --color-earth-light: #A8C686;
+  --color-green-900: #25361a;
+  --color-green-800: #2e4321;
+  --color-green-700: #3f5c2c;
+  --color-green-500: #6b9a4c;
+  --color-green-300: #a8c98a;
+  --color-orange-dark: #c97f24;
+  --color-maroon: #4a2c1d;
+
+  /* Typography — matched to brand guide */
+  --font-heading: var(--font-archivo-black);
+  --font-body: var(--font-nunito);
+  --font-ui: var(--font-dm-sans);
+}
+
+:root {
+  --background: #F8F7F2;
+  --foreground: #2C2C2C;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-ui), 'DM Sans', sans-serif;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-heading), 'Archivo Black', sans-serif;
+}

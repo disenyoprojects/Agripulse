@@ -4,25 +4,43 @@
   /* AgriPulse official brand colors (source: Brand Guide PDF) */
   --color-primary-green: #2D5016;
   --color-accent-gold: #F4A300;
+  --color-harvest-lime: #D6E85C;
   --color-cream: #F8F7F2;
   --color-soil: #2C2C2C;
   --color-sky: #0066CC;
+  --color-berry: #E85D6B;
+  --color-teal: #3FAE95;
 
-  /* Extended palette used across existing pages */
-  --color-earth-medium: #4A7C2C;
-  --color-earth-light: #A8C686;
+  /* Earth tones */
+  --color-earth-very-dark: #10190B;
+  --color-earth-dark: #2D5016;
+  --color-earth-medium: #38541F;
+  --color-earth-medium-2: #4A7C2C;
+  --color-earth-light: #7FA34A;
+  --color-earth-light-2: #A8C686;
+
+  /* Green scale (Market Pulse / Price Advisor) */
   --color-green-900: #25361a;
   --color-green-800: #2e4321;
   --color-green-700: #3f5c2c;
   --color-green-500: #6b9a4c;
   --color-green-300: #a8c98a;
+
+  /* Amber / orange */
+  --color-orange: #e79c3d;
   --color-orange-dark: #c97f24;
   --color-maroon: #4a2c1d;
+
+  /* Alert colors */
+  --color-warning-red: #D32F2F;
+  --color-warning-orange: #FF6F00;
+  --color-success-green: #2E7D32;
 
   /* Typography — matched to brand guide */
   --font-heading: var(--font-archivo-black);
   --font-body: var(--font-nunito);
   --font-ui: var(--font-dm-sans);
+  --font-display: var(--font-baloo2);
 }
 
 :root {

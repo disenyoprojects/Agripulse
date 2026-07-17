@@ -2,10 +2,16 @@
 
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { motion } from 'framer-motion'
+import { Suspense } from 'react'
 
-export default function LoginPage() {
+const spring = { type: 'spring', stiffness: 500, damping: 22 } as const
+
+function LoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const callbackUrl = searchParams.get('callbackUrl') ?? '/dashboard'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -24,7 +30,7 @@ export default function LoginPage() {
       if (result?.error) {
         setError('Invalid email or password.')
       } else {
-        router.push('/dashboard')
+        router.push(callbackUrl)
       }
     } catch {
       setError('Something went wrong. Please try again.')
@@ -38,7 +44,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
           <p className="text-xs font-semibold tracking-widest text-[#6b9a4c] mb-1">
-            LGU DASHBOARD ACCESS
+            STAFF ACCESS
           </p>
           <h1 className="font-heading text-2xl text-[#2D5016]">AGRIPULSE</h1>
           <p className="text-sm text-[#6b7a5f] mt-1">The Pulse of Predictive Farming</p>
@@ -81,13 +87,16 @@ export default function LoginPage() {
             </p>
           )}
 
-          <button
+          <motion.button
             type="submit"
             disabled={loading}
+            whileHover={loading ? {} : { scale: 1.04, y: -2 }}
+            whileTap={loading ? {} : { scale: 0.97 }}
+            transition={spring}
             className="w-full bg-[#F4A300] text-[#2D5016] font-bold text-sm py-3 rounded-lg hover:bg-[#c97f24] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Signing in…' : 'SIGN IN'}
-          </button>
+          </motion.button>
         </form>
 
         <p className="text-center text-xs text-[#7c8a70] mt-6">
@@ -95,5 +104,13 @@ export default function LoginPage() {
         </p>
       </div>
     </main>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   )
 }

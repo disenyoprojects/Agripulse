@@ -42,11 +42,13 @@ async function getLeaderboard() {
 }
 
 async function getTotals() {
-  const [farmers, submissions] = await Promise.all([
+  const [farmers, submissions, hectaresAggregate] = await Promise.all([
     db.farmer.count(),
     db.submission.count(),
+    db.submission.aggregate({ _sum: { farmSizeHectares: true } }),
   ])
-  return { farmers, submissions, points: submissions * 10 }
+  const hectares = Number(hectaresAggregate._sum.farmSizeHectares ?? 0)
+  return { farmers, submissions, points: submissions * 10, hectares }
 }
 
 function medal(rank: number) {
@@ -60,81 +62,172 @@ export default async function LeaderboardPage() {
   const [rankings, totals] = await Promise.all([getLeaderboard(), getTotals()])
 
   return (
-    <main className="min-h-screen bg-[#2D5016] text-white">
-      <header className="bg-[#25361a] px-5 py-4 flex items-center justify-between">
-        <div>
-          <p className="text-[#a8c98a] text-xs font-semibold tracking-widest">AGRIPULSE</p>
-          <p className="text-white text-sm">Leaderboard</p>
-        </div>
-        <nav className="flex gap-4 text-xs text-[#a8c98a]">
-          <Link href="/" className="hover:text-white">Home</Link>
-          <Link href="/mobile-wizard" className="hover:text-white">Portal</Link>
-          <Link href="/dashboard" className="hover:text-white">Dashboard</Link>
-        </nav>
-      </header>
+    <main style={{
+      background: 'linear-gradient(135deg, #2D5016 0%, #1a3010 100%)',
+      color: 'white',
+      minHeight: '100vh',
+      paddingTop: '80px',
+      paddingBottom: '40px',
+    }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px' }}>
 
-      <div className="max-w-2xl mx-auto px-4 py-8">
-        <div className="text-center mb-8">
-          <div className="text-5xl mb-3">🏆</div>
-          <h1 className="font-heading text-3xl text-[#F4A300] mb-2">AgriPulse Leaderboard</h1>
-          <p className="text-[#a8c98a] text-sm">Top Contributing Farmers</p>
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: '40px', animation: 'fadeIn 0.6s ease' }}>
+          <div style={{ fontSize: '60px', marginBottom: '10px', animation: 'pulse 2s infinite' }}>🌾</div>
+          <h1 style={{
+            fontFamily: 'Archivo Black, sans-serif',
+            fontSize: '42px',
+            color: '#F4A300',
+            marginBottom: '10px',
+            textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
+          }}>
+            AgriPulse Leaderboard
+          </h1>
+          <p style={{ fontSize: '18px', opacity: 0.9, marginBottom: '20px' }}>
+            Top Contributing Farmers — BLISTT Area
+          </p>
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: 'rgba(46,125,50,0.3)',
+            padding: '8px 16px',
+            borderRadius: '20px',
+            fontSize: '14px',
+            marginBottom: '10px',
+          }}>
+            <span style={{
+              width: '10px', height: '10px',
+              background: '#4CAF50', borderRadius: '50%',
+              animation: 'blink 1.5s infinite',
+              display: 'inline-block',
+            }} />
+            Live Data
+          </div>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-3 mb-8">
+        {/* 4 Stat Cards */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+          gap: '20px',
+          marginBottom: '40px',
+        }}>
           {[
             { label: 'Farmers', value: totals.farmers },
             { label: 'Submissions', value: totals.submissions },
+            { label: 'Ha Tracked', value: totals.hectares.toFixed(1) },
             { label: 'Points Earned', value: totals.points },
           ].map(({ label, value }) => (
-            <div key={label} className="bg-white/10 rounded-xl p-4 text-center backdrop-blur-sm border border-[#F4A300]/20">
-              <p className="text-2xl font-bold text-[#F4A300]">{value}</p>
-              <p className="text-xs text-[#a8c98a] mt-1">{label}</p>
+            <div key={label} style={{
+              background: 'rgba(255,255,255,0.1)',
+              padding: '20px',
+              borderRadius: '15px',
+              textAlign: 'center',
+              backdropFilter: 'blur(10px)',
+              border: '2px solid rgba(244,163,0,0.3)',
+            }}>
+              <div style={{ fontSize: '36px', fontWeight: 800, color: '#F4A300', marginBottom: '5px' }}>
+                {value}
+              </div>
+              <div style={{ fontSize: '14px', opacity: 0.8 }}>{label}</div>
             </div>
           ))}
         </div>
 
         {/* Rankings */}
-        <div className="space-y-3">
+        <div style={{
+          background: 'rgba(255,255,255,0.05)',
+          borderRadius: '20px',
+          padding: '30px',
+          backdropFilter: 'blur(20px)',
+          border: '2px solid rgba(244,163,0,0.2)',
+        }}>
+          <h2 style={{
+            fontSize: '28px',
+            fontWeight: 800,
+            marginBottom: '25px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '15px',
+          }}>
+            <span style={{ fontSize: '32px' }}>🏆</span>
+            Top 10 Contributors
+          </h2>
+
           {rankings.length === 0 ? (
-            <div className="text-center py-12 text-[#a8c98a]">
-              <p className="text-4xl mb-3">🌱</p>
+            <div style={{ textAlign: 'center', padding: '3rem 0', opacity: 0.7 }}>
+              <p style={{ fontSize: '3rem', marginBottom: '1rem' }}>🌱</p>
               <p>Walang datos pa. Mag-submit sa Farmer Portal!</p>
             </div>
           ) : (
-            rankings.map((r) => (
+            rankings.map((r, idx) => (
               <div
                 key={r.rank}
-                className="flex items-center gap-4 bg-white/10 rounded-xl p-4 border border-transparent hover:border-[#F4A300] transition-all"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '20px',
+                  background: 'rgba(255,255,255,0.1)',
+                  borderRadius: '15px',
+                  marginBottom: '15px',
+                  border: '2px solid transparent',
+                  transition: 'all 0.3s ease',
+                  animationDelay: `${idx * 0.1}s`,
+                }}
+                className="farmer-row"
               >
-                <div className="w-10 text-center">
+                <div style={{
+                  fontSize: '24px',
+                  fontWeight: 800,
+                  width: '50px',
+                  textAlign: 'center',
+                  color: r.rank === 1 ? '#FFD700' : r.rank === 2 ? '#C0C0C0' : r.rank === 3 ? '#CD7F32' : 'white',
+                }}>
                   {medal(r.rank) ? (
-                    <span className="text-2xl">{medal(r.rank)}</span>
+                    <span style={{ fontSize: '32px' }}>{medal(r.rank)}</span>
                   ) : (
-                    <span className="text-lg font-bold text-[#a8c98a]">#{r.rank}</span>
+                    `#${r.rank}`
                   )}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-white truncate">{r.name}</p>
-                  <p className="text-xs text-[#a8c98a]">
-                    📍 {r.municipality} · 🌾 {r.cropName}
-                    {r.hectares ? ` · ${r.hectares}ha` : ''}
-                  </p>
-                  <p className="text-xs text-[#a8c98a] mt-0.5">{r.submissions} submission{r.submissions !== 1 ? 's' : ''}</p>
+
+                <div style={{ flex: 1, marginLeft: '15px' }}>
+                  <div style={{ fontSize: '18px', fontWeight: 700, marginBottom: '5px' }}>{r.name}</div>
+                  <div style={{ fontSize: '14px', opacity: 0.7, display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                    <span>📍 {r.municipality}</span>
+                    <span>🌾 {r.cropName}</span>
+                    {r.hectares && <span>📏 {r.hectares}ha</span>}
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-xl font-bold text-[#F4A300]">{r.points}</p>
-                  <p className="text-xs text-[#a8c98a]">POINTS</p>
+
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '28px', fontWeight: 800, color: '#F4A300' }}>{r.points}</div>
+                  <div style={{ fontSize: '12px', opacity: 0.7 }}>POINTS</div>
+                  <div style={{ fontSize: '14px', opacity: 0.8, marginTop: '5px' }}>
+                    {r.submissions} submission{r.submissions !== 1 ? 's' : ''}
+                  </div>
                 </div>
               </div>
             ))
           )}
         </div>
+
+        <div style={{ textAlign: 'center', marginTop: '40px', paddingTop: '30px', borderTop: '1px solid rgba(255,255,255,0.2)', opacity: 0.7, fontSize: '14px' }}>
+          <p><strong>AgriPulse System</strong> — The Pulse of Predictive Farming</p>
+          <p style={{ marginTop: '10px' }}>© 2026 DisenyoDigitals | In collaboration with The Locale Farm & Session Groceries</p>
+        </div>
       </div>
 
-      <footer className="text-center py-6 text-xs text-[#a8c98a]">
-        © 2026 AgriPulse System | DisenyoDigitals
-      </footer>
+      <style>{`
+        @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        .farmer-row:hover {
+          background: rgba(244,163,0,0.2) !important;
+          border-color: #F4A300 !important;
+          transform: translateX(5px);
+        }
+      `}</style>
     </main>
   )
 }

@@ -1,6 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import { motion } from 'framer-motion'
+import Link from 'next/link'
+
+const spring = { type: 'spring', stiffness: 500, damping: 22 } as const
 
 type FormData = {
   farmerName: string
@@ -49,9 +53,22 @@ const ISSUES = [
   { id: 'rain', label: 'Sobrang Ulan' },
   { id: 'drought', label: 'Tagtuyot' },
   { id: 'disease', label: 'Sakit ng Halaman' },
+  { id: 'none', label: 'Walang Problema' },
 ]
 
 const TOTAL_STEPS = 9
+
+const STEP_TITLES: Record<number, string> = {
+  1: 'Magsimula',
+  2: 'Pangalan',
+  3: 'Lokasyon',
+  4: 'GPS',
+  5: 'Uri ng Tanim',
+  6: 'Petsa ng Tanim',
+  7: 'Laki ng Bukid',
+  8: 'Petsa ng Ani',
+  9: 'Mga Problema',
+}
 
 export default function MobileWizardPage() {
   const [step, setStep] = useState(1)
@@ -80,16 +97,25 @@ export default function MobileWizardPage() {
   }
 
   function toggleIssue(id: string) {
-    setForm((prev) => ({
-      ...prev,
-      issues: prev.issues.includes(id)
-        ? prev.issues.filter((i) => i !== id)
-        : [...prev.issues, id],
-    }))
+    setForm((prev) => {
+      if (id === 'none') return { ...prev, issues: prev.issues.includes('none') ? [] : ['none'] }
+      const withoutNone = prev.issues.filter((i) => i !== 'none')
+      return {
+        ...prev,
+        issues: withoutNone.includes(id) ? withoutNone.filter((i) => i !== id) : [...withoutNone, id],
+      }
+    })
   }
 
   function today() {
     return new Date().toISOString().split('T')[0]
+  }
+
+  function resetForm() {
+    setForm({ farmerName: '', municipality: '', barangay: '', contactNumber: '', cropCategory: '', cropName: '', customCrop: '', plantingDate: '', harvestDate: '', farmSizeHectares: '', farmSizeSqm: '', gpsLat: '', gpsLng: '', issues: [] })
+    setStep(1)
+    setReferenceNumber('')
+    setError('')
   }
 
   async function handleSubmit() {
@@ -129,330 +155,567 @@ export default function MobileWizardPage() {
   }
 
   const progress = Math.round((Math.min(step, TOTAL_STEPS) / TOTAL_STEPS) * 100)
+  const isSuccess = step === 10
 
   return (
-    <main className="min-h-screen bg-[#F8F7F2] flex flex-col">
-      {/* Header */}
-      <header className="bg-[#25361a] px-5 py-4 flex items-center justify-between">
-        <div>
-          <p className="text-[#a8c98a] text-xs font-semibold tracking-widest">AGRIPULSE</p>
-          <p className="text-white text-sm font-medium">Portal ng Magsasaka</p>
-        </div>
-        {step <= TOTAL_STEPS && (
-          <span className="text-[#F4A300] text-sm font-bold">{step}/{TOTAL_STEPS}</span>
-        )}
-      </header>
+    <main style={{ background: '#F8F7F2', minHeight: '100vh', paddingTop: '80px' }}>
+      {/* App container */}
+      <div style={{
+        maxWidth: '900px',
+        margin: '0 auto',
+        background: 'white',
+        minHeight: 'calc(100vh - 80px)',
+        boxShadow: '0 0 40px rgba(0,0,0,0.06)',
+        display: 'flex',
+        flexDirection: 'column',
+      }}>
 
-      {/* Progress bar */}
-      {step <= TOTAL_STEPS && (
-        <div className="h-1.5 bg-[#dfe2d3]">
-          <div
-            className="h-full bg-[#F4A300] transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      )}
-
-      <div className="flex-1 px-5 py-6 max-w-lg mx-auto w-full">
-
-        {/* Step 1 — Welcome */}
-        {step === 1 && (
-          <div className="text-center">
-            <div className="text-6xl mb-4">🌾</div>
-            <h1 className="font-heading text-2xl text-[#2D5016] mb-2">Magtanim Nang Matalino</h1>
-            <p className="text-[#6b7a5f] mb-6">
-              I-share ang iyong pagtatanim at kumita ng <strong className="text-[#F4A300]">+10 Data Points</strong> sa bawat submission.
-            </p>
-            <div className="bg-white rounded-2xl p-4 mb-8 text-left shadow-sm border border-[#e7e4d5] space-y-3">
-              {[['🌱', 'Puntos para sa Pataba', 'I-redeem ang iyong points para sa fertilizer vouchers'], ['📚', 'Libreng Training', 'Priority access sa mga pagsasanay ng LGU'], ['🌾', 'Mga Binhi at Kagamitan', 'Para sa mga nangungunang contributor']].map(([icon, title, desc]) => (
-                <div key={title} className="flex gap-3 items-start">
-                  <span className="text-2xl">{icon}</span>
-                  <div>
-                    <p className="font-semibold text-sm text-[#2D5016]">{title}</p>
-                    <p className="text-xs text-[#6b7a5f]">{desc}</p>
-                  </div>
+        {/* App header */}
+        {!isSuccess && (
+          <>
+            <div style={{
+              background: 'linear-gradient(135deg, #2D5016 0%, #4A7C2C 100%)',
+              padding: '20px',
+              color: 'white',
+              position: 'sticky',
+              top: '80px',
+              zIndex: 100,
+              boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                {step > 1 && (
+                  <button
+                    onClick={() => setStep((s) => s - 1)}
+                    style={{
+                      background: 'rgba(255,255,255,0.2)',
+                      border: 'none',
+                      color: 'white',
+                      width: '44px',
+                      height: '44px',
+                      borderRadius: '50%',
+                      fontSize: '20px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                    }}
+                  >
+                    ←
+                  </button>
+                )}
+                <div style={{ flex: 1 }}>
+                  <h1 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '3px' }}>
+                    {step === 1 ? 'Portal ng Magsasaka' : STEP_TITLES[step] || 'AgriPulse'}
+                  </h1>
+                  <p style={{ fontSize: '13px', opacity: 0.9 }}>
+                    {step > 1 ? `Hakbang ${step} ng ${TOTAL_STEPS}` : 'BLISTT Agricultural System'}
+                  </p>
                 </div>
-              ))}
-            </div>
-            <button onClick={() => setStep(2)} className="w-full bg-[#F4A300] text-[#2D5016] font-bold py-4 rounded-xl text-base">
-              MAGSIMULA →
-            </button>
-          </div>
-        )}
-
-        {/* Step 2 — Farmer name */}
-        {step === 2 && (
-          <div>
-            <h2 className="font-heading text-xl text-[#2D5016] mb-1">Pangalan mo</h2>
-            <p className="text-sm text-[#6b7a5f] mb-6">Ayon sa iyong government ID</p>
-            <input
-              type="text"
-              value={form.farmerName}
-              onChange={(e) => update('farmerName', e.target.value)}
-              placeholder="Buong pangalan"
-              className="w-full px-4 py-3 rounded-xl border border-[#dfe2d3] bg-white text-base focus:outline-none focus:border-[#6b9a4c]"
-            />
-            <input
-              type="tel"
-              value={form.contactNumber}
-              onChange={(e) => update('contactNumber', e.target.value)}
-              placeholder="Numero ng telepono (opsyonal)"
-              className="w-full px-4 py-3 rounded-xl border border-[#dfe2d3] bg-white text-base focus:outline-none focus:border-[#6b9a4c] mt-3"
-            />
-          </div>
-        )}
-
-        {/* Step 3 — Municipality */}
-        {step === 3 && (
-          <div>
-            <h2 className="font-heading text-xl text-[#2D5016] mb-1">Nasaan ang iyong bukid?</h2>
-            <p className="text-sm text-[#6b7a5f] mb-6">Piliin ang iyong munisipalidad</p>
-            <div className="grid grid-cols-2 gap-3">
-              {MUNICIPALITIES.map((m) => (
-                <button
-                  key={m}
-                  onClick={() => update('municipality', m)}
-                  className={`py-4 rounded-xl border-2 text-sm font-semibold transition-all ${form.municipality === m ? 'border-[#F4A300] bg-[#F4A300]/10 text-[#2D5016]' : 'border-[#dfe2d3] bg-white text-[#6b7a5f]'}`}
-                >
-                  {m}
-                </button>
-              ))}
-            </div>
-            {form.municipality && (
-              <input
-                type="text"
-                value={form.barangay}
-                onChange={(e) => update('barangay', e.target.value)}
-                placeholder="Barangay"
-                className="w-full px-4 py-3 rounded-xl border border-[#dfe2d3] bg-white text-base focus:outline-none focus:border-[#6b9a4c] mt-4"
-              />
-            )}
-          </div>
-        )}
-
-        {/* Step 4 — GPS (optional) */}
-        {step === 4 && (
-          <div>
-            <h2 className="font-heading text-xl text-[#2D5016] mb-1">Lokasyon ng Bukid</h2>
-            <p className="text-sm text-[#6b7a5f] mb-6">Opsyonal — para sa mas tumpak na datos</p>
-            <button
-              onClick={() => {
-                navigator.geolocation?.getCurrentPosition(
-                  (pos) => {
-                    update('gpsLat', String(pos.coords.latitude))
-                    update('gpsLng', String(pos.coords.longitude))
-                  },
-                  () => {}
-                )
-              }}
-              className="w-full bg-[#2D5016] text-white font-semibold py-3 rounded-xl mb-4"
-            >
-              📍 Kunin ang GPS Location
-            </button>
-            {form.gpsLat && (
-              <p className="text-sm text-[#6b9a4c] text-center bg-[#6b9a4c]/10 rounded-lg py-2">
-                ✓ GPS nakuha: {parseFloat(form.gpsLat).toFixed(4)}, {parseFloat(form.gpsLng).toFixed(4)}
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* Step 5 — Crop category + name */}
-        {step === 5 && (
-          <div>
-            <h2 className="font-heading text-xl text-[#2D5016] mb-1">Anong pananim?</h2>
-            <p className="text-sm text-[#6b7a5f] mb-4">Piliin ang kategorya</p>
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              {Object.entries(CROPS).map(([key, { label, emoji }]) => (
-                <button
-                  key={key}
-                  onClick={() => { update('cropCategory', key); update('cropName', '') }}
-                  className={`py-4 rounded-xl border-2 text-sm font-semibold transition-all ${form.cropCategory === key ? 'border-[#F4A300] bg-[#F4A300]/10 text-[#2D5016]' : 'border-[#dfe2d3] bg-white text-[#6b7a5f]'}`}
-                >
-                  <div className="text-2xl mb-1">{emoji}</div>
-                  {label}
-                </button>
-              ))}
-            </div>
-            {form.cropCategory && (
-              <div>
-                <p className="text-sm font-semibold text-[#2D5016] mb-2">Piliin ang pananim:</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {CROPS[form.cropCategory].crops.map((c) => (
-                    <button
-                      key={c}
-                      onClick={() => update('cropName', c)}
-                      className={`py-2.5 px-3 rounded-lg border text-sm font-medium transition-all ${form.cropName === c ? 'border-[#F4A300] bg-[#F4A300]/10 text-[#2D5016]' : 'border-[#dfe2d3] bg-white text-[#6b7a5f]'}`}
-                    >
-                      {c}
-                    </button>
-                  ))}
-                </div>
-                {form.cropName === 'Other' && (
-                  <input
-                    type="text"
-                    value={form.customCrop}
-                    onChange={(e) => update('customCrop', e.target.value)}
-                    placeholder="Isulat ang pananim"
-                    className="w-full px-4 py-3 rounded-xl border border-[#dfe2d3] bg-white text-base focus:outline-none focus:border-[#6b9a4c] mt-3"
-                  />
+                {step > 1 && (
+                  <span style={{ color: '#F4A300', fontSize: '14px', fontWeight: 700 }}>
+                    {step}/{TOTAL_STEPS}
+                  </span>
                 )}
               </div>
-            )}
-          </div>
-        )}
 
-        {/* Step 6 — Planting date */}
-        {step === 6 && (
-          <div>
-            <h2 className="font-heading text-xl text-[#2D5016] mb-1">Kailan magtatanim?</h2>
-            <p className="text-sm text-[#6b7a5f] mb-6">Petsa ng pagtatanim</p>
-            <button
-              onClick={() => update('plantingDate', today())}
-              className="w-full bg-[#6b9a4c]/20 text-[#2D5016] font-semibold py-3 rounded-xl mb-3 text-sm"
-            >
-              📅 Ngayon ({today()})
-            </button>
-            <input
-              type="date"
-              value={form.plantingDate}
-              onChange={(e) => update('plantingDate', e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-[#dfe2d3] bg-white text-base focus:outline-none focus:border-[#6b9a4c]"
-            />
-          </div>
-        )}
-
-        {/* Step 7 — Farm size */}
-        {step === 7 && (
-          <div>
-            <h2 className="font-heading text-xl text-[#2D5016] mb-1">Laki ng Bukid</h2>
-            <p className="text-sm text-[#6b7a5f] mb-6">Opsyonal — maglagay ng isa</p>
-            <div className="space-y-3">
-              <div>
-                <label className="text-xs font-semibold text-[#2e4321] block mb-1">Hectares</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={form.farmSizeHectares}
-                  onChange={(e) => update('farmSizeHectares', e.target.value)}
-                  placeholder="hal. 1.5"
-                  className="w-full px-4 py-3 rounded-xl border border-[#dfe2d3] bg-white text-base focus:outline-none focus:border-[#6b9a4c]"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-[#2e4321] block mb-1">Square Meters</label>
-                <input
-                  type="number"
-                  min="0"
-                  value={form.farmSizeSqm}
-                  onChange={(e) => update('farmSizeSqm', e.target.value)}
-                  placeholder="hal. 5000"
-                  className="w-full px-4 py-3 rounded-xl border border-[#dfe2d3] bg-white text-base focus:outline-none focus:border-[#6b9a4c]"
-                />
-              </div>
+              {step > 1 && (
+                <div style={{ height: '6px', background: 'rgba(255,255,255,0.3)', borderRadius: '3px', overflow: 'hidden', marginTop: '15px' }}>
+                  <div style={{
+                    height: '100%',
+                    width: `${progress}%`,
+                    background: '#F4A300',
+                    borderRadius: '3px',
+                    transition: 'width 0.3s ease',
+                  }} />
+                </div>
+              )}
             </div>
-          </div>
+          </>
         )}
 
-        {/* Step 8 — Harvest date */}
-        {step === 8 && (
-          <div>
-            <h2 className="font-heading text-xl text-[#2D5016] mb-1">Inaasahang Ani</h2>
-            <p className="text-sm text-[#6b7a5f] mb-6">Kailan mo aanihin ang pananim?</p>
-            <input
-              type="date"
-              value={form.harvestDate}
-              onChange={(e) => update('harvestDate', e.target.value)}
-              min={form.plantingDate || today()}
-              className="w-full px-4 py-3 rounded-xl border border-[#dfe2d3] bg-white text-base focus:outline-none focus:border-[#6b9a4c]"
-            />
-          </div>
-        )}
+        {/* Content area */}
+        <div style={{ flex: 1, padding: '24px 20px' }}>
 
-        {/* Step 9 — Issues */}
-        {step === 9 && (
-          <div>
-            <h2 className="font-heading text-xl text-[#2D5016] mb-1">May mga Problema?</h2>
-            <p className="text-sm text-[#6b7a5f] mb-6">Opsyonal — piliin lahat ng naaangkop</p>
-            <div className="space-y-3">
-              {ISSUES.map(({ id, label }) => (
-                <button
-                  key={id}
-                  onClick={() => toggleIssue(id)}
-                  className={`w-full py-3 px-4 rounded-xl border-2 text-left text-sm font-semibold transition-all ${form.issues.includes(id) ? 'border-[#F4A300] bg-[#F4A300]/10 text-[#2D5016]' : 'border-[#dfe2d3] bg-white text-[#6b7a5f]'}`}
-                >
-                  {form.issues.includes(id) ? '✓ ' : ''}{label}
-                </button>
-              ))}
-            </div>
-            {error && (
-              <p className="mt-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-                {error}
+          {/* Step 1 — Welcome */}
+          {step === 1 && (
+            <div style={{ textAlign: 'center', padding: '2rem 0' }}>
+              <div style={{ fontSize: '72px', marginBottom: '1rem' }}>🌾</div>
+              <h1 style={{
+                fontFamily: 'Anton, sans-serif',
+                fontWeight: 400,
+                fontSize: '2rem',
+                color: '#2D5016',
+                marginBottom: '0.5rem',
+              }}>
+                Magtanim Nang Matalino
+              </h1>
+              <p style={{ color: '#666', marginBottom: '2rem', lineHeight: 1.7 }}>
+                I-share ang iyong pagtatanim at kumita ng{' '}
+                <strong style={{ color: '#F4A300' }}>+10 Data Points</strong>{' '}
+                sa bawat submission.
               </p>
-            )}
-          </div>
-        )}
 
-        {/* Step 10 — Success */}
-        {step === 10 && (
-          <div className="text-center py-8">
-            <div className="text-6xl mb-4">🎉</div>
-            <h2 className="font-heading text-2xl text-[#2D5016] mb-2">Salamat!</h2>
-            <p className="text-[#6b7a5f] mb-6">Natanggap na ang iyong submission.</p>
-            <div className="bg-[#2D5016] text-white rounded-2xl p-6 mb-6">
-              <p className="text-xs text-[#a8c98a] mb-1">REFERENCE NUMBER</p>
-              <p className="font-heading text-2xl text-[#F4A300]">{referenceNumber}</p>
-              <p className="text-xs text-[#a8c98a] mt-3">I-screenshot ito para sa iyong rekord</p>
+              <div style={{
+                background: '#F8F7F2',
+                borderRadius: '16px',
+                padding: '1.25rem',
+                marginBottom: '2rem',
+                textAlign: 'left',
+                border: '1px solid #E7E4D5',
+              }}>
+                {[
+                  ['🌱', 'Puntos para sa Pataba', 'I-redeem ang iyong points para sa fertilizer vouchers'],
+                  ['📚', 'Libreng Training', 'Priority access sa mga pagsasanay ng LGU'],
+                  ['🌾', 'Mga Binhi at Kagamitan', 'Para sa mga nangungunang contributor'],
+                ].map(([icon, title, desc]) => (
+                  <div key={title} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                    <span style={{ fontSize: '1.75rem' }}>{icon}</span>
+                    <div>
+                      <p style={{ fontWeight: 700, fontSize: '0.9rem', color: '#2D5016', marginBottom: '2px' }}>{title}</p>
+                      <p style={{ fontSize: '0.8rem', color: '#666' }}>{desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <motion.button
+                onClick={() => setStep(2)}
+                whileHover={{ scale: 1.04, y: -3 }}
+                whileTap={{ scale: 0.97 }}
+                transition={spring}
+                style={{
+                  width: '100%',
+                  background: '#F4A300',
+                  color: '#2D5016',
+                  border: 'none',
+                  padding: '1rem',
+                  borderRadius: '14px',
+                  fontSize: '1rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  letterSpacing: '0.5px',
+                }}
+              >
+                MAGSIMULA →
+              </motion.button>
             </div>
-            <div className="bg-[#F4A300]/10 border border-[#F4A300] rounded-xl p-4 text-left mb-6">
-              <p className="font-semibold text-[#2D5016] text-sm">+10 Data Points nakuha! 🌟</p>
-              <p className="text-xs text-[#6b7a5f] mt-1">Ang iyong puntos ay maidadagdag sa iyong leaderboard ranking.</p>
+          )}
+
+          {/* Step 2 — Name */}
+          {step === 2 && (
+            <div>
+              <h2 style={{ fontFamily: 'Anton, sans-serif', fontWeight: 400, fontSize: '1.5rem', color: '#2D5016', marginBottom: '4px' }}>Pangalan mo</h2>
+              <p style={{ fontSize: '0.875rem', color: '#666', marginBottom: '1.5rem' }}>Ayon sa iyong government ID</p>
+              <input
+                type="text"
+                value={form.farmerName}
+                onChange={(e) => update('farmerName', e.target.value)}
+                placeholder="Buong pangalan"
+                style={inputStyle}
+              />
+              <input
+                type="tel"
+                value={form.contactNumber}
+                onChange={(e) => update('contactNumber', e.target.value)}
+                placeholder="Numero ng telepono (opsyonal)"
+                style={{ ...inputStyle, marginTop: '12px' }}
+              />
             </div>
-            <button
-              onClick={() => { setStep(1); setForm({ farmerName: '', municipality: '', barangay: '', contactNumber: '', cropCategory: '', cropName: '', customCrop: '', plantingDate: '', harvestDate: '', farmSizeHectares: '', farmSizeSqm: '', gpsLat: '', gpsLng: '', issues: [] }) }}
-              className="w-full bg-[#2D5016] text-white font-bold py-4 rounded-xl"
+          )}
+
+          {/* Step 3 — Municipality */}
+          {step === 3 && (
+            <div>
+              <h2 style={stepTitleStyle}>Nasaan ang iyong bukid?</h2>
+              <p style={stepSubStyle}>Piliin ang iyong munisipalidad</p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                {MUNICIPALITIES.map((m) => (
+                  <motion.button
+                    key={m}
+                    onClick={() => update('municipality', m)}
+                    whileHover={{ scale: 1.04, y: -2 }}
+                    whileTap={{ scale: 0.97 }}
+                    transition={spring}
+                    style={{
+                      ...choiceBtn,
+                      borderColor: form.municipality === m ? '#F4A300' : '#E0E0E0',
+                      background: form.municipality === m ? 'rgba(244,163,0,0.1)' : 'white',
+                      color: form.municipality === m ? '#2D5016' : '#666',
+                    }}
+                  >
+                    {m}
+                  </motion.button>
+                ))}
+              </div>
+              {form.municipality && (
+                <input
+                  type="text"
+                  value={form.barangay}
+                  onChange={(e) => update('barangay', e.target.value)}
+                  placeholder="Barangay"
+                  style={{ ...inputStyle, marginTop: '16px' }}
+                />
+              )}
+            </div>
+          )}
+
+          {/* Step 4 — GPS */}
+          {step === 4 && (
+            <div>
+              <h2 style={stepTitleStyle}>Lokasyon ng Bukid</h2>
+              <p style={stepSubStyle}>Opsyonal — para sa mas tumpak na datos</p>
+              <motion.button
+                onClick={() => {
+                  navigator.geolocation?.getCurrentPosition(
+                    (pos) => {
+                      update('gpsLat', String(pos.coords.latitude))
+                      update('gpsLng', String(pos.coords.longitude))
+                    },
+                    () => {}
+                  )
+                }}
+                whileHover={{ scale: 1.04, y: -2 }}
+                whileTap={{ scale: 0.97 }}
+                transition={spring}
+                style={{
+                  width: '100%', background: '#2D5016', color: 'white',
+                  border: 'none', padding: '14px', borderRadius: '14px',
+                  fontSize: '0.95rem', fontWeight: 700, cursor: 'pointer', marginBottom: '16px',
+                }}
+              >
+                📍 KUNIN ANG AKING LOKASYON
+              </motion.button>
+              {form.gpsLat && (
+                <div style={{
+                  background: 'rgba(107,154,76,0.1)', border: '1px solid #6b9a4c',
+                  borderRadius: '10px', padding: '12px', textAlign: 'center',
+                  color: '#2D5016', fontWeight: 600, fontSize: '0.875rem',
+                }}>
+                  ✅ LOKASYON NA-SAVE! — {parseFloat(form.gpsLat).toFixed(4)}, {parseFloat(form.gpsLng).toFixed(4)}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Step 5 — Crop */}
+          {step === 5 && (
+            <div>
+              <h2 style={stepTitleStyle}>Anong pananim?</h2>
+              <p style={stepSubStyle}>Piliin ang kategorya</p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+                {Object.entries(CROPS).map(([key, { label, emoji }]) => (
+                  <motion.button
+                    key={key}
+                    onClick={() => { update('cropCategory', key); update('cropName', '') }}
+                    whileHover={{ scale: 1.04, y: -2 }}
+                    whileTap={{ scale: 0.97 }}
+                    transition={spring}
+                    style={{
+                      ...choiceBtn,
+                      padding: '16px',
+                      borderColor: form.cropCategory === key ? '#F4A300' : '#E0E0E0',
+                      background: form.cropCategory === key ? 'rgba(244,163,0,0.1)' : 'white',
+                      color: form.cropCategory === key ? '#2D5016' : '#666',
+                    }}
+                  >
+                    <div style={{ fontSize: '2rem', marginBottom: '6px' }}>{emoji}</div>
+                    <div style={{ fontSize: '0.8rem' }}>{label}</div>
+                  </motion.button>
+                ))}
+              </div>
+
+              {form.cropCategory && (
+                <div>
+                  <p style={{ fontSize: '0.875rem', fontWeight: 700, color: '#2D5016', marginBottom: '8px' }}>Piliin ang pananim:</p>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                    {CROPS[form.cropCategory].crops.map((c) => (
+                      <motion.button
+                        key={c}
+                        onClick={() => update('cropName', c)}
+                        whileHover={{ scale: 1.04, y: -2 }}
+                        whileTap={{ scale: 0.97 }}
+                        transition={spring}
+                        style={{
+                          padding: '10px 12px', borderRadius: '10px',
+                          border: `1.5px solid ${form.cropName === c ? '#F4A300' : '#E0E0E0'}`,
+                          background: form.cropName === c ? 'rgba(244,163,0,0.1)' : 'white',
+                          color: form.cropName === c ? '#2D5016' : '#666',
+                          cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600,
+                          transition: 'all 0.2s',
+                        }}
+                      >
+                        {c}
+                      </motion.button>
+                    ))}
+                  </div>
+                  {form.cropName === 'Other' && (
+                    <input
+                      type="text"
+                      value={form.customCrop}
+                      onChange={(e) => update('customCrop', e.target.value)}
+                      placeholder="Isulat ang pananim"
+                      style={{ ...inputStyle, marginTop: '12px' }}
+                    />
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Step 6 — Planting date */}
+          {step === 6 && (
+            <div>
+              <h2 style={stepTitleStyle}>Kailan magtatanim?</h2>
+              <p style={stepSubStyle}>Petsa ng pagtatanim</p>
+              <motion.button
+                onClick={() => update('plantingDate', today())}
+                whileHover={{ scale: 1.04, y: -2 }}
+                whileTap={{ scale: 0.97 }}
+                transition={spring}
+                style={{
+                  width: '100%', background: 'rgba(107,154,76,0.15)', color: '#2D5016',
+                  border: 'none', padding: '12px', borderRadius: '12px',
+                  fontSize: '0.9rem', fontWeight: 700, cursor: 'pointer', marginBottom: '12px',
+                }}
+              >
+                📅 Ngayon ({today()})
+              </motion.button>
+              <input type="date" value={form.plantingDate} onChange={(e) => update('plantingDate', e.target.value)} style={inputStyle} />
+            </div>
+          )}
+
+          {/* Step 7 — Farm size */}
+          {step === 7 && (
+            <div>
+              <h2 style={stepTitleStyle}>Laki ng Bukid</h2>
+              <p style={stepSubStyle}>Opsyonal — maglagay ng isa</p>
+              <div style={{ marginBottom: '16px' }}>
+                <label style={labelStyle}>Hectares</label>
+                <input type="number" step="0.01" min="0" value={form.farmSizeHectares} onChange={(e) => update('farmSizeHectares', e.target.value)} placeholder="hal. 1.5" style={inputStyle} />
+              </div>
+              <div>
+                <label style={labelStyle}>Square Meters</label>
+                <input type="number" min="0" value={form.farmSizeSqm} onChange={(e) => update('farmSizeSqm', e.target.value)} placeholder="hal. 5000" style={inputStyle} />
+              </div>
+            </div>
+          )}
+
+          {/* Step 8 — Harvest date */}
+          {step === 8 && (
+            <div>
+              <h2 style={stepTitleStyle}>Inaasahang Ani</h2>
+              <p style={stepSubStyle}>Kailan mo aanihin ang pananim?</p>
+              <input type="date" value={form.harvestDate} onChange={(e) => update('harvestDate', e.target.value)} min={form.plantingDate || today()} style={inputStyle} />
+            </div>
+          )}
+
+          {/* Step 9 — Issues */}
+          {step === 9 && (
+            <div>
+              <h2 style={stepTitleStyle}>May mga Problema?</h2>
+              <p style={stepSubStyle}>Opsyonal — piliin lahat ng naaangkop</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {ISSUES.map(({ id, label }) => (
+                  <motion.button
+                    key={id}
+                    onClick={() => toggleIssue(id)}
+                    whileHover={{ scale: 1.03, y: -2 }}
+                    whileTap={{ scale: 0.97 }}
+                    transition={spring}
+                    style={{
+                      padding: '14px 16px', borderRadius: '12px',
+                      border: `2px solid ${form.issues.includes(id) ? '#F4A300' : '#E0E0E0'}`,
+                      background: form.issues.includes(id) ? 'rgba(244,163,0,0.1)' : 'white',
+                      color: form.issues.includes(id) ? '#2D5016' : '#666',
+                      cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600,
+                      textAlign: 'left', transition: 'all 0.2s',
+                    }}
+                  >
+                    {form.issues.includes(id) ? '✓ ' : ''}{label}
+                  </motion.button>
+                ))}
+              </div>
+              {error && (
+                <div style={{
+                  marginTop: '16px', background: '#FFEBEE', border: '1px solid #FFCDD2',
+                  color: '#C62828', padding: '12px 16px', borderRadius: '10px', fontSize: '0.875rem',
+                }}>
+                  {error}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Step 10 — Success */}
+          {step === 10 && (
+            <div style={{ textAlign: 'center', padding: '3rem 0' }}>
+              <div style={{ fontSize: '5rem', marginBottom: '1rem', animation: 'successPop 0.6s ease' }}>🎉</div>
+              <h2 style={{ fontFamily: 'Anton, sans-serif', fontWeight: 400, fontSize: '2.5rem', color: '#2D5016', marginBottom: '0.5rem' }}>
+                Salamat!
+              </h2>
+              <p style={{ color: '#666', marginBottom: '2rem' }}>Natanggap na ang iyong submission.</p>
+
+              <div style={{
+                background: '#2D5016', color: 'white', borderRadius: '20px',
+                padding: '1.5rem', marginBottom: '1.5rem',
+              }}>
+                <p style={{ fontSize: '0.75rem', color: '#a8c98a', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                  REFERENCE NUMBER
+                </p>
+                <p style={{ fontFamily: 'Anton, sans-serif', fontWeight: 400, fontSize: '2rem', color: '#F4A300' }}>
+                  {referenceNumber}
+                </p>
+                <p style={{ fontSize: '0.75rem', color: '#a8c98a', marginTop: '12px' }}>
+                  I-screenshot ito para sa iyong rekord
+                </p>
+              </div>
+
+              <div style={{
+                background: 'rgba(244,163,0,0.1)', border: '1px solid #F4A300',
+                borderRadius: '12px', padding: '1rem', textAlign: 'left', marginBottom: '1.5rem',
+              }}>
+                <p style={{ fontWeight: 700, color: '#2D5016', fontSize: '0.9rem' }}>+10 Data Points nakuha! 🌟</p>
+                <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '4px' }}>
+                  Ang iyong puntos ay maidadagdag sa iyong leaderboard ranking.
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <motion.button
+                  onClick={resetForm}
+                  whileHover={{ scale: 1.04, y: -2 }}
+                  whileTap={{ scale: 0.97 }}
+                  transition={spring}
+                  style={{
+                    background: '#F4A300', color: '#2D5016', border: 'none',
+                    padding: '14px', borderRadius: '12px', fontWeight: 800,
+                    fontSize: '0.95rem', cursor: 'pointer',
+                  }}
+                >
+                  Mag-submit Ulit
+                </motion.button>
+                <Link href="/leaderboard" style={{
+                  display: 'block', background: '#2D5016', color: 'white',
+                  padding: '14px', borderRadius: '12px', fontWeight: 700,
+                  fontSize: '0.95rem', textDecoration: 'none', textAlign: 'center',
+                }}>
+                  🏆 Tingnan ang Leaderboard
+                </Link>
+                <Link href="/" style={{
+                  display: 'block', background: 'white', color: '#2D5016',
+                  border: '2px solid #2D5016', padding: '14px', borderRadius: '12px',
+                  fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none', textAlign: 'center',
+                }}>
+                  🏠 Umuwi
+                </Link>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Bottom nav */}
+        {step > 1 && step <= TOTAL_STEPS && (
+          <div style={{
+            padding: '16px 20px',
+            background: 'white',
+            borderTop: '1px solid #E7E4D5',
+            display: 'flex',
+            gap: '12px',
+            position: 'sticky',
+            bottom: 0,
+          }}>
+            <motion.button
+              onClick={() => setStep((s) => s - 1)}
+              whileHover={{ scale: 1.04, y: -2 }}
+              whileTap={{ scale: 0.97 }}
+              transition={spring}
+              style={{
+                flex: 1, padding: '14px', borderRadius: '12px',
+                border: '2px solid #E0E0E0', background: 'white', color: '#666',
+                fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer',
+              }}
             >
-              Mag-submit Ulit
-            </button>
+              ← Bumalik
+            </motion.button>
+            {step < TOTAL_STEPS ? (
+              <motion.button
+                onClick={() => setStep((s) => s + 1)}
+                disabled={
+                  (step === 2 && !form.farmerName) ||
+                  (step === 3 && (!form.municipality || !form.barangay)) ||
+                  (step === 5 && (!form.cropCategory || !form.cropName || (form.cropName === 'Other' && !form.customCrop))) ||
+                  (step === 6 && !form.plantingDate) ||
+                  (step === 8 && !form.harvestDate)
+                }
+                whileHover={{ scale: 1.04, y: -2 }}
+                whileTap={{ scale: 0.97 }}
+                transition={spring}
+                style={{
+                  flex: 2, padding: '14px', borderRadius: '12px',
+                  background: '#F4A300', color: '#2D5016', border: 'none',
+                  fontWeight: 800, fontSize: '0.9rem', cursor: 'pointer',
+                }}
+                className="next-btn"
+              >
+                Susunod →
+              </motion.button>
+            ) : (
+              <motion.button
+                onClick={handleSubmit}
+                disabled={submitting}
+                whileHover={submitting ? {} : { scale: 1.04, y: -2 }}
+                whileTap={submitting ? {} : { scale: 0.97 }}
+                transition={spring}
+                style={{
+                  flex: 2, padding: '14px', borderRadius: '12px',
+                  background: '#2D5016', color: 'white', border: 'none',
+                  fontWeight: 800, fontSize: '0.9rem', cursor: 'pointer',
+                  opacity: submitting ? 0.6 : 1,
+                }}
+              >
+                {submitting ? 'Isinusumite…' : 'I-SUBMIT ✓'}
+              </motion.button>
+            )}
           </div>
         )}
       </div>
 
-      {/* Bottom nav — not shown on welcome or success */}
-      {step > 1 && step <= TOTAL_STEPS && (
-        <div className="px-5 py-4 bg-white border-t border-[#e7e4d5] flex gap-3">
-          <button
-            onClick={() => setStep((s) => s - 1)}
-            className="flex-1 py-3 rounded-xl border-2 border-[#dfe2d3] text-[#6b7a5f] font-semibold text-sm"
-          >
-            ← Bumalik
-          </button>
-          {step < TOTAL_STEPS ? (
-            <button
-              onClick={() => setStep((s) => s + 1)}
-              disabled={
-                (step === 2 && !form.farmerName) ||
-                (step === 3 && (!form.municipality || !form.barangay)) ||
-                (step === 5 && (!form.cropCategory || !form.cropName || (form.cropName === 'Other' && !form.customCrop))) ||
-                (step === 6 && !form.plantingDate) ||
-                (step === 8 && !form.harvestDate)
-              }
-              className="flex-[2] py-3 rounded-xl bg-[#F4A300] text-[#2D5016] font-bold text-sm disabled:opacity-40"
-            >
-              Susunod →
-            </button>
-          ) : (
-            <button
-              onClick={handleSubmit}
-              disabled={submitting}
-              className="flex-[2] py-3 rounded-xl bg-[#2D5016] text-white font-bold text-sm disabled:opacity-50"
-            >
-              {submitting ? 'Isinusumite…' : 'I-SUBMIT ✓'}
-            </button>
-          )}
-        </div>
-      )}
+      <style>{`
+        @keyframes successPop {
+          0%{transform:scale(0.5);opacity:0}
+          70%{transform:scale(1.1)}
+          100%{transform:scale(1);opacity:1}
+        }
+        .next-btn:disabled { opacity: 0.4 !important; cursor: not-allowed !important; }
+      `}</style>
     </main>
   )
+}
+
+const inputStyle: React.CSSProperties = {
+  width: '100%', padding: '14px 16px', borderRadius: '12px',
+  border: '1.5px solid #E0E0E0', background: '#FAFAFA',
+  fontSize: '1rem', color: '#2C2C2C', outline: 'none',
+  fontFamily: 'inherit',
+}
+
+const choiceBtn: React.CSSProperties = {
+  padding: '16px', borderRadius: '12px', border: '2px solid #E0E0E0',
+  background: 'white', cursor: 'pointer', fontSize: '0.875rem',
+  fontWeight: 600, transition: 'all 0.2s', fontFamily: 'inherit',
+}
+
+const stepTitleStyle: React.CSSProperties = {
+  fontFamily: 'Anton, sans-serif', fontWeight: 400,
+  fontSize: '1.5rem', color: '#2D5016', marginBottom: '4px',
+}
+
+const stepSubStyle: React.CSSProperties = {
+  fontSize: '0.875rem', color: '#666', marginBottom: '1.5rem',
+}
+
+const labelStyle: React.CSSProperties = {
+  display: 'block', fontSize: '0.8rem', fontWeight: 700,
+  color: '#2D5016', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.3px',
 }

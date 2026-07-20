@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 
@@ -22,6 +22,14 @@ type FormData = {
   gpsLng: string
   issues: string[]
 }
+
+type FarmerCache = {
+  farmerName: string
+  contactNumber: string
+  municipality: string
+  barangay: string
+}
+const FARMER_CACHE_KEY = 'agripulse_farmer'
 
 const MUNICIPALITIES = ['Baguio City', 'La Trinidad', 'Itogon', 'Sablan', 'Tuba', 'Tublay']
 
@@ -92,6 +100,17 @@ export default function MobileWizardPage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(FARMER_CACHE_KEY)
+      if (!raw) return
+      const cached = JSON.parse(raw) as FarmerCache
+      setForm((prev) => ({ ...prev, ...cached }))
+    } catch {
+      // corrupted cache — ignore, start fresh
+    }
+  }, [])
+
   function update(field: keyof FormData, value: string | string[]) {
     setForm((prev) => ({ ...prev, [field]: value }))
   }
@@ -146,6 +165,15 @@ export default function MobileWizardPage() {
       const data = await res.json()
       if (!res.ok || !data.success) throw new Error(data.error || 'Submission failed')
       setReferenceNumber(data.referenceNumber)
+      localStorage.setItem(
+        FARMER_CACHE_KEY,
+        JSON.stringify({
+          farmerName: form.farmerName,
+          contactNumber: form.contactNumber,
+          municipality: form.municipality,
+          barangay: form.barangay,
+        })
+      )
       setStep(10)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'May nangyaring mali. Subukan ulit.')

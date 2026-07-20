@@ -2,6 +2,7 @@ import { db } from '@/lib/db'
 import HeroSection from '@/components/landing/HeroSection'
 import ProblemSection from '@/components/landing/ProblemSection'
 import SolutionSection from '@/components/landing/SolutionSection'
+import FeaturesSection from '@/components/landing/FeaturesSection'
 import RewardsSection from '@/components/landing/RewardsSection'
 import ImpactSection from '@/components/landing/ImpactSection'
 import CtaSection from '@/components/landing/CtaSection'
@@ -25,6 +26,7 @@ export default async function LandingPage() {
       <HeroSection counts={counts} />
       <ProblemSection />
       <SolutionSection />
+      <FeaturesSection />
       <RewardsSection />
       <ImpactSection />
       <CtaSection />

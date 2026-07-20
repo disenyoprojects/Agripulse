@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import NavLinks from '@/components/landing/NavLinks'
 
 const links = [
   { label: 'Problem', href: '/#problem' },
@@ -97,6 +98,8 @@ export default function SiteNav() {
           )
         })}
       </ul>
+
+      <NavLinks />
 
       <style>{`
         .nav-link-item::after {

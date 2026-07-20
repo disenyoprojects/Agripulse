@@ -19,9 +19,11 @@ interface Props {
   labels: string[]
   values: number[]
   type?: 'doughnut' | 'bar'
+  horizontal?: boolean
+  barColor?: string
 }
 
-export default function CropChart({ labels, values, type = 'doughnut' }: Props) {
+export default function CropChart({ labels, values, type = 'doughnut', horizontal, barColor }: Props) {
   if (labels.length === 0) {
     return <p style={{ color: '#6b7a5f', fontSize: '0.875rem' }}>No data yet.</p>
   }
@@ -32,9 +34,9 @@ export default function CropChart({ labels, values, type = 'doughnut' }: Props) 
         data={{
           labels,
           datasets: [{
-            label: 'Submissions',
+            label: 'Count',
             data: values,
-            backgroundColor: COLORS,
+            backgroundColor: barColor ?? COLORS,
             borderWidth: 0,
             borderRadius: 6,
           }],
@@ -42,8 +44,12 @@ export default function CropChart({ labels, values, type = 'doughnut' }: Props) 
         options={{
           responsive: true,
           maintainAspectRatio: true,
+          indexAxis: horizontal ? 'y' : 'x',
           plugins: { legend: { display: false } },
-          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f0ede0' } }, x: { grid: { display: false } } },
+          scales: {
+            y: { beginAtZero: true, ticks: { font: { weight: 600 } }, grid: { color: horizontal ? 'transparent' : '#f0ede0' } },
+            x: { beginAtZero: true, grid: { display: !horizontal }, ticks: { font: { weight: 600 } } },
+          },
         }}
       />
     )

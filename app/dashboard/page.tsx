@@ -1,4 +1,3 @@
-import { db } from '@/lib/db'
 import { auth, signOut } from '@/auth'
 import CropChart from '@/components/dashboard/CropChart'
 import StatsCard from '@/components/dashboard/StatsCard'
@@ -6,78 +5,88 @@ import AlertSection from '@/components/dashboard/AlertSection'
 import BarangayMap from '@/components/dashboard/BarangayMap'
 import WeeklyChart from '@/components/dashboard/WeeklyChart'
 import Link from 'next/link'
+import {
+  getFarmerCount,
+  getBarangayBreakdown,
+} from '@/lib/repositories/farmer.repository'
+import {
+  getSubmissionCount,
+  getCropBreakdown,
+  getTotalHectares,
+  getWeeklySubmissions,
+  getHarvestSubmissions,
+  buildWeeklyChartData,
+  buildHarvestTimeline,
+} from '@/lib/repositories/submission.repository'
 
 export const dynamic = 'force-dynamic'
 
+const EMPTY_DASHBOARD = {
+  totalFarmers: 0,
+  totalSubmissions: 0,
+  totalPoints: 0,
+  totalHectares: 0,
+  cropBreakdown: [] as Awaited<ReturnType<typeof getCropBreakdown>>,
+  barangayBreakdown: [] as Awaited<ReturnType<typeof getBarangayBreakdown>>,
+  weeklyLabels: [] as string[],
+  weeklyValues: [] as number[],
+  harvestTimelineLabels: [] as string[],
+  harvestTimelineValues: [] as number[],
+}
+
 async function getDashboardData() {
-  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+  try {
+    const [
+      totalFarmers,
+      totalSubmissions,
+      cropBreakdown,
+      totalHectares,
+      barangayBreakdown,
+      weeklySubmissions,
+      harvestSubmissions,
+    ] = await Promise.all([
+      getFarmerCount(),
+      getSubmissionCount(),
+      getCropBreakdown(),
+      getTotalHectares(),
+      getBarangayBreakdown(),
+      getWeeklySubmissions(),
+      getHarvestSubmissions(),
+    ])
 
-  const [
-    totalFarmers,
-    totalSubmissions,
-    cropBreakdown,
-    recentSubmissions,
-    hectaresAggregate,
-    barangayBreakdown,
-    weeklySubmissions,
-  ] = await Promise.all([
-    db.farmer.count(),
-    db.submission.count(),
-    db.submission.groupBy({
-      by: ['cropName'],
-      _count: { cropName: true },
-      orderBy: { _count: { cropName: 'desc' } },
-      take: 8,
-    }),
-    db.submission.findMany({
-      take: 5,
-      orderBy: { submittedAt: 'desc' },
-      include: { farmer: { select: { fullName: true, municipality: true } } },
-    }),
-    db.submission.aggregate({ _sum: { farmSizeHectares: true } }),
-    db.farmer.groupBy({
-      by: ['barangay'],
-      _count: { id: true },
-      orderBy: { _count: { id: 'desc' } },
-      take: 12,
-    }),
-    db.submission.findMany({
-      where: { submittedAt: { gte: sevenDaysAgo } },
-      select: { submittedAt: true },
-      orderBy: { submittedAt: 'asc' },
-    }),
-  ])
+    const { labels: weeklyLabels, values: weeklyValues } =
+      buildWeeklyChartData(weeklySubmissions)
+    const { labels: harvestTimelineLabels, values: harvestTimelineValues } =
+      buildHarvestTimeline(harvestSubmissions)
 
-  const totalPoints = totalSubmissions * 10
-  const totalHectares = Number(hectaresAggregate._sum.farmSizeHectares ?? 0)
-
-  // Build weekly chart data (last 7 days)
-  const days: string[] = []
-  const dayCounts: number[] = []
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000)
-    const label = d.toLocaleDateString('en-US', { weekday: 'short' })
-    days.push(label)
-    const count = weeklySubmissions.filter((s) => {
-      const sd = new Date(s.submittedAt)
-      return sd.getFullYear() === d.getFullYear() &&
-        sd.getMonth() === d.getMonth() &&
-        sd.getDate() === d.getDate()
-    }).length
-    dayCounts.push(count)
+    return {
+      totalFarmers,
+      totalSubmissions,
+      totalPoints: totalSubmissions * 10,
+      totalHectares,
+      cropBreakdown,
+      barangayBreakdown,
+      weeklyLabels,
+      weeklyValues,
+      harvestTimelineLabels,
+      harvestTimelineValues,
+    }
+  } catch (error) {
+    console.error('Dashboard data fetch failed:', error)
+    return EMPTY_DASHBOARD
   }
+}
 
-  return {
-    totalFarmers,
-    totalSubmissions,
-    totalPoints,
-    totalHectares,
-    cropBreakdown,
-    recentSubmissions,
-    barangayBreakdown,
-    weeklyLabels: days,
-    weeklyValues: dayCounts,
-  }
+const STATUS_CLASSES = {
+  high: { label: 'HIGH RISK', badge: 'bg-[#FFEBEE] text-warning-red' },
+  monitor: { label: 'MONITOR', badge: 'bg-[#FFF3E0] text-warning-orange' },
+  opportunity: { label: 'OPPORTUNITY', badge: 'bg-[#E8F5E9] text-success-green' },
+} as const
+
+function getStatus(pct: number) {
+  if (pct > 40) return STATUS_CLASSES.high
+  if (pct > 20) return STATUS_CLASSES.monitor
+  return STATUS_CLASSES.opportunity
 }
 
 export default async function DashboardPage() {
@@ -85,56 +94,45 @@ export default async function DashboardPage() {
   const data = await getDashboardData()
 
   return (
-    <main style={{ background: '#FAF6F0', minHeight: '100vh', paddingTop: '80px' }}>
+    <main className="bg-[#FAF6F0] min-h-screen pt-20">
       {/* Dashboard Header */}
-      <div style={{
-        background: 'linear-gradient(135deg, #2D5016 0%, #4A7C2C 100%)',
-        color: 'white',
-        padding: '30px 5%',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-      }}>
-        <div style={{
-          maxWidth: '1400px',
-          margin: '0 auto',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '20px',
-        }}>
+      <div className="bg-gradient-to-br from-primary-green to-earth-medium-2 text-white px-[5%] py-[30px] shadow-lg">
+        <div className="max-w-[1400px] mx-auto flex justify-between items-center flex-wrap gap-5">
           <div>
-            <h1 style={{ fontFamily: 'Archivo Black, sans-serif', fontSize: '2rem', marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <h1 className="font-heading text-[2rem] mb-1 flex items-center gap-[15px]">
               🌾 AgriPulse System
             </h1>
-            <p style={{ opacity: 0.9, fontSize: '0.95rem' }}>
+            <p className="opacity-90 text-[0.95rem]">
               BLISTT Area • Real-Time Crop Monitoring
-              {session?.user?.email && <span style={{ marginLeft: '1rem', opacity: 0.7 }}>— {session.user.email}</span>}
+              {session?.user?.email && (
+                <span className="ml-4 opacity-70">— {session.user.email}</span>
+              )}
             </p>
           </div>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <Link href="/" style={{
-              padding: '10px 20px', background: '#F4A300', color: '#2D5016',
-              borderRadius: '8px', fontWeight: 700, fontSize: '0.875rem',
-              textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.5px',
-            }}>
+
+          <div className="flex gap-3 items-center flex-wrap">
+            <Link
+              href="/"
+              className="px-5 py-2.5 bg-accent-gold text-primary-green rounded-lg font-bold text-sm uppercase tracking-[0.5px]"
+            >
               🏠 Home
             </Link>
-            <Link href="/mobile-wizard" style={{
-              padding: '10px 20px', background: 'transparent', color: 'white',
-              border: '2px solid white', borderRadius: '8px', fontWeight: 700,
-              fontSize: '0.875rem', textDecoration: 'none', textTransform: 'uppercase',
-            }}>
+            <Link
+              href="/mobile-wizard"
+              className="px-5 py-2.5 bg-transparent text-white border-2 border-white rounded-lg font-bold text-sm uppercase"
+            >
               📝 Farmer Form
             </Link>
-            <form action={async () => {
-              'use server'
-              await signOut({ redirectTo: '/auth/login' })
-            }}>
-              <button type="submit" style={{
-                padding: '10px 20px', background: 'transparent', color: 'white',
-                border: '2px solid rgba(255,255,255,0.5)', borderRadius: '8px',
-                fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer', textTransform: 'uppercase',
-              }}>
+            <form
+              action={async () => {
+                'use server'
+                await signOut({ redirectTo: '/auth/login' })
+              }}
+            >
+              <button
+                type="submit"
+                className="px-5 py-2.5 bg-transparent text-white border-2 border-white/50 rounded-lg font-bold text-sm cursor-pointer uppercase"
+              >
                 Sign Out
               </button>
             </form>
@@ -142,15 +140,9 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '30px 5%' }}>
-
+      <div className="max-w-[1400px] mx-auto px-[5%] py-[30px]">
         {/* KPI Cards */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-          gap: '20px',
-          marginBottom: '30px',
-        }}>
+        <div className="grid [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))] gap-5 mb-[30px]">
           <StatsCard label="Active Farmers" value={data.totalFarmers} icon="👨‍🌾" />
           <StatsCard label="Hectares Tracked" value={`${data.totalHectares.toFixed(1)}`} icon="🌾" />
           <StatsCard label="Crop Varieties" value={data.cropBreakdown.length} icon="🥬" highlight />
@@ -161,15 +153,10 @@ export default async function DashboardPage() {
         <AlertSection cropBreakdown={data.cropBreakdown} totalSubmissions={data.totalSubmissions} />
 
         {/* Charts 2×2 */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '30px',
-          marginBottom: '30px',
-        }} className="charts-grid">
-          <div style={{ background: 'white', padding: '30px', borderRadius: '16px', border: '3px solid #A8C686' }}>
-            <h2 style={{ fontFamily: 'Archivo Black, sans-serif', fontSize: '1.2rem', color: '#3E2723', marginBottom: '5px' }}>Crop Distribution</h2>
-            <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '20px' }}>Submissions by crop type</p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-[30px] mb-[30px]">
+          <div className="bg-white p-[30px] rounded-2xl border-[3px] border-earth-light-2">
+            <h2 className="font-heading text-[1.2rem] text-[#3E2723] mb-1">Crop Distribution</h2>
+            <p className="text-[0.85rem] text-[#666] mb-5">Current planting breakdown by crop type</p>
             <CropChart
               labels={data.cropBreakdown.map((c) => c.cropName)}
               values={data.cropBreakdown.map((c) => c._count.cropName)}
@@ -177,46 +164,33 @@ export default async function DashboardPage() {
             />
           </div>
 
-          <div style={{ background: 'white', padding: '30px', borderRadius: '16px', border: '3px solid #A8C686' }}>
-            <h2 style={{ fontFamily: 'Archivo Black, sans-serif', fontSize: '1.2rem', color: '#3E2723', marginBottom: '5px' }}>Weekly Submissions</h2>
-            <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '20px' }}>Last 7 days activity</p>
-            <WeeklyChart labels={data.weeklyLabels} values={data.weeklyValues} />
-          </div>
-
-          <div style={{ background: 'white', padding: '30px', borderRadius: '16px', border: '3px solid #A8C686' }}>
-            <h2 style={{ fontFamily: 'Archivo Black, sans-serif', fontSize: '1.2rem', color: '#3E2723', marginBottom: '5px' }}>Crop Volume</h2>
-            <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '20px' }}>Submission count per crop</p>
+          <div className="bg-white p-[30px] rounded-2xl border-[3px] border-earth-light-2">
+            <h2 className="font-heading text-[1.2rem] text-[#3E2723] mb-1">Harvest Timeline</h2>
+            <p className="text-[0.85rem] text-[#666] mb-5">Projected harvest area (ha) by month</p>
             <CropChart
-              labels={data.cropBreakdown.map((c) => c.cropName)}
-              values={data.cropBreakdown.map((c) => c._count.cropName)}
+              labels={data.harvestTimelineLabels}
+              values={data.harvestTimelineValues}
               type="bar"
+              barColor="#2D5016"
             />
           </div>
 
-          <div style={{ background: 'white', padding: '30px', borderRadius: '16px', border: '3px solid #A8C686' }}>
-            <h2 style={{ fontFamily: 'Archivo Black, sans-serif', fontSize: '1.2rem', color: '#3E2723', marginBottom: '5px' }}>Recent Submissions</h2>
-            <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '20px' }}>Latest 5 farmer entries</p>
-            {data.recentSubmissions.length === 0 ? (
-              <p style={{ color: '#666', fontSize: '0.875rem' }}>No submissions yet.</p>
-            ) : (
-              <div>
-                {data.recentSubmissions.map((s) => (
-                  <div key={s.id} style={{
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    padding: '12px 0', borderBottom: '1px solid #E0E0E0',
-                  }}>
-                    <div>
-                      <p style={{ fontWeight: 700, color: '#2D5016', fontSize: '0.9rem' }}>{s.farmer.fullName}</p>
-                      <p style={{ fontSize: '0.8rem', color: '#666' }}>{s.cropName} · {s.farmer.municipality}</p>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <p style={{ fontWeight: 700, color: '#F4A300', fontSize: '0.9rem' }}>+{s.pointsEarned} pts</p>
-                      <p style={{ fontSize: '0.75rem', color: '#666' }}>{s.referenceNumber}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+          <div className="bg-white p-[30px] rounded-2xl border-[3px] border-earth-light-2">
+            <h2 className="font-heading text-[1.2rem] text-[#3E2723] mb-1">Barangay Participation</h2>
+            <p className="text-[0.85rem] text-[#666] mb-5">Active farmers by barangay</p>
+            <CropChart
+              labels={data.barangayBreakdown.map((b) => b.barangay || 'Unknown')}
+              values={data.barangayBreakdown.map((b) => b._count.id)}
+              type="bar"
+              horizontal
+              barColor="#F4A300"
+            />
+          </div>
+
+          <div className="bg-white p-[30px] rounded-2xl border-[3px] border-earth-light-2">
+            <h2 className="font-heading text-[1.2rem] text-[#3E2723] mb-1">Weekly Submissions</h2>
+            <p className="text-[0.85rem] text-[#666] mb-5">Data submission trends</p>
+            <WeeklyChart labels={data.weeklyLabels} values={data.weeklyValues} />
           </div>
         </div>
 
@@ -224,22 +198,23 @@ export default async function DashboardPage() {
         <BarangayMap barangays={data.barangayBreakdown} />
 
         {/* Data Intelligence Table */}
-        <div style={{ background: 'white', padding: '30px', borderRadius: '16px', border: '3px solid #A8C686', overflowX: 'auto' }}>
-          <h2 style={{ fontFamily: 'Archivo Black, sans-serif', fontSize: '1.5rem', color: '#3E2723', marginBottom: '20px' }}>
+        <div className="bg-white p-[30px] rounded-2xl border-[3px] border-earth-light-2 overflow-x-auto">
+          <h2 className="font-heading text-2xl text-[#3E2723] mb-5">
             📋 Data Intelligence Summary
           </h2>
           {data.cropBreakdown.length === 0 ? (
-            <p style={{ color: '#666', fontSize: '0.95rem' }}>No data yet — submissions will appear here.</p>
+            <p className="text-[#666] text-[0.95rem]">No data yet — submissions will appear here.</p>
           ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <table className="w-full border-collapse">
               <thead>
                 <tr>
-                  {['Crop', 'Submissions', 'Share', 'Status'].map((h) => (
-                    <th key={h} style={{
-                      background: '#2D5016', color: 'white', padding: '15px',
-                      textAlign: 'left', fontWeight: 700, fontSize: '0.875rem',
-                      textTransform: 'uppercase', letterSpacing: '0.5px',
-                    }}>{h}</th>
+                  {['Crop Type', 'Submissions', 'Hectares', 'Next Harvest', 'Saturation', 'Status'].map((h) => (
+                    <th
+                      key={h}
+                      className="bg-primary-green text-white p-[15px] text-left font-bold text-sm uppercase tracking-[0.5px]"
+                    >
+                      {h}
+                    </th>
                   ))}
                 </tr>
               </thead>
@@ -247,23 +222,25 @@ export default async function DashboardPage() {
                 {data.cropBreakdown.map((c) => {
                   const total = data.totalSubmissions || 1
                   const pct = Math.round((c._count.cropName / total) * 100)
-                  const { label, bg, color } = pct > 40
-                    ? { label: 'OVERSUPPLY RISK', bg: '#FFEBEE', color: '#D32F2F' }
-                    : pct > 20
-                    ? { label: 'MONITOR', bg: '#FFF3E0', color: '#FF6F00' }
-                    : { label: 'OPPORTUNITY', bg: '#E8F5E9', color: '#2E7D32' }
+                  const hectares = Number(c._sum.farmSizeHectares ?? 0)
+                  const nextHarvest = c._max.harvestDate
+                    ? new Date(c._max.harvestDate).toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })
+                    : '—'
+                  const status = getStatus(pct)
                   return (
-                    <tr key={c.cropName} style={{ borderBottom: '1px solid #E0E0E0' }}>
-                      <td style={{ padding: '15px', fontWeight: 600, color: '#2D5016' }}>{c.cropName}</td>
-                      <td style={{ padding: '15px', color: '#666' }}>{c._count.cropName}</td>
-                      <td style={{ padding: '15px', color: '#666' }}>{pct}%</td>
-                      <td style={{ padding: '15px' }}>
-                        <span style={{
-                          display: 'inline-block', padding: '5px 12px',
-                          borderRadius: '20px', fontSize: '0.75rem', fontWeight: 700,
-                          background: bg, color,
-                        }}>
-                          {label}
+                    <tr key={c.cropName} className="border-b border-[#E0E0E0]">
+                      <td className="p-[15px] font-semibold text-primary-green">{c.cropName}</td>
+                      <td className="p-[15px] text-[#666]">{c._count.cropName}</td>
+                      <td className="p-[15px] text-[#666]">{hectares > 0 ? `${hectares.toFixed(1)} ha` : '—'}</td>
+                      <td className="p-[15px] text-[#666]">{nextHarvest}</td>
+                      <td className="p-[15px] text-[#666]">{pct}%</td>
+                      <td className="p-[15px]">
+                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${status.badge}`}>
+                          {status.label}
                         </span>
                       </td>
                     </tr>
@@ -275,15 +252,9 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <footer style={{ textAlign: 'center', padding: '30px', color: '#7c8a70', fontSize: '0.85rem' }}>
+      <footer className="text-center p-[30px] text-[#7c8a70] text-[0.85rem]">
         © 2026 AgriPulse System | DisenyoDigitals
       </footer>
-
-      <style>{`
-        @media (max-width: 968px) {
-          .charts-grid { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
     </main>
   )
 }

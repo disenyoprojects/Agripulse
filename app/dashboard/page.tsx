@@ -118,6 +118,12 @@ export default async function DashboardPage() {
               🏠 Home
             </Link>
             <Link
+              href="/dashboard/farmers"
+              className="px-5 py-2.5 bg-transparent text-white border-2 border-white rounded-lg font-bold text-sm uppercase"
+            >
+              👥 Farmers
+            </Link>
+            <Link
               href="/mobile-wizard"
               className="px-5 py-2.5 bg-transparent text-white border-2 border-white rounded-lg font-bold text-sm uppercase"
             >

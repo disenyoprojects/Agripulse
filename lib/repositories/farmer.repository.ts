@@ -13,6 +13,48 @@ export async function getBarangayBreakdown(limit = 8) {
   })
 }
 
+export async function getAllFarmersWithStats() {
+  const farmers = await db.farmer.findMany({
+    orderBy: { createdAt: 'desc' },
+    include: {
+      submissions: {
+        select: { pointsEarned: true, status: true },
+      },
+    },
+  })
+
+  return farmers.map((f) => ({
+    ...f,
+    totalSubmissions: f.submissions.length,
+    pending: f.submissions.filter((s) => s.status === 'PENDING').length,
+    verified: f.submissions.filter((s) => s.status === 'VERIFIED').length,
+    totalPoints: f.submissions.reduce((sum, s) => sum + s.pointsEarned, 0),
+  }))
+}
+
+export async function getFarmerWithSubmissions(id: string) {
+  return db.farmer.findUnique({
+    where: { id },
+    include: {
+      submissions: {
+        orderBy: { submittedAt: 'desc' },
+        select: {
+          id: true,
+          referenceNumber: true,
+          cropName: true,
+          cropCategory: true,
+          plantingDate: true,
+          harvestDate: true,
+          farmSizeHectares: true,
+          pointsEarned: true,
+          status: true,
+          submittedAt: true,
+        },
+      },
+    },
+  })
+}
+
 export async function getTopFarmersByPoints(limit = 10) {
   const farmers = await db.farmer.findMany({
     take: limit,

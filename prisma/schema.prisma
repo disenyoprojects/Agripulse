@@ -18,23 +18,24 @@ model Farmer {
 }
 
 model Submission {
-  id               String       @id @default(cuid())
-  farmer           Farmer       @relation(fields: [farmerId], references: [id], onDelete: Cascade)
+  id               String           @id @default(cuid())
+  farmer           Farmer           @relation(fields: [farmerId], references: [id], onDelete: Cascade)
   farmerId         String
-  referenceNumber  String       @unique
+  referenceNumber  String           @unique
   cropCategory     CropCategory
   cropName         String
   customCrop       String?
-  plantingDate     DateTime     @db.Date
-  harvestDate      DateTime     @db.Date
-  farmSizeHectares Decimal?     @db.Decimal(8, 2)
-  farmSizeSqm      Decimal?     @db.Decimal(10, 2)
-  gpsLat           Decimal?     @db.Decimal(10, 7)
-  gpsLng           Decimal?     @db.Decimal(10, 7)
+  plantingDate     DateTime         @db.Date
+  harvestDate      DateTime         @db.Date
+  farmSizeHectares Decimal?         @db.Decimal(8, 2)
+  farmSizeSqm      Decimal?         @db.Decimal(10, 2)
+  gpsLat           Decimal?         @db.Decimal(10, 7)
+  gpsLng           Decimal?         @db.Decimal(10, 7)
   photoUrl         String?
   issues           String[]
-  pointsEarned     Int          @default(10)
-  submittedAt      DateTime     @default(now())
+  pointsEarned     Int              @default(0)
+  status           SubmissionStatus @default(PENDING)
+  submittedAt      DateTime         @default(now())
 }
 
 model LguUser {
@@ -50,4 +51,10 @@ enum CropCategory {
   FRUITING_VEGETABLES
   ROOT_CROPS
   HIGH_VALUE_CROPS
+}
+
+enum SubmissionStatus {
+  PENDING
+  VERIFIED
+  REJECTED
 }

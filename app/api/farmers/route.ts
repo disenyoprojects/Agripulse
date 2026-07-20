@@ -39,7 +39,7 @@ export async function POST(request: Request) {
         ...submissionData,
         farmerId: farmer.id,
         referenceNumber,
-        pointsEarned: 10,
+        pointsEarned: 0,
         plantingDate: new Date(submissionData.plantingDate),
         harvestDate: new Date(submissionData.harvestDate),
       },

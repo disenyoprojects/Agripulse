@@ -13,6 +13,7 @@ import {
   getSubmissionCount,
   getCropBreakdown,
   getTotalHectares,
+  getTotalPoints,
   getWeeklySubmissions,
   getHarvestSubmissions,
   buildWeeklyChartData,
@@ -39,6 +40,7 @@ async function getDashboardData() {
     const [
       totalFarmers,
       totalSubmissions,
+      totalPoints,
       cropBreakdown,
       totalHectares,
       barangayBreakdown,
@@ -47,6 +49,7 @@ async function getDashboardData() {
     ] = await Promise.all([
       getFarmerCount(),
       getSubmissionCount(),
+      getTotalPoints(),
       getCropBreakdown(),
       getTotalHectares(),
       getBarangayBreakdown(),
@@ -62,7 +65,7 @@ async function getDashboardData() {
     return {
       totalFarmers,
       totalSubmissions,
-      totalPoints: totalSubmissions * 10,
+      totalPoints,
       totalHectares,
       cropBreakdown,
       barangayBreakdown,

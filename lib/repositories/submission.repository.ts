@@ -22,6 +22,14 @@ export async function getTotalHectares(): Promise<number> {
   return Number(result._sum.farmSizeHectares ?? 0)
 }
 
+export async function getTotalPoints(): Promise<number> {
+  const result = await db.submission.aggregate({
+    _sum: { pointsEarned: true },
+    where: { status: 'VERIFIED' },
+  })
+  return result._sum.pointsEarned ?? 0
+}
+
 export async function getWeeklySubmissions() {
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
   return db.submission.findMany({
@@ -62,7 +70,7 @@ export function buildWeeklyChartData(
 }
 
 export function buildHarvestTimeline(
-  harvestSubmissions: Array<{ harvestDate: Date; farmSizeHectares: unknown }>
+  harvestSubmissions: Awaited<ReturnType<typeof getHarvestSubmissions>>
 ) {
   const today = new Date()
   const byMonth = new Map<string, number>()

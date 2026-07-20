@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useState } from 'react'
 import NavLinks from '@/components/landing/NavLinks'
 
 const links = [
@@ -16,78 +17,155 @@ const links = [
 
 export default function SiteNav() {
   const pathname = usePathname()
+  const [open, setOpen] = useState(false)
 
   return (
-    <nav
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        zIndex: 200,
-        background: 'rgba(16, 25, 11, 0.92)',
-        backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '0.9rem 5%',
-        boxShadow: '0 8px 30px rgba(0,0,0,0.25)',
-      }}
-    >
-      <Link
-        href="/"
+    <>
+      <nav
         style={{
-          fontFamily: 'Anton, sans-serif',
-          fontWeight: 400,
-          fontSize: '1.5rem',
-          color: '#D6E85C',
-          textTransform: 'uppercase',
-          letterSpacing: '2px',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          zIndex: 200,
+          background: 'rgba(16, 25, 11, 0.92)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
           display: 'flex',
+          justifyContent: 'space-between',
           alignItems: 'center',
-          gap: '0.5rem',
-          textDecoration: 'none',
+          padding: '0.9rem 5%',
+          boxShadow: '0 8px 30px rgba(0,0,0,0.25)',
         }}
       >
-        <span style={{ fontSize: '2rem' }}>🌾</span>
-        AGRIPULSE
-      </Link>
+        <Link
+          href="/"
+          onClick={() => setOpen(false)}
+          style={{
+            fontFamily: 'Anton, sans-serif',
+            fontWeight: 400,
+            fontSize: '1.5rem',
+            color: '#D6E85C',
+            textTransform: 'uppercase',
+            letterSpacing: '2px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            textDecoration: 'none',
+          }}
+        >
+          <span style={{ fontSize: '2rem' }}>🌾</span>
+          AGRIPULSE
+        </Link>
 
-      <ul
-        style={{
-          display: 'flex',
-          gap: '2rem',
-          listStyle: 'none',
-          margin: 0,
-          padding: 0,
-        }}
-        className="hidden md:flex"
-      >
-        {links.map(({ label, href }) => {
-          const isActive = pathname === href || (href !== '/' && pathname?.startsWith(href.split('#')[0]) && !href.includes('#'))
-          return (
-            <li key={href}>
+        <ul
+          style={{
+            display: 'flex',
+            gap: '2rem',
+            listStyle: 'none',
+            margin: 0,
+            padding: 0,
+          }}
+          className="hidden md:flex"
+        >
+          {links.map(({ label, href }) => {
+            const isActive = pathname === href || (href !== '/' && pathname?.startsWith(href.split('#')[0]) && !href.includes('#'))
+            return (
+              <li key={href}>
+                <Link
+                  href={href}
+                  style={{
+                    position: 'relative',
+                    color: isActive ? '#D6E85C' : 'white',
+                    textDecoration: 'none',
+                    fontWeight: 500,
+                    fontSize: '0.9rem',
+                    transition: 'color 0.3s',
+                  }}
+                  className="nav-link-item"
+                >
+                  {label}
+                </Link>
+              </li>
+            )
+          })}
+        </ul>
+
+        <div className="hidden md:flex">
+          <NavLinks />
+        </div>
+
+        {/* Hamburger — mobile only */}
+        <button
+          className="md:hidden flex flex-col justify-center items-center gap-1.25 w-10 h-10 rounded-lg"
+          onClick={() => setOpen((v) => !v)}
+          aria-label={open ? 'Close menu' : 'Open menu'}
+          style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '0.5rem' }}
+        >
+          <span style={{
+            display: 'block', width: '22px', height: '2px', background: '#D6E85C',
+            transition: 'transform 0.3s, opacity 0.3s',
+            transform: open ? 'translateY(7px) rotate(45deg)' : 'none',
+          }} />
+          <span style={{
+            display: 'block', width: '22px', height: '2px', background: '#D6E85C',
+            transition: 'opacity 0.3s',
+            opacity: open ? 0 : 1,
+          }} />
+          <span style={{
+            display: 'block', width: '22px', height: '2px', background: '#D6E85C',
+            transition: 'transform 0.3s, opacity 0.3s',
+            transform: open ? 'translateY(-7px) rotate(-45deg)' : 'none',
+          }} />
+        </button>
+      </nav>
+
+      {/* Mobile drawer */}
+      {open && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            zIndex: 199,
+            background: 'rgba(16, 25, 11, 0.97)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '1.5rem',
+            paddingTop: '5rem',
+          }}
+          className="md:hidden"
+        >
+          {links.map(({ label, href }) => {
+            const isActive = pathname === href || (href !== '/' && pathname?.startsWith(href.split('#')[0]) && !href.includes('#'))
+            return (
               <Link
+                key={href}
                 href={href}
+                onClick={() => setOpen(false)}
                 style={{
-                  position: 'relative',
                   color: isActive ? '#D6E85C' : 'white',
                   textDecoration: 'none',
-                  fontWeight: 500,
-                  fontSize: '0.9rem',
-                  transition: 'color 0.3s',
+                  fontWeight: 600,
+                  fontSize: '1.4rem',
+                  letterSpacing: '1px',
+                  transition: 'color 0.2s',
                 }}
-                className="nav-link-item"
               >
                 {label}
               </Link>
-            </li>
-          )
-        })}
-      </ul>
+            )
+          })}
 
-      <NavLinks />
+          <div style={{ marginTop: '1rem' }}>
+            <NavLinks />
+          </div>
+        </div>
+      )}
 
       <style>{`
         .nav-link-item::after {
@@ -109,10 +187,7 @@ export default function SiteNav() {
           transform: scaleX(1);
           transform-origin: left;
         }
-        @media (max-width: 968px) {
-          nav ul { display: none !important; }
-        }
       `}</style>
-    </nav>
+    </>
   )
 }

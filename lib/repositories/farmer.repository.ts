@@ -57,7 +57,6 @@ export async function getFarmerWithSubmissions(id: string) {
 
 export async function getTopFarmersByPoints(limit = 10) {
   const farmers = await db.farmer.findMany({
-    take: limit,
     include: {
       submissions: {
         select: {

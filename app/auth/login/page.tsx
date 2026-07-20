@@ -30,7 +30,8 @@ function LoginForm() {
       if (result?.error) {
         setError('Invalid email or password.')
       } else {
-        window.location.href = callbackUrl
+        const safe = callbackUrl.startsWith('/') ? callbackUrl : '/dashboard'
+        window.location.href = safe
       }
     } catch {
       setError('Something went wrong. Please try again.')

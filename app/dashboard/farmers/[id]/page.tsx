@@ -1,7 +1,8 @@
 import { getFarmerWithSubmissions } from '@/lib/repositories/farmer.repository'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
+import { auth } from '@/auth'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
@@ -31,6 +32,8 @@ export default async function FarmerPortfolioPage({
 
   async function verifySubmission(submissionId: string) {
     'use server'
+    const session = await auth()
+    if (!session?.user) redirect('/auth/login')
     await db.submission.update({
       where: { id: submissionId },
       data: { status: 'VERIFIED', pointsEarned: 10 },

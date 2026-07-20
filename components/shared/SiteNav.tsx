@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import NavLinks from '@/components/landing/NavLinks'
@@ -16,17 +15,7 @@ const links = [
 ]
 
 export default function SiteNav() {
-  const [scrolled, setScrolled] = useState(false)
   const pathname = usePathname()
-
-  useEffect(() => {
-    function onScroll() {
-      setScrolled(window.scrollY > 40)
-    }
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
 
   return (
     <nav
@@ -42,9 +31,8 @@ export default function SiteNav() {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: scrolled ? '0.9rem 5%' : '1.5rem 5%',
-        boxShadow: scrolled ? '0 8px 30px rgba(0,0,0,0.25)' : 'none',
-        transition: 'padding 0.3s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s cubic-bezier(0.16,1,0.3,1)',
+        padding: '0.9rem 5%',
+        boxShadow: '0 8px 30px rgba(0,0,0,0.25)',
       }}
     >
       <Link

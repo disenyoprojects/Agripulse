@@ -30,7 +30,7 @@ function LoginForm() {
       if (result?.error) {
         setError('Invalid email or password.')
       } else {
-        router.push(callbackUrl)
+        window.location.href = callbackUrl
       }
     } catch {
       setError('Something went wrong. Please try again.')

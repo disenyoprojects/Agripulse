@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 
@@ -22,14 +22,6 @@ type FormData = {
   gpsLng: string
   issues: string[]
 }
-
-type FarmerCache = {
-  farmerName: string
-  contactNumber: string
-  municipality: string
-  barangay: string
-}
-const FARMER_CACHE_KEY = 'agripulse_farmer'
 
 const MUNICIPALITIES = ['Baguio City', 'La Trinidad', 'Itogon', 'Sablan', 'Tuba', 'Tublay']
 
@@ -98,18 +90,9 @@ export default function MobileWizardPage() {
   })
   const [referenceNumber, setReferenceNumber] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [lookupLoading, setLookupLoading] = useState(false)
+  const [welcomeBack, setWelcomeBack] = useState<string | null>(null)
   const [error, setError] = useState('')
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(FARMER_CACHE_KEY)
-      if (!raw) return
-      const cached = JSON.parse(raw) as FarmerCache
-      setForm((prev) => ({ ...prev, ...cached }))
-    } catch {
-      // corrupted cache — ignore, start fresh
-    }
-  }, [])
 
   function update(field: keyof FormData, value: string | string[]) {
     setForm((prev) => ({ ...prev, [field]: value }))
@@ -128,6 +111,33 @@ export default function MobileWizardPage() {
 
   function today() {
     return new Date().toISOString().split('T')[0]
+  }
+
+  async function handleStep2Next() {
+    if (!form.contactNumber.trim()) {
+      setStep((s) => s + 1)
+      return
+    }
+    setLookupLoading(true)
+    try {
+      const res = await fetch(`/api/farmers/lookup?phone=${encodeURIComponent(form.contactNumber.trim())}`)
+      const data = await res.json()
+      if (data.found) {
+        setWelcomeBack(data.fullName)
+        setForm((prev) => ({
+          ...prev,
+          municipality: data.municipality,
+          barangay: data.barangay,
+        }))
+      } else {
+        setWelcomeBack(null)
+      }
+    } catch {
+      setWelcomeBack(null)
+    } finally {
+      setLookupLoading(false)
+      setStep((s) => s + 1)
+    }
   }
 
   function resetForm() {
@@ -165,15 +175,6 @@ export default function MobileWizardPage() {
       const data = await res.json()
       if (!res.ok || !data.success) throw new Error(data.error || 'Submission failed')
       setReferenceNumber(data.referenceNumber)
-      localStorage.setItem(
-        FARMER_CACHE_KEY,
-        JSON.stringify({
-          farmerName: form.farmerName,
-          contactNumber: form.contactNumber,
-          municipality: form.municipality,
-          barangay: form.barangay,
-        })
-      )
       setStep(10)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'May nangyaring mali. Subukan ulit.')
@@ -355,6 +356,28 @@ export default function MobileWizardPage() {
           {/* Step 3 — Municipality */}
           {step === 3 && (
             <div>
+              {welcomeBack && (
+                <div style={{
+                  background: 'rgba(107,154,76,0.12)',
+                  border: '1.5px solid #6b9a4c',
+                  borderRadius: '12px',
+                  padding: '12px 16px',
+                  marginBottom: '1.25rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                }}>
+                  <span style={{ fontSize: '1.5rem' }}>👋</span>
+                  <div>
+                    <p style={{ fontWeight: 700, color: '#2D5016', fontSize: '0.9rem', marginBottom: '2px' }}>
+                      Welcome back, {welcomeBack}!
+                    </p>
+                    <p style={{ fontSize: '0.78rem', color: '#555' }}>
+                      Na-load ang iyong lokasyon mula sa nakaraang submission.
+                    </p>
+                  </div>
+                </div>
+              )}
               <h2 style={stepTitleStyle}>Nasaan ang iyong bukid?</h2>
               <p style={stepSubStyle}>Piliin ang iyong munisipalidad</p>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
@@ -668,8 +691,9 @@ export default function MobileWizardPage() {
             </motion.button>
             {step < TOTAL_STEPS ? (
               <motion.button
-                onClick={() => setStep((s) => s + 1)}
+                onClick={step === 2 ? handleStep2Next : () => setStep((s) => s + 1)}
                 disabled={
+                  lookupLoading ||
                   (step === 2 && !form.farmerName) ||
                   (step === 3 && (!form.municipality || !form.barangay)) ||
                   (step === 5 && (!form.cropCategory || !form.cropName || (form.cropName === 'Other' && !form.customCrop))) ||
@@ -686,7 +710,7 @@ export default function MobileWizardPage() {
                 }}
                 className="next-btn"
               >
-                Susunod →
+                {lookupLoading ? 'Checking…' : 'Susunod →'}
               </motion.button>
             ) : (
               <motion.button

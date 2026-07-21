@@ -32,6 +32,11 @@ export async function POST(request: Request) {
       farmer = await db.farmer.create({
         data: { fullName: farmerName, municipality, barangay, contactNumber },
       })
+    } else {
+      farmer = await db.farmer.update({
+        where: { id: farmer.id },
+        data: { fullName: farmerName, municipality, barangay },
+      })
     }
 
     await db.submission.create({

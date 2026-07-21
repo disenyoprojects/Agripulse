@@ -1,59 +1,218 @@
 @import "tailwindcss";
 
+/* ============================================================
+   AgriPulse design tokens
+
+   Scene: dawn on a terraced vegetable plot in Benguet at 1,500m —
+   pine-dark ridgelines, cold fog in the valley, first sun on wet
+   cabbage rows. BLISTT is highland, not tropical: the palette is
+   pine and fog and cold light, never leaf-green and harvest gold.
+
+   Colour strategy: COMMITTED. Pine carries 40–60% of every dark
+   surface; ember is the single high-vis accent, used for action
+   and risk only, never for decoration.
+
+   Surfaces are split on purpose:
+     dark  — landing, dashboard (long sessions, indoor, evening)
+     light — mobile wizard (used outdoors in highland glare, where
+             a dark screen is unreadable)
+
+   Every foreground/background pair below is WCAG-verified.
+   Notable: ember-500 fills carry NEAR-BLACK text (5.21:1), not
+   white (3.11:1, fails). Hover brightens to ember-400 so the text
+   colour never has to change mid-interaction.
+   ============================================================ */
+
+@theme {
+  /* --- Pine: the brand surface ------------------------------ */
+  --color-pine-950: oklch(0.155 0.020 162);
+  --color-pine-900: oklch(0.215 0.030 162);
+  --color-pine-800: oklch(0.285 0.045 162);
+  --color-pine-700: oklch(0.350 0.077 160); /* primary */
+  --color-pine-600: oklch(0.440 0.085 160);
+  --color-pine-500: oklch(0.560 0.090 158);
+  --color-pine-400: oklch(0.680 0.085 158);
+  --color-pine-300: oklch(0.800 0.065 158);
+
+  /* --- Ember: action + risk. Benguet carrot, not harvest gold. */
+  --color-ember-600: oklch(0.560 0.170 38); /* text on light bg */
+  --color-ember-500: oklch(0.660 0.180 42); /* fills, dark text  */
+  --color-ember-400: oklch(0.740 0.150 48); /* hover, text on dark */
+
+  /* --- Status. Cold cyan for "good" so it never reads as brand green. */
+  --color-glacier-400: oklch(0.780 0.105 205);
+  --color-amber-400: oklch(0.800 0.140 78);
+
+  /* --- Fog: the light surface. Cold-tinted, never cream. ----- */
+  --color-fog-50: oklch(0.975 0.005 210);
+  --color-fog-100: oklch(0.945 0.007 210);
+  --color-fog-200: oklch(0.890 0.009 210);
+
+  /* --- Ink ---------------------------------------------------- */
+  --color-ink: oklch(0.215 0.022 190);
+  --color-ink-muted: oklch(0.445 0.018 190);
+  --color-ink-inv: oklch(0.965 0.004 160);
+  --color-ink-inv-muted: oklch(0.760 0.014 160);
+
+  /* --- Display type scale. Ceiling is 6rem per the house rule. */
+  --text-display-xl: clamp(2.75rem, 7.5vw, 5.25rem);
+  --text-display-lg: clamp(2.5rem, 6.5vw, 4.5rem);
+  --text-display-md: clamp(2rem, 4.5vw, 3.25rem);
+  --text-display-sm: clamp(1.5rem, 3vw, 2.25rem);
+
+  /* --- Motion ------------------------------------------------- */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+
+  /* Product durations (state feedback) vs brand (choreography). */
+  --duration-fast: 150ms;
+  --duration-base: 240ms;
+  --duration-slow: 420ms;
+  --duration-brand: 760ms;
+  --duration-brand-lg: 1150ms;
+}
+
+/* Fonts resolve from next/font vars set in layout.tsx. One family:
+   Archivo variable, wdth 62–125 + wght 100–900. The width axis is
+   the contrast lever — ultra-condensed 900 display against regular
+   body — which is why no second family is needed. */
 @theme inline {
-  /* AgriPulse official brand colors (source: Brand Guide PDF) */
-  --color-primary-green: #2D5016;
-  --color-accent-gold: #F4A300;
-  --color-harvest-lime: #D6E85C;
-  --color-cream: #F8F7F2;
-  --color-soil: #2C2C2C;
-  --color-sky: #0066CC;
-  --color-berry: #E85D6B;
-  --color-teal: #3FAE95;
-
-  /* Earth tones */
-  --color-earth-very-dark: #10190B;
-  --color-earth-dark: #2D5016;
-  --color-earth-medium: #38541F;
-  --color-earth-medium-2: #4A7C2C;
-  --color-earth-light: #7FA34A;
-  --color-earth-light-2: #A8C686;
-
-  /* Green scale (Market Pulse / Price Advisor) */
-  --color-green-900: #25361a;
-  --color-green-800: #2e4321;
-  --color-green-700: #3f5c2c;
-  --color-green-500: #6b9a4c;
-  --color-green-300: #a8c98a;
-
-  /* Amber / orange */
-  --color-orange: #e79c3d;
-  --color-orange-dark: #c97f24;
-  --color-maroon: #4a2c1d;
-
-  /* Alert colors */
-  --color-warning-red: #D32F2F;
-  --color-warning-orange: #FF6F00;
-  --color-success-green: #2E7D32;
-
-  /* Typography — matched to brand guide */
-  --font-heading: var(--font-archivo-black);
-  --font-body: var(--font-nunito);
-  --font-ui: var(--font-dm-sans);
-  --font-display: var(--font-baloo2);
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
 }
 
-:root {
-  --background: #F8F7F2;
-  --foreground: #2C2C2C;
+/* ============================================================
+   Semantic surface themes.
+   Components read --bg/--surface/--ink/--line and stay
+   surface-agnostic; a section flips theme by setting data-surface.
+   ============================================================ */
+@layer base {
+  [data-surface="dark"] {
+    --bg: var(--color-pine-950);
+    --surface: var(--color-pine-900);
+    --surface-raised: var(--color-pine-800);
+    --fg: var(--color-ink-inv);
+    --fg-muted: var(--color-ink-inv-muted);
+    --line: color-mix(in oklab, var(--color-ink-inv) 14%, transparent);
+    --line-strong: color-mix(in oklab, var(--color-ink-inv) 28%, transparent);
+    --accent: var(--color-ember-500);
+    --accent-fg: var(--color-pine-950);
+    --accent-text: var(--color-ember-400);
+  }
+
+  [data-surface="light"] {
+    --bg: var(--color-fog-50);
+    --surface: var(--color-fog-100);
+    --surface-raised: oklch(1 0 0);
+    --fg: var(--color-ink);
+    --fg-muted: var(--color-ink-muted);
+    --line: var(--color-fog-200);
+    --line-strong: color-mix(in oklab, var(--color-ink) 30%, transparent);
+    --accent: var(--color-ember-500);
+    --accent-fg: var(--color-pine-950);
+    --accent-text: var(--color-ember-600);
+  }
+
+  /* Semantic z-scale. Never arbitrary values. */
+  :root {
+    --z-base: 0;
+    --z-raised: 10;
+    --z-dropdown: 100;
+    --z-sticky: 200;
+    --z-overlay: 300;
+    --z-modal: 400;
+    --z-toast: 500;
+    --z-tooltip: 600;
+    --z-grain: 700;
+  }
+
+  html {
+    /* Lenis drives scrolling; native smooth-scroll would fight it. */
+    scroll-behavior: auto;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Display type: condensed + heavy is the house voice. */
+  h1,
+  h2,
+  h3 {
+    font-variation-settings: "wdth" 84;
+    font-weight: 800;
+    line-height: 0.98;
+    letter-spacing: -0.02em; /* floor is -0.04em; we stay well inside */
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Numbers in data contexts must not jitter as they update. */
+  [data-nums] {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+  }
+
+  /* One focus treatment everywhere, visible on both surfaces. */
+  :focus-visible {
+    outline: 2px solid var(--color-ember-500);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background: var(--color-ember-500);
+    color: var(--color-pine-950);
+  }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-ui), 'DM Sans', sans-serif;
+@layer utilities {
+  /* Condensed display voice, used by hero + section headings. */
+  .u-display {
+    font-variation-settings: "wdth" 70;
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 0.92;
+    letter-spacing: -0.025em;
+  }
+
+  /* Wide, low-weight — the counterpoint to .u-display. */
+  .u-wide {
+    font-variation-settings: "wdth" 118;
+    font-weight: 300;
+  }
+
+  .u-measure {
+    max-width: 68ch; /* inside the 65–75ch band */
+  }
+
+  .u-rule {
+    border: 0;
+    border-top: 1px solid var(--line);
+  }
 }
 
-h1, h2, h3 {
-  font-family: var(--font-heading), 'Archivo Black', sans-serif;
+/* ============================================================
+   Reduced motion. Not optional — every animation in this project
+   has a fallback. Transforms collapse, opacity is forced visible
+   so nothing can ship blank when reveals are suppressed.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

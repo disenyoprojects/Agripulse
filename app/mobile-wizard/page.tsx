@@ -21,6 +21,7 @@ type FormData = {
   gpsLat: string
   gpsLng: string
   issues: string[]
+  customIssue: string
 }
 
 const MUNICIPALITIES = ['Baguio City', 'La Trinidad', 'Itogon', 'Sablan', 'Tuba', 'Tublay']
@@ -29,22 +30,22 @@ const CROPS: Record<string, { label: string; emoji: string; crops: string[] }> =
   LEAFY_VEGETABLES: {
     label: 'Dahon na Gulay',
     emoji: '🥬',
-    crops: ['Cabbage', 'Chinese Cabbage', 'Lettuce Romaine', 'Lettuce Green Ice', 'Bok Choi'],
+    crops: ['Cabbage', 'Chinese Cabbage', 'Lettuce Romaine', 'Lettuce Green Ice', 'Bok Choi', 'Pechay', 'Kangkong', 'Spinach', 'Celery', 'Mustasa', 'Petsay Wombok', 'Other'],
   },
   FRUITING_VEGETABLES: {
     label: 'Prutas na Gulay',
     emoji: '🍅',
-    crops: ['Tomato', 'Bell Pepper', 'Eggplant', 'Chayote (Sayote)', 'Sweet Pea (Snap Pea)'],
+    crops: ['Tomato', 'Bell Pepper', 'Eggplant', 'Chayote (Sayote)', 'Sweet Pea (Snap Pea)', 'Ampalaya', 'Pipino', 'Kalabasa', 'Sitaw', 'Baguio Beans', 'Okra', 'Patola', 'Other'],
   },
   ROOT_CROPS: {
     label: 'Ugat na Pananim',
     emoji: '🥕',
-    crops: ['Carrots', 'Potato', 'Onion Leeks'],
+    crops: ['Carrots', 'Potato', 'Onion Leeks', 'Kamote', 'Singkamas', 'Labanos', 'Bawang', 'Luya', 'Ube', 'Other'],
   },
   HIGH_VALUE_CROPS: {
     label: 'Mataas na Halaga',
     emoji: '🍓',
-    crops: ['Strawberry', 'Broccoli', 'Other'],
+    crops: ['Strawberry', 'Broccoli', 'Cauliflower', 'Asparagus', 'Snow Peas', 'Sugar Peas', 'Cut Flowers', 'Herbs', 'Other'],
   },
 }
 
@@ -53,6 +54,9 @@ const ISSUES = [
   { id: 'rain', label: 'Sobrang Ulan' },
   { id: 'drought', label: 'Tagtuyot' },
   { id: 'disease', label: 'Sakit ng Halaman' },
+  { id: 'flood', label: 'Baha' },
+  { id: 'wind', label: 'Malakas na Hangin' },
+  { id: 'other', label: 'Iba pa...' },
   { id: 'none', label: 'Walang Problema' },
 ]
 
@@ -87,11 +91,14 @@ export default function MobileWizardPage() {
     gpsLat: '',
     gpsLng: '',
     issues: [],
+    customIssue: '',
   })
   const [referenceNumber, setReferenceNumber] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [lookupLoading, setLookupLoading] = useState(false)
   const [welcomeBack, setWelcomeBack] = useState<string | null>(null)
+  const [gpsLoading, setGpsLoading] = useState(false)
+  const [gpsError, setGpsError] = useState('')
   const [error, setError] = useState('')
 
   function update(field: keyof FormData, value: string | string[]) {
@@ -100,11 +107,11 @@ export default function MobileWizardPage() {
 
   function toggleIssue(id: string) {
     setForm((prev) => {
-      if (id === 'none') return { ...prev, issues: prev.issues.includes('none') ? [] : ['none'] }
-      const withoutNone = prev.issues.filter((i) => i !== 'none')
+      if (id === 'none') return { ...prev, issues: prev.issues.includes('none') ? [] : ['none'], customIssue: '' }
+      const withoutExclusive = prev.issues.filter((i) => i !== 'none')
       return {
         ...prev,
-        issues: withoutNone.includes(id) ? withoutNone.filter((i) => i !== id) : [...withoutNone, id],
+        issues: withoutExclusive.includes(id) ? withoutExclusive.filter((i) => i !== id) : [...withoutExclusive, id],
       }
     })
   }
@@ -141,16 +148,24 @@ export default function MobileWizardPage() {
   }
 
   function resetForm() {
-    setForm({ farmerName: '', municipality: '', barangay: '', contactNumber: '', cropCategory: '', cropName: '', customCrop: '', plantingDate: '', harvestDate: '', farmSizeHectares: '', farmSizeSqm: '', gpsLat: '', gpsLng: '', issues: [] })
+    setForm({ farmerName: '', municipality: '', barangay: '', contactNumber: '', cropCategory: '', cropName: '', customCrop: '', plantingDate: '', harvestDate: '', farmSizeHectares: '', farmSizeSqm: '', gpsLat: '', gpsLng: '', issues: [], customIssue: '' })
     setStep(1)
     setReferenceNumber('')
     setError('')
+    setWelcomeBack(null)
+    setGpsError('')
   }
 
   async function handleSubmit() {
     setSubmitting(true)
     setError('')
     try {
+      const resolvedIssues = form.issues.includes('none')
+        ? []
+        : form.issues
+            .filter((i) => i !== 'other')
+            .concat(form.issues.includes('other') && form.customIssue.trim() ? [form.customIssue.trim()] : [])
+
       const payload = {
         farmerName: form.farmerName,
         municipality: form.municipality,
@@ -165,7 +180,7 @@ export default function MobileWizardPage() {
         farmSizeSqm: form.farmSizeSqm ? parseFloat(form.farmSizeSqm) : undefined,
         gpsLat: form.gpsLat ? parseFloat(form.gpsLat) : undefined,
         gpsLng: form.gpsLng ? parseFloat(form.gpsLng) : undefined,
-        issues: form.issues,
+        issues: resolvedIssues,
       }
       const res = await fetch('/api/farmers', {
         method: 'POST',
@@ -173,7 +188,7 @@ export default function MobileWizardPage() {
         body: JSON.stringify(payload),
       })
       const data = await res.json()
-      if (!res.ok || !data.success) throw new Error(data.error || 'Submission failed')
+      if (!res.ok || !data.success) throw new Error(typeof data.error === 'string' ? data.error : 'Submission failed. Please try again.')
       setReferenceNumber(data.referenceNumber)
       setStep(10)
     } catch (err) {
@@ -418,24 +433,39 @@ export default function MobileWizardPage() {
               <p style={stepSubStyle}>Opsyonal — para sa mas tumpak na datos</p>
               <motion.button
                 onClick={() => {
-                  navigator.geolocation?.getCurrentPosition(
+                  if (!navigator.geolocation) {
+                    setGpsError('Hindi sinusuportahan ng iyong browser ang GPS.')
+                    return
+                  }
+                  setGpsLoading(true)
+                  setGpsError('')
+                  navigator.geolocation.getCurrentPosition(
                     (pos) => {
                       update('gpsLat', String(pos.coords.latitude))
                       update('gpsLng', String(pos.coords.longitude))
+                      setGpsLoading(false)
                     },
-                    () => {}
+                    (err) => {
+                      setGpsLoading(false)
+                      if (err.code === 1) setGpsError('Tinanggihan ang pahintulot sa lokasyon. Pakibuksan ang GPS sa iyong settings.')
+                      else if (err.code === 2) setGpsError('Hindi mahanap ang iyong lokasyon. Subukan ulit.')
+                      else setGpsError('Hindi nakuha ang GPS. Maaaring i-skip ito.')
+                    },
+                    { timeout: 10000, enableHighAccuracy: true }
                   )
                 }}
-                whileHover={{ scale: 1.04, y: -2 }}
-                whileTap={{ scale: 0.97 }}
+                disabled={gpsLoading}
+                whileHover={gpsLoading ? {} : { scale: 1.04, y: -2 }}
+                whileTap={gpsLoading ? {} : { scale: 0.97 }}
                 transition={spring}
                 style={{
                   width: '100%', background: '#2D5016', color: 'white',
                   border: 'none', padding: '14px', borderRadius: '14px',
-                  fontSize: '0.95rem', fontWeight: 700, cursor: 'pointer', marginBottom: '16px',
+                  fontSize: '0.95rem', fontWeight: 700, cursor: gpsLoading ? 'not-allowed' : 'pointer',
+                  marginBottom: '16px', opacity: gpsLoading ? 0.7 : 1,
                 }}
               >
-                📍 KUNIN ANG AKING LOKASYON
+                {gpsLoading ? '📡 Hinahanap ang lokasyon…' : '📍 KUNIN ANG AKING LOKASYON'}
               </motion.button>
               {form.gpsLat && (
                 <div style={{
@@ -446,6 +476,18 @@ export default function MobileWizardPage() {
                   ✅ LOKASYON NA-SAVE! — {parseFloat(form.gpsLat).toFixed(4)}, {parseFloat(form.gpsLng).toFixed(4)}
                 </div>
               )}
+              {gpsError && (
+                <div style={{
+                  background: '#FFF3E0', border: '1px solid #F4A300',
+                  borderRadius: '10px', padding: '12px',
+                  color: '#7A4F00', fontSize: '0.85rem', marginTop: '8px',
+                }}>
+                  ⚠️ {gpsError}
+                </div>
+              )}
+              <p style={{ fontSize: '0.78rem', color: '#999', textAlign: 'center', marginTop: '12px' }}>
+                Maaari kang mag-skip nito — opsyonal ang GPS
+              </p>
             </div>
           )}
 
@@ -587,6 +629,16 @@ export default function MobileWizardPage() {
                   </motion.button>
                 ))}
               </div>
+              {form.issues.includes('other') && (
+                <input
+                  type="text"
+                  value={form.customIssue}
+                  onChange={(e) => update('customIssue', e.target.value)}
+                  placeholder="Ilarawan ang problema…"
+                  style={{ ...inputStyle, marginTop: '12px' }}
+                  autoFocus
+                />
+              )}
               {error && (
                 <div style={{
                   marginTop: '16px', background: '#FFEBEE', border: '1px solid #FFCDD2',

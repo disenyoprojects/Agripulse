@@ -8,7 +8,7 @@ const agriPostFeatures = [
   'SMS & web compatibility',
   'Photo upload optional',
   'Instant confirmation & tips',
-  '🏆 +10 Data Points per submission',
+  '+10 Data Points per submission',
   'Rewards: Fertilizer vouchers, training, seeds',
 ]
 
@@ -22,34 +22,61 @@ const intelligenceFeatures = [
 
 function FeatureList({ items }: { items: string[] }) {
   return (
-    <ul style={{ listStyle: 'none', margin: '2rem 0 0', padding: 0 }}>
+    <ul style={{ listStyle: 'none', margin: '1.75rem 0 0', padding: 0 }}>
       {items.map((item) => (
         <li key={item} style={{
-          padding: '1rem 0',
-          borderBottom: '1px solid rgba(255,255,255,0.2)',
-          fontSize: '1.05rem',
+          padding: '0.85rem 0',
+          borderBottom: '1px solid rgba(255,255,255,0.09)',
+          fontSize: '1.02rem',
           display: 'flex',
           alignItems: 'center',
-          gap: '1rem',
+          gap: '0.9rem',
+          lineHeight: 1.45,
         }}>
-          <span style={{
-            background: '#D6E85C',
-            color: '#12150C',
-            width: '30px',
-            height: '30px',
+          <span aria-hidden="true" style={{
+            background: 'var(--accent-turquoise)',
+            color: 'var(--on-turquoise)',
+            width: '26px',
+            height: '26px',
             borderRadius: '50%',
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontWeight: 700,
             flexShrink: 0,
-            fontSize: '0.85rem',
+            fontSize: '0.8rem',
           }}>✓</span>
-          {item}
+          <span style={{ color: 'rgba(255,255,255,0.9)' }}>{item}</span>
         </li>
       ))}
     </ul>
   )
+}
+
+const eyebrowOnDark: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '0.5rem',
+  background: 'rgba(93,158,135,0.15)',
+  border: '1px solid rgba(93,158,135,0.32)',
+  color: 'var(--accent-turquoise-light)',
+  padding: '0.4rem 0.9rem',
+  borderRadius: '999px',
+  fontSize: '0.75rem',
+  fontWeight: 700,
+  textTransform: 'uppercase',
+  letterSpacing: '0.12em',
+  marginBottom: '1.25rem',
+}
+
+const heading3: React.CSSProperties = {
+  fontFamily: 'var(--font-heading), sans-serif',
+  textTransform: 'uppercase',
+  fontSize: 'clamp(1.75rem, 3vw, 2.4rem)',
+  marginBottom: '1.25rem',
+  color: 'var(--color-harvest-lime)',
+  letterSpacing: '-0.02em',
+  lineHeight: 1.1,
 }
 
 export default function SolutionSection() {
@@ -57,7 +84,7 @@ export default function SolutionSection() {
     <section
       id="solution"
       style={{
-        padding: '100px 5%',
+        padding: '110px 5%',
         background: '#10190B',
         color: 'white',
         position: 'relative',
@@ -66,39 +93,27 @@ export default function SolutionSection() {
     >
       <div style={{
         position: 'absolute', inset: 0,
-        background: 'linear-gradient(45deg, transparent 30%, rgba(214,232,92,0.04) 30%, rgba(214,232,92,0.04) 70%, transparent 70%)',
-        backgroundSize: '100px 100px',
+        background: 'radial-gradient(ellipse 60% 50% at 80% 10%, rgba(93,158,135,0.1) 0%, transparent 60%)',
+        pointerEvents: 'none',
       }} />
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
-        <div style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto 60px' }}>
+        <div style={{ textAlign: 'center', maxWidth: '760px', margin: '0 auto 64px' }}>
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           >
-            <span style={{
-              display: 'inline-block',
-              background: '#38541F',
-              color: '#D6E85C',
-              padding: '0.5rem 1.5rem',
-              borderRadius: '999px',
-              fontSize: '0.85rem',
-              fontWeight: 700,
-              textTransform: 'uppercase' as const,
-              letterSpacing: '1.5px',
-              marginBottom: '1.5rem',
-            }}>
-              The Innovation
-            </span>
+            <span style={eyebrowOnDark}>The Innovation</span>
             <h2 style={{
-              fontFamily: 'Anton, sans-serif',
-              fontWeight: 400,
+              fontFamily: 'var(--font-heading), sans-serif',
               textTransform: 'uppercase' as const,
-              fontSize: '3rem',
+              fontSize: 'clamp(2rem, 4vw, 3rem)',
               color: 'white',
-              lineHeight: 1.1,
+              lineHeight: 1.08,
+              letterSpacing: '-0.02em',
+              margin: 0,
             }}>
               Simple Data Systems Protecting Farmer Income
             </h2>
@@ -119,10 +134,8 @@ export default function SolutionSection() {
             viewport={{ once: true }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
-            <h3 style={{ fontFamily: 'Anton, sans-serif', fontWeight: 400, textTransform: 'uppercase' as const, fontSize: '2.5rem', marginBottom: '1.5rem', color: '#D6E85C' }}>
-              The "AgriPost" System
-            </h3>
-            <p style={{ fontSize: '1.1rem', lineHeight: 1.8, marginBottom: '1rem', opacity: 0.95 }}>
+            <h3 style={heading3}>The &ldquo;AgriPost&rdquo; System</h3>
+            <p style={{ fontSize: '1.08rem', lineHeight: 1.75, marginBottom: '1rem', opacity: 0.9 }}>
               If farmers can use Facebook, they can use agricultural intelligence tools.
               Our platform makes crop data submission as simple as posting a status update.
             </p>
@@ -135,15 +148,11 @@ export default function SolutionSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            style={{
-              background: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.12)',
-              borderRadius: '24px',
-              padding: '2.5rem',
-            }}
+            className="surface-glass"
+            style={{ padding: '2.25rem', boxShadow: 'var(--shadow-xl)' }}
           >
-            <div style={{ background: '#2D5016', borderRadius: '16px', padding: '1.5rem', marginBottom: '1rem' }}>
-              <p style={{ color: '#D6E85C', fontWeight: 700, marginBottom: '1rem', fontSize: '0.9rem' }}>Isumite ang Iyong Tanim 🌾</p>
+            <div style={{ background: 'linear-gradient(160deg, #2D5016, #234011)', borderRadius: 'var(--radius-lg)', padding: '1.5rem' }}>
+              <p style={{ color: 'var(--accent-turquoise-light)', fontWeight: 700, marginBottom: '1rem', fontSize: '0.9rem' }}>Isumite ang Iyong Tanim 🌾</p>
               {[
                 'Uri ng Tanim: Repolyo (Cabbage)',
                 'Sukat: 0.5 ektarya',
@@ -153,22 +162,22 @@ export default function SolutionSection() {
                 <div key={line} style={{
                   background: 'rgba(255,255,255,0.08)',
                   padding: '0.75rem 1rem',
-                  borderRadius: '8px',
+                  borderRadius: 'var(--radius-sm)',
                   marginBottom: '0.5rem',
                   fontSize: '0.9rem',
                   color: 'rgba(255,255,255,0.85)',
                 }}>{line}</div>
               ))}
               <div style={{
-                background: '#D6E85C',
+                background: 'var(--color-harvest-lime)',
                 color: '#10190B',
                 fontWeight: 700,
                 textAlign: 'center',
-                padding: '0.875rem',
-                borderRadius: '10px',
+                padding: '0.85rem',
+                borderRadius: 'var(--radius-sm)',
                 marginTop: '1rem',
                 fontSize: '0.9rem',
-                letterSpacing: '0.5px',
+                letterSpacing: '0.02em',
               }}>
                 ISUMITE NGAYON
               </div>
@@ -189,34 +198,35 @@ export default function SolutionSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            style={{
-              background: 'white',
-              borderRadius: '16px',
-              padding: '2rem',
-            }}
+            className="card"
+            style={{ padding: '1.75rem', boxShadow: 'var(--shadow-xl)' }}
           >
-            <h4 style={{ color: '#2D5016', marginBottom: '1rem', fontFamily: 'Anton, sans-serif', fontWeight: 400, fontSize: '1.1rem' }}>
+            <h4 style={{ color: '#2D5016', marginBottom: '1.1rem', fontFamily: 'var(--font-display), sans-serif', fontWeight: 700, fontSize: '1.05rem', letterSpacing: '-0.01em' }}>
               Real-Time Intelligence Dashboard
             </h4>
             {[
-              { color: '#D32F2F', label: '🔴 CABBAGE: 85% Saturation — Oversupply Risk' },
-              { color: '#FF6F00', label: '🟡 POTATO: 68% — Monitor Closely' },
-              { color: '#2E7D32', label: '🟢 CARROT: 18% — Opportunity Crop' },
-              { color: '#2E7D32', label: '🟢 LETTUCE: 42% — Balanced Supply' },
-            ].map(({ label }) => (
-              <div key={label} style={{ color: '#444', fontSize: '0.9rem', marginBottom: '0.5rem' }}>{label}</div>
+              { dot: '#D32F2F', label: 'CABBAGE: 85% Saturation — Oversupply Risk' },
+              { dot: '#FF6F00', label: 'POTATO: 68% — Monitor Closely' },
+              { dot: '#2E7D32', label: 'CARROT: 18% — Opportunity Crop' },
+              { dot: '#2E7D32', label: 'LETTUCE: 42% — Balanced Supply' },
+            ].map(({ dot, label }) => (
+              <div key={label} style={{ color: '#444', fontSize: '0.88rem', marginBottom: '0.6rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <span aria-hidden="true" style={{ width: '9px', height: '9px', borderRadius: '50%', background: dot, flexShrink: 0 }} />
+                {label}
+              </div>
             ))}
             <div style={{
-              background: '#A8C686',
-              padding: '1rem',
-              borderRadius: '8px',
-              color: '#12150C',
+              background: 'var(--accent-turquoise-50)',
+              border: '1px solid var(--accent-turquoise-100)',
+              padding: '0.85rem',
+              borderRadius: 'var(--radius-sm)',
+              color: 'var(--accent-turquoise-strong)',
               fontWeight: 700,
               textAlign: 'center' as const,
               marginTop: '1rem',
-              fontSize: '0.9rem',
+              fontSize: '0.88rem',
             }}>
-              247 Active Farmers | 118.5 Hectares Tracked
+              247 Active Farmers · 118.5 Hectares Tracked
             </div>
           </motion.div>
 
@@ -226,10 +236,8 @@ export default function SolutionSection() {
             viewport={{ once: true }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
-            <h3 style={{ fontFamily: 'Anton, sans-serif', fontWeight: 400, textTransform: 'uppercase' as const, fontSize: '2.5rem', marginBottom: '1.5rem', color: '#D6E85C' }}>
-              Municipal Intelligence
-            </h3>
-            <p style={{ fontSize: '1.1rem', lineHeight: 1.8, marginBottom: '1rem', opacity: 0.95 }}>
+            <h3 style={heading3}>Municipal Intelligence</h3>
+            <p style={{ fontSize: '1.08rem', lineHeight: 1.75, marginBottom: '1rem', opacity: 0.9 }}>
               LGU agricultural offices gain real-time visibility into community planting
               patterns, enabling predictive interventions before market crashes happen.
             </p>

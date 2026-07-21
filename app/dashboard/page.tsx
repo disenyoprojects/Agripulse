@@ -81,9 +81,9 @@ async function getDashboardData() {
 }
 
 const STATUS_CLASSES = {
-  high: { label: 'HIGH RISK', badge: 'bg-[#FFEBEE] text-warning-red' },
-  monitor: { label: 'MONITOR', badge: 'bg-[#FFF3E0] text-warning-orange' },
-  opportunity: { label: 'OPPORTUNITY', badge: 'bg-[#E8F5E9] text-success-green' },
+  high: { label: 'High Risk', dot: '#D32F2F', text: 'text-warning-red' },
+  monitor: { label: 'Monitor', dot: '#FF6F00', text: 'text-warning-orange' },
+  opportunity: { label: 'Opportunity', dot: '#2E7D32', text: 'text-success-green' },
 } as const
 
 function getStatus(pct: number) {
@@ -99,59 +99,47 @@ export default async function DashboardPage() {
   return (
     <main className="bg-[#FAF6F0] min-h-screen pt-20">
       {/* Dashboard Header */}
-      <div className="bg-gradient-to-br from-primary-green to-earth-medium-2 text-white px-[5%] py-[30px] shadow-lg">
+      <div
+        className="text-white px-[5%] py-8 relative overflow-hidden"
+        style={{
+          background:
+            'radial-gradient(ellipse 50% 120% at 88% 0%, rgba(93,158,135,0.28) 0%, transparent 60%), linear-gradient(135deg, #2D5016 0%, #38541F 60%, #234011 100%)',
+          boxShadow: 'var(--shadow-lg)',
+        }}
+      >
         <div className="max-w-[1400px] mx-auto flex justify-between items-center flex-wrap gap-5">
           <div>
-            <h1 className="font-heading text-[2rem] mb-1 flex items-center gap-[15px]">
-              🌾 AgriPulse System
+            <h1 className="font-heading text-[1.8rem] flex items-center gap-3" style={{ letterSpacing: '-0.01em' }}>
+              <span aria-hidden="true">🌾</span>
+              Agri<span style={{ color: 'var(--accent-turquoise-light)' }}>Pulse</span>
             </h1>
-            <p className="opacity-90 text-[0.95rem]">
-              BLISTT Area • Real-Time Crop Monitoring
+            <p className="opacity-85 text-[0.9rem] mt-1">
+              BLISTT Area · Real-Time Crop Monitoring
               {session?.user?.email && (
-                <span className="ml-4 opacity-70">— {session.user.email}</span>
+                <span className="ml-3 opacity-70">— {session.user.email}</span>
               )}
             </p>
           </div>
 
-          <div className="flex gap-3 items-center flex-wrap">
-            <Link
-              href="/"
-              className="px-5 py-2.5 bg-accent-gold text-primary-green rounded-lg font-bold text-sm uppercase tracking-[0.5px]"
-            >
-              🏠 Home
-            </Link>
-            <Link
-              href="/dashboard/farmers"
-              className="px-5 py-2.5 bg-transparent text-white border-2 border-white rounded-lg font-bold text-sm uppercase"
-            >
-              👥 Farmers
-            </Link>
-            <Link
-              href="/mobile-wizard"
-              className="px-5 py-2.5 bg-transparent text-white border-2 border-white rounded-lg font-bold text-sm uppercase"
-            >
-              📝 Farmer Form
-            </Link>
+          <div className="flex gap-2.5 items-center flex-wrap">
+            <Link href="/" className="btn btn-sm btn-on-dark">Home</Link>
+            <Link href="/dashboard/farmers" className="btn btn-sm btn-on-dark">Farmers</Link>
+            <Link href="/mobile-wizard" className="btn btn-sm btn-on-dark">Farmer Form</Link>
             <form
               action={async () => {
                 'use server'
                 await signOut({ redirectTo: '/auth/login' })
               }}
             >
-              <button
-                type="submit"
-                className="px-5 py-2.5 bg-transparent text-white border-2 border-white/50 rounded-lg font-bold text-sm cursor-pointer uppercase"
-              >
-                Sign Out
-              </button>
+              <button type="submit" className="btn btn-sm btn-on-dark">Sign Out</button>
             </form>
           </div>
         </div>
       </div>
 
-      <div className="max-w-[1400px] mx-auto px-[5%] py-[30px]">
+      <div className="max-w-[1400px] mx-auto px-[5%] py-8">
         {/* KPI Cards */}
-        <div className="grid [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))] gap-5 mb-[30px]">
+        <div className="grid [grid-template-columns:repeat(auto-fit,minmax(230px,1fr))] gap-5 mb-6">
           <StatsCard label="Active Farmers" value={data.totalFarmers} icon="👨‍🌾" />
           <StatsCard label="Hectares Tracked" value={`${data.totalHectares.toFixed(1)}`} icon="🌾" />
           <StatsCard label="Crop Varieties" value={data.cropBreakdown.length} icon="🥬" highlight />
@@ -162,10 +150,10 @@ export default async function DashboardPage() {
         <AlertSection cropBreakdown={data.cropBreakdown} totalSubmissions={data.totalSubmissions} />
 
         {/* Charts 2×2 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-[30px] mb-[30px]">
-          <div className="bg-white p-[30px] rounded-2xl border-[3px] border-earth-light-2">
-            <h2 className="font-heading text-[1.2rem] text-[#3E2723] mb-1">Crop Distribution</h2>
-            <p className="text-[0.85rem] text-[#666] mb-5">Current planting breakdown by crop type</p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <div className="card p-7">
+            <h2 className="font-heading text-[1.15rem] text-[#243016]" style={{ letterSpacing: '-0.01em' }}>Crop Distribution</h2>
+            <p className="text-[0.85rem] text-[#6b7360] mt-0.5 mb-5">Current planting breakdown by crop type</p>
             <CropChart
               labels={data.cropBreakdown.map((c) => c.cropName)}
               values={data.cropBreakdown.map((c) => c._count.cropName)}
@@ -173,9 +161,9 @@ export default async function DashboardPage() {
             />
           </div>
 
-          <div className="bg-white p-[30px] rounded-2xl border-[3px] border-earth-light-2">
-            <h2 className="font-heading text-[1.2rem] text-[#3E2723] mb-1">Harvest Timeline</h2>
-            <p className="text-[0.85rem] text-[#666] mb-5">Projected harvest area (ha) by month</p>
+          <div className="card p-7">
+            <h2 className="font-heading text-[1.15rem] text-[#243016]" style={{ letterSpacing: '-0.01em' }}>Harvest Timeline</h2>
+            <p className="text-[0.85rem] text-[#6b7360] mt-0.5 mb-5">Projected harvest area (ha) by month</p>
             <CropChart
               labels={data.harvestTimelineLabels}
               values={data.harvestTimelineValues}
@@ -184,21 +172,21 @@ export default async function DashboardPage() {
             />
           </div>
 
-          <div className="bg-white p-[30px] rounded-2xl border-[3px] border-earth-light-2">
-            <h2 className="font-heading text-[1.2rem] text-[#3E2723] mb-1">Barangay Participation</h2>
-            <p className="text-[0.85rem] text-[#666] mb-5">Active farmers by barangay</p>
+          <div className="card p-7">
+            <h2 className="font-heading text-[1.15rem] text-[#243016]" style={{ letterSpacing: '-0.01em' }}>Barangay Participation</h2>
+            <p className="text-[0.85rem] text-[#6b7360] mt-0.5 mb-5">Active farmers by barangay</p>
             <CropChart
               labels={data.barangayBreakdown.map((b) => b.barangay || 'Unknown')}
               values={data.barangayBreakdown.map((b) => b._count.id)}
               type="bar"
               horizontal
-              barColor="#F4A300"
+              barColor="#5d9e87"
             />
           </div>
 
-          <div className="bg-white p-[30px] rounded-2xl border-[3px] border-earth-light-2">
-            <h2 className="font-heading text-[1.2rem] text-[#3E2723] mb-1">Weekly Submissions</h2>
-            <p className="text-[0.85rem] text-[#666] mb-5">Data submission trends</p>
+          <div className="card p-7">
+            <h2 className="font-heading text-[1.15rem] text-[#243016]" style={{ letterSpacing: '-0.01em' }}>Weekly Submissions</h2>
+            <p className="text-[0.85rem] text-[#6b7360] mt-0.5 mb-5">Data submission trends</p>
             <WeeklyChart labels={data.weeklyLabels} values={data.weeklyValues} />
           </div>
         </div>
@@ -207,20 +195,20 @@ export default async function DashboardPage() {
         <BarangayMap barangays={data.barangayBreakdown} />
 
         {/* Data Intelligence Table */}
-        <div className="bg-white p-[30px] rounded-2xl border-[3px] border-earth-light-2 overflow-x-auto">
-          <h2 className="font-heading text-2xl text-[#3E2723] mb-5">
-            📋 Data Intelligence Summary
+        <div className="card p-7 overflow-x-auto">
+          <h2 className="font-heading text-[1.3rem] text-[#243016] mb-5" style={{ letterSpacing: '-0.01em' }}>
+            Data Intelligence Summary
           </h2>
           {data.cropBreakdown.length === 0 ? (
-            <p className="text-[#666] text-[0.95rem]">No data yet — submissions will appear here.</p>
+            <p className="text-[#6b7360] text-[0.95rem]">No data yet — submissions will appear here.</p>
           ) : (
-            <table className="w-full border-collapse">
+            <table className="w-full border-collapse text-sm">
               <thead>
                 <tr>
                   {['Crop Type', 'Submissions', 'Hectares', 'Next Harvest', 'Saturation', 'Status'].map((h) => (
                     <th
                       key={h}
-                      className="bg-primary-green text-white p-[15px] text-left font-bold text-sm uppercase tracking-[0.5px]"
+                      className="text-[#6b7360] pb-3 px-3 text-left font-bold text-xs uppercase tracking-wider border-b-2 border-[#e6e2d6]"
                     >
                       {h}
                     </th>
@@ -234,21 +222,22 @@ export default async function DashboardPage() {
                   const hectares = Number(c._sum.farmSizeHectares ?? 0)
                   const nextHarvest = c._max.harvestDate
                     ? new Date(c._max.harvestDate).toLocaleDateString('en-US', {
-                        month: 'long',
+                        month: 'short',
                         day: 'numeric',
                         year: 'numeric',
                       })
                     : '—'
                   const status = getStatus(pct)
                   return (
-                    <tr key={c.cropName} className="border-b border-[#E0E0E0]">
-                      <td className="p-[15px] font-semibold text-primary-green">{c.cropName}</td>
-                      <td className="p-[15px] text-[#666]">{c._count.cropName}</td>
-                      <td className="p-[15px] text-[#666]">{hectares > 0 ? `${hectares.toFixed(1)} ha` : '—'}</td>
-                      <td className="p-[15px] text-[#666]">{nextHarvest}</td>
-                      <td className="p-[15px] text-[#666]">{pct}%</td>
-                      <td className="p-[15px]">
-                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${status.badge}`}>
+                    <tr key={c.cropName} className="border-b border-[#eeeae0] hover:bg-[#faf8f2] transition-colors">
+                      <td className="py-3.5 px-3 font-semibold text-primary-green">{c.cropName}</td>
+                      <td className="py-3.5 px-3 text-[#5a5f52]" data-nums>{c._count.cropName}</td>
+                      <td className="py-3.5 px-3 text-[#5a5f52]" data-nums>{hectares > 0 ? `${hectares.toFixed(1)} ha` : '—'}</td>
+                      <td className="py-3.5 px-3 text-[#5a5f52]">{nextHarvest}</td>
+                      <td className="py-3.5 px-3 text-[#5a5f52]" data-nums>{pct}%</td>
+                      <td className="py-3.5 px-3">
+                        <span className={`inline-flex items-center gap-2 font-semibold ${status.text}`}>
+                          <span aria-hidden="true" className="w-2 h-2 rounded-full" style={{ background: status.dot }} />
                           {status.label}
                         </span>
                       </td>
@@ -261,7 +250,7 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <footer className="text-center p-[30px] text-[#7c8a70] text-[0.85rem]">
+      <footer className="text-center py-8 text-[#8a917e] text-[0.85rem]">
         © 2026 AgriPulse System | DisenyoDigitals
       </footer>
     </main>

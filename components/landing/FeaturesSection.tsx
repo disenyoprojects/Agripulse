@@ -36,8 +36,8 @@ const features = [
 
 export default function FeaturesSection() {
   return (
-    <div className="bg-green-900 border-t border-white/10 px-6 py-10">
-      <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
+    <div className="bg-green-900 border-t border-white/10 px-6 py-12">
+      <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
         {features.map(({ icon, label, href, desc, soon }, i) => (
           <motion.div
             key={label}
@@ -45,32 +45,61 @@ export default function FeaturesSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-40px' }}
             transition={{ duration: 0.6, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
-            whileHover={soon ? {} : { scale: 1.05, y: -6, boxShadow: '0 20px 40px rgba(0,0,0,0.3)' }}
+            whileHover={soon ? {} : { y: -6 }}
             className="h-full"
             style={{ willChange: 'transform' }}
           >
             {href ? (
               <Link
                 href={href}
-                className="group bg-white/5 hover:bg-white/10 rounded-xl p-4 border border-transparent hover:border-accent-gold/40 flex flex-col h-full transition-colors"
+                className="feature-card group flex flex-col h-full rounded-2xl p-5 transition-all duration-200"
+                style={{
+                  background: 'rgba(255,255,255,0.045)',
+                  border: '1px solid rgba(255,255,255,0.09)',
+                }}
               >
-                <div className="text-2xl mb-2">{icon}</div>
-                <p className="text-sm font-bold text-white group-hover:text-accent-gold transition-colors">
+                <div
+                  className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl text-xl transition-colors"
+                  style={{ background: 'rgba(93,158,135,0.16)', border: '1px solid rgba(93,158,135,0.28)' }}
+                >
+                  {icon}
+                </div>
+                <p className="text-sm font-bold text-white transition-colors group-hover:text-accent-turquoise-light">
                   {label}
                 </p>
                 <p className="text-xs text-green-300 mt-1 leading-relaxed">{desc}</p>
               </Link>
             ) : (
-              <div className="bg-white/5 rounded-xl p-4 border border-white/10 flex flex-col h-full opacity-60 cursor-not-allowed">
-                <div className="text-2xl mb-2">{icon}</div>
+              <div
+                className="flex flex-col h-full rounded-2xl p-5 opacity-70 cursor-not-allowed"
+                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
+              >
+                <div
+                  className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl text-xl"
+                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+                >
+                  {icon}
+                </div>
                 <p className="text-sm font-bold text-white">{label}</p>
                 <p className="text-xs text-green-300 mt-1 leading-relaxed">{desc}</p>
-                <span className="mt-2 text-[10px] font-bold tracking-widest text-accent-gold/70 uppercase">Coming Soon</span>
+                <span className="mt-3 inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-widest uppercase"
+                  style={{ background: 'rgba(93,158,135,0.16)', color: 'var(--accent-turquoise-light)' }}
+                >
+                  Coming Soon
+                </span>
               </div>
             )}
           </motion.div>
         ))}
       </div>
+
+      <style>{`
+        .feature-card:hover {
+          background: rgba(255,255,255,0.08) !important;
+          border-color: var(--accent-turquoise) !important;
+          box-shadow: 0 18px 40px -16px rgba(0,0,0,0.5);
+        }
+      `}</style>
     </div>
   )
 }

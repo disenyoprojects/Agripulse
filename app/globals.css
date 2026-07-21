@@ -1,215 +1,407 @@
 @import "tailwindcss";
 
 /* ============================================================
-   AgriPulse design tokens
-
-   Scene: dawn on a terraced vegetable plot in Benguet at 1,500m —
-   pine-dark ridgelines, cold fog in the valley, first sun on wet
-   cabbage rows. BLISTT is highland, not tropical: the palette is
-   pine and fog and cold light, never leaf-green and harvest gold.
-
-   Colour strategy: COMMITTED. Pine carries 40–60% of every dark
-   surface; ember is the single high-vis accent, used for action
-   and risk only, never for decoration.
-
-   Surfaces are split on purpose:
-     dark  — landing, dashboard (long sessions, indoor, evening)
-     light — mobile wizard (used outdoors in highland glare, where
-             a dark screen is unreadable)
-
-   Every foreground/background pair below is WCAG-verified.
-   Notable: ember-500 fills carry NEAR-BLACK text (5.21:1), not
-   white (3.11:1, fails). Hover brightens to ember-400 so the text
-   colour never has to change mid-interaction.
+   AgriPulse — premium design tokens (real CSS custom properties,
+   usable from inline styles, component classes, and utilities).
+   The existing brand palette is preserved verbatim; this layer
+   ADDS the turquoise secondary accent, elevation, radius, motion
+   and type scale on top of it.
    ============================================================ */
+:root {
+  /* --- Secondary accent: Grey Turquoise. Supports the gold/green
+         brand, never dominates. Variants are contrast-tuned:
+         base = fills/borders/accents on dark + large decorative;
+         -dark = AA text/links on light (4.83:1);
+         -strong = stronger text/hover on light (6.18:1);
+         -light = accents on dark surfaces (8.74:1 on deep green). --- */
+  --accent-turquoise: #5d9e87;
+  --accent-turquoise-dark: #3f7d68;
+  --accent-turquoise-strong: #356b59;
+  --accent-turquoise-light: #8fbfa9;
+  --accent-turquoise-50: #eef6f2;
+  --accent-turquoise-100: #dcebe4;
+  --accent-turquoise-200: #c4ddd2;
+  /* text that sits ON a turquoise fill (near-black green, 5.75:1) */
+  --on-turquoise: #10190b;
 
-@theme {
-  /* --- Pine: the brand surface ------------------------------ */
-  --color-pine-950: oklch(0.155 0.020 162);
-  --color-pine-900: oklch(0.215 0.030 162);
-  --color-pine-800: oklch(0.285 0.045 162);
-  --color-pine-700: oklch(0.350 0.077 160); /* primary */
-  --color-pine-600: oklch(0.440 0.085 160);
-  --color-pine-500: oklch(0.560 0.090 158);
-  --color-pine-400: oklch(0.680 0.085 158);
-  --color-pine-300: oklch(0.800 0.065 158);
+  /* --- Soft, layered elevation. Two-part shadows (ambient + key)
+         tinted toward the brand's dark earth, not neutral black. --- */
+  --shadow-xs: 0 1px 2px rgba(16, 25, 11, 0.05);
+  --shadow-sm: 0 1px 2px rgba(16, 25, 11, 0.06), 0 2px 6px rgba(16, 25, 11, 0.05);
+  --shadow-md: 0 2px 4px rgba(16, 25, 11, 0.05), 0 8px 20px -6px rgba(16, 25, 11, 0.12);
+  --shadow-lg: 0 4px 8px rgba(16, 25, 11, 0.05), 0 18px 40px -12px rgba(16, 25, 11, 0.18);
+  --shadow-xl: 0 8px 16px rgba(16, 25, 11, 0.06), 0 30px 60px -18px rgba(16, 25, 11, 0.24);
+  /* accent glow for focus / active turquoise elements */
+  --shadow-accent: 0 6px 20px -6px rgba(93, 158, 135, 0.5);
 
-  /* --- Ember: action + risk. Benguet carrot, not harvest gold. */
-  --color-ember-600: oklch(0.560 0.170 38); /* text on light bg */
-  --color-ember-500: oklch(0.660 0.180 42); /* fills, dark text  */
-  --color-ember-400: oklch(0.740 0.150 48); /* hover, text on dark */
+  /* --- Radius scale: one consistent rounding language. --- */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-2xl: 32px;
+  --radius-full: 999px;
 
-  /* --- Status. Cold cyan for "good" so it never reads as brand green. */
-  --color-glacier-400: oklch(0.780 0.105 205);
-  --color-amber-400: oklch(0.800 0.140 78);
-
-  /* --- Fog: the light surface. Cold-tinted, never cream. ----- */
-  --color-fog-50: oklch(0.975 0.005 210);
-  --color-fog-100: oklch(0.945 0.007 210);
-  --color-fog-200: oklch(0.890 0.009 210);
-
-  /* --- Ink ---------------------------------------------------- */
-  --color-ink: oklch(0.215 0.022 190);
-  --color-ink-muted: oklch(0.445 0.018 190);
-  --color-ink-inv: oklch(0.965 0.004 160);
-  --color-ink-inv-muted: oklch(0.760 0.014 160);
-
-  /* --- Display type scale. Ceiling is 6rem per the house rule. */
-  --text-display-xl: clamp(2.75rem, 7.5vw, 5.25rem);
-  --text-display-lg: clamp(2.5rem, 6.5vw, 4.5rem);
-  --text-display-md: clamp(2rem, 4.5vw, 3.25rem);
-  --text-display-sm: clamp(1.5rem, 3vw, 2.25rem);
-
-  /* --- Motion ------------------------------------------------- */
+  /* --- Motion: 150–250ms, exponential ease-out (no bounce). --- */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
-  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+  --dur-fast: 150ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
 
-  /* Product durations (state feedback) vs brand (choreography). */
-  --duration-fast: 150ms;
-  --duration-base: 240ms;
-  --duration-slow: 420ms;
-  --duration-brand: 760ms;
-  --duration-brand-lg: 1150ms;
+  /* --- Semantic z-scale (no arbitrary 9999). --- */
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-backdrop: 198;
+  --z-drawer: 199;
+  --z-modal: 400;
+  --z-toast: 500;
+  --z-grain: 700;
+
+  /* --- Focus ring: turquoise, consistent everywhere. --- */
+  --ring: 0 0 0 3px rgba(93, 158, 135, 0.45);
+
+  --background: #F8F7F2;
+  --foreground: #2C2C2C;
 }
 
-/* Fonts resolve from next/font vars set in layout.tsx. One family:
-   Archivo variable, wdth 62–125 + wght 100–900. The width axis is
-   the contrast lever — ultra-condensed 900 display against regular
-   body — which is why no second family is needed. */
 @theme inline {
-  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  /* AgriPulse official brand colors (source: Brand Guide PDF) — UNCHANGED */
+  --color-primary-green: #2D5016;
+  --color-accent-gold: #F4A300;
+  --color-harvest-lime: #D6E85C;
+  --color-cream: #F8F7F2;
+  --color-soil: #2C2C2C;
+  --color-sky: #0066CC;
+  --color-berry: #E85D6B;
+  --color-teal: #3FAE95;
+
+  /* Secondary accent — exposed as Tailwind utilities (bg-/text-/border-/ring-). */
+  --color-accent-turquoise: var(--accent-turquoise);
+  --color-accent-turquoise-dark: var(--accent-turquoise-dark);
+  --color-accent-turquoise-strong: var(--accent-turquoise-strong);
+  --color-accent-turquoise-light: var(--accent-turquoise-light);
+  --color-accent-turquoise-50: var(--accent-turquoise-50);
+  --color-accent-turquoise-100: var(--accent-turquoise-100);
+
+  /* Earth tones */
+  --color-earth-very-dark: #10190B;
+  --color-earth-dark: #2D5016;
+  --color-earth-medium: #38541F;
+  --color-earth-medium-2: #4A7C2C;
+  --color-earth-light: #7FA34A;
+  --color-earth-light-2: #A8C686;
+
+  /* Green scale (Market Pulse / Price Advisor) */
+  --color-green-900: #25361a;
+  --color-green-800: #2e4321;
+  --color-green-700: #3f5c2c;
+  --color-green-500: #6b9a4c;
+  --color-green-300: #a8c98a;
+
+  /* Amber / orange */
+  --color-orange: #e79c3d;
+  --color-orange-dark: #c97f24;
+  --color-maroon: #4a2c1d;
+
+  /* Alert colors */
+  --color-warning-red: #D32F2F;
+  --color-warning-orange: #FF6F00;
+  --color-success-green: #2E7D32;
+
+  /* Typography — matched to brand guide */
+  --font-heading: var(--font-archivo-black);
+  --font-body: var(--font-nunito);
+  --font-ui: var(--font-dm-sans);
+  --font-display: var(--font-baloo2);
 }
 
 /* ============================================================
-   Semantic surface themes.
-   Components read --bg/--surface/--ink/--line and stay
-   surface-agnostic; a section flips theme by setting data-surface.
+   Base typography — elevated hierarchy on the existing fonts.
    ============================================================ */
 @layer base {
-  [data-surface="dark"] {
-    --bg: var(--color-pine-950);
-    --surface: var(--color-pine-900);
-    --surface-raised: var(--color-pine-800);
-    --fg: var(--color-ink-inv);
-    --fg-muted: var(--color-ink-inv-muted);
-    --line: color-mix(in oklab, var(--color-ink-inv) 14%, transparent);
-    --line-strong: color-mix(in oklab, var(--color-ink-inv) 28%, transparent);
-    --accent: var(--color-ember-500);
-    --accent-fg: var(--color-pine-950);
-    --accent-text: var(--color-ember-400);
-  }
-
-  [data-surface="light"] {
-    --bg: var(--color-fog-50);
-    --surface: var(--color-fog-100);
-    --surface-raised: oklch(1 0 0);
-    --fg: var(--color-ink);
-    --fg-muted: var(--color-ink-muted);
-    --line: var(--color-fog-200);
-    --line-strong: color-mix(in oklab, var(--color-ink) 30%, transparent);
-    --accent: var(--color-ember-500);
-    --accent-fg: var(--color-pine-950);
-    --accent-text: var(--color-ember-600);
-  }
-
-  /* Semantic z-scale. Never arbitrary values. */
-  :root {
-    --z-base: 0;
-    --z-raised: 10;
-    --z-dropdown: 100;
-    --z-sticky: 200;
-    --z-overlay: 300;
-    --z-modal: 400;
-    --z-toast: 500;
-    --z-tooltip: 600;
-    --z-grain: 700;
-  }
-
   html {
-    /* Lenis drives scrolling; native smooth-scroll would fight it. */
-    scroll-behavior: auto;
     -webkit-text-size-adjust: 100%;
-  }
-
-  body {
-    background: var(--bg);
-    color: var(--fg);
-    font-family: var(--font-sans);
-    font-synthesis-weight: none;
     text-rendering: optimizeLegibility;
   }
 
-  /* Display type: condensed + heavy is the house voice. */
-  h1,
-  h2,
-  h3 {
-    font-variation-settings: "wdth" 84;
-    font-weight: 800;
-    line-height: 0.98;
-    letter-spacing: -0.02em; /* floor is -0.04em; we stay well inside */
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-ui), 'DM Sans', system-ui, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Display / heading font, tightened for a premium feel. */
+  h1, h2, h3 {
+    font-family: var(--font-heading), 'Archivo Black', sans-serif;
+    letter-spacing: -0.02em;
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+  h4, h5, h6 {
+    font-family: var(--font-display), 'Baloo 2', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
     text-wrap: balance;
   }
 
-  p {
-    text-wrap: pretty;
-  }
+  p { text-wrap: pretty; }
 
-  /* Numbers in data contexts must not jitter as they update. */
-  [data-nums] {
+  /* Tabular figures wherever numbers update or align in columns. */
+  [data-nums], .tnum {
     font-variant-numeric: tabular-nums;
     font-feature-settings: "tnum" 1;
   }
 
-  /* One focus treatment everywhere, visible on both surfaces. */
+  /* One focus treatment across the whole app. */
   :focus-visible {
-    outline: 2px solid var(--color-ember-500);
-    outline-offset: 3px;
-    border-radius: 2px;
+    outline: none;
+    box-shadow: var(--ring);
+    border-radius: var(--radius-xs);
   }
 
   ::selection {
-    background: var(--color-ember-500);
-    color: var(--color-pine-950);
-  }
-}
-
-@layer utilities {
-  /* Condensed display voice, used by hero + section headings. */
-  .u-display {
-    font-variation-settings: "wdth" 70;
-    font-weight: 900;
-    text-transform: uppercase;
-    line-height: 0.92;
-    letter-spacing: -0.025em;
-  }
-
-  /* Wide, low-weight — the counterpoint to .u-display. */
-  .u-wide {
-    font-variation-settings: "wdth" 118;
-    font-weight: 300;
-  }
-
-  .u-measure {
-    max-width: 68ch; /* inside the 65–75ch band */
-  }
-
-  .u-rule {
-    border: 0;
-    border-top: 1px solid var(--line);
+    background: var(--accent-turquoise);
+    color: var(--on-turquoise);
   }
 }
 
 /* ============================================================
-   Reduced motion. Not optional — every animation in this project
-   has a fallback. Transforms collapse, opacity is forced visible
-   so nothing can ship blank when reveals are suppressed.
+   Component primitives. The current design has no shared
+   button/card/input — every one was a bespoke inline style,
+   which is the root of its visual drift. These give the whole
+   app one consistent, polished vocabulary.
+   ============================================================ */
+@layer components {
+  /* --- Buttons: consistent height, padding, radius, states. --- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 2.875rem; /* 46px — comfortable, ≥44px touch target */
+    padding-inline: 1.5rem;
+    font-family: var(--font-ui), sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    border: 1px solid transparent;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      transform var(--dur-base) var(--ease-out-quart),
+      box-shadow var(--dur-base) var(--ease-out-quart),
+      background-color var(--dur-base) var(--ease-out-quart),
+      border-color var(--dur-base) var(--ease-out-quart),
+      color var(--dur-base) var(--ease-out-quart);
+  }
+  .btn:active { transform: translateY(0) scale(0.98); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* Primary — brand gold, the established primary CTA colour, refined
+     with a soft lift. */
+  .btn-primary {
+    background: var(--color-accent-gold);
+    color: #3a2600;
+    box-shadow: var(--shadow-sm);
+  }
+  .btn-primary:hover {
+    background: #ffb01f;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Hero — primary action with a green→turquoise wash, for the biggest
+     moments only. Text stays near-white for AA on the deep end. */
+  .btn-hero {
+    background: linear-gradient(135deg, var(--color-primary-green) 0%, var(--accent-turquoise-strong) 100%);
+    color: #ffffff;
+    box-shadow: var(--shadow-md);
+  }
+  .btn-hero:hover {
+    background: linear-gradient(135deg, #366021 0%, var(--accent-turquoise-dark) 100%);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg), var(--shadow-accent);
+  }
+
+  /* Secondary — the turquoise accent as an outline/tint. */
+  .btn-secondary {
+    background: var(--accent-turquoise-50);
+    color: var(--accent-turquoise-strong);
+    border-color: var(--accent-turquoise-200);
+  }
+  .btn-secondary:hover {
+    background: var(--accent-turquoise-100);
+    border-color: var(--accent-turquoise);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Ghost — minimal, for tertiary actions. */
+  .btn-ghost {
+    background: transparent;
+    color: var(--color-primary-green);
+    border-color: color-mix(in srgb, var(--color-primary-green) 22%, transparent);
+  }
+  .btn-ghost:hover {
+    background: color-mix(in srgb, var(--color-primary-green) 7%, transparent);
+    border-color: color-mix(in srgb, var(--color-primary-green) 40%, transparent);
+  }
+
+  /* On dark (green) surfaces. */
+  .btn-on-dark {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(6px);
+  }
+  .btn-on-dark:hover {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: var(--accent-turquoise);
+    color: var(--accent-turquoise-light);
+    transform: translateY(-2px);
+  }
+
+  .btn-sm { height: 2.25rem; padding-inline: 1rem; font-size: 0.8rem; }
+  .btn-lg { height: 3.25rem; padding-inline: 2rem; font-size: 1rem; }
+
+  /* --- Cards / elevated surfaces. --- */
+  .card {
+    background: #fff;
+    border: 1px solid rgba(16, 25, 11, 0.08);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+  }
+  .card-interactive {
+    transition:
+      transform var(--dur-base) var(--ease-out-quart),
+      box-shadow var(--dur-base) var(--ease-out-quart),
+      border-color var(--dur-base) var(--ease-out-quart);
+    will-change: transform;
+  }
+  .card-interactive:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent-turquoise-200);
+  }
+
+  /* Frosted panel for use over imagery / dark gradients. */
+  .surface-glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px) saturate(1.1);
+    -webkit-backdrop-filter: blur(20px) saturate(1.1);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: var(--radius-xl);
+  }
+
+  /* --- Inputs. --- */
+  .field-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-primary-green);
+    letter-spacing: 0.01em;
+    margin-bottom: 0.4rem;
+  }
+  .field-input,
+  .field-select {
+    width: 100%;
+    height: 2.875rem;
+    padding: 0 0.9rem;
+    font: inherit;
+    font-size: 0.95rem;
+    color: var(--color-soil);
+    background: #fff;
+    border: 1px solid rgba(16, 25, 11, 0.14);
+    border-radius: var(--radius-md);
+    outline: none;
+    transition:
+      border-color var(--dur-fast) var(--ease-out-quart),
+      box-shadow var(--dur-fast) var(--ease-out-quart);
+  }
+  .field-input::placeholder { color: #9aa290; }
+  .field-input:hover,
+  .field-select:hover { border-color: rgba(16, 25, 11, 0.26); }
+  .field-input:focus-visible,
+  .field-select:focus-visible {
+    border-color: var(--accent-turquoise);
+    box-shadow: var(--ring);
+  }
+  textarea.field-input { height: auto; padding: 0.7rem 0.9rem; }
+
+  /* --- Badges / pills. --- */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    border-radius: var(--radius-full);
+    line-height: 1.2;
+  }
+  .badge-accent { background: var(--accent-turquoise-50); color: var(--accent-turquoise-strong); }
+  .badge-gold { background: #fdf0d6; color: #8a5a00; }
+  .badge-live { background: var(--accent-turquoise-50); color: var(--accent-turquoise-strong); }
+
+  /* --- Divider: subtle, not a harsh line. --- */
+  .divider {
+    height: 1px;
+    border: 0;
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(16, 25, 11, 0.1) 12%,
+      rgba(16, 25, 11, 0.1) 88%,
+      transparent
+    );
+  }
+
+  /* --- Skeleton loader (replaces spinners for content). --- */
+  .skeleton {
+    background: linear-gradient(
+      100deg,
+      rgba(16, 25, 11, 0.06) 30%,
+      rgba(16, 25, 11, 0.11) 50%,
+      rgba(16, 25, 11, 0.06) 70%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shine 1.4s ease-in-out infinite;
+    border-radius: var(--radius-sm);
+  }
+  @keyframes skeleton-shine {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
+  }
+
+  /* Small kicker/eyebrow used sparingly. */
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-ui), sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+}
+
+/* ============================================================
+   Reduced motion — every animation degrades to instant/crossfade.
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

@@ -2,228 +2,255 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
-import { useMotionValueEvent, useScroll } from 'framer-motion'
+import { useState } from 'react'
+import NavLinks from '@/components/landing/NavLinks'
 
-/** Landing anchors only make sense on the landing page. */
-const sectionLinks = [
-  { label: 'Ang suliranin', href: '/#problem' },
-  { label: 'Ang sistema', href: '/#solution' },
-  { label: 'Epekto', href: '/#impact' },
-]
-
-const appLinks = [
-  { label: 'LGU dashboard', href: '/dashboard' },
+const links = [
+  { label: 'Problem', href: '/#problem' },
+  { label: 'Solution', href: '/#solution' },
+  { label: 'Impact', href: '/#impact' },
+  { label: 'Farmer Portal', href: '/mobile-wizard' },
+  { label: 'LGU Dashboard', href: '/dashboard' },
   { label: 'Leaderboard', href: '/leaderboard' },
-  { label: 'Price advisor', href: '/price-advisor' },
+  { label: 'Price Advisor', href: '/price-advisor' },
 ]
 
 export default function SiteNav() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-  const triggerRef = useRef<HTMLButtonElement>(null)
-  const drawerRef = useRef<HTMLDivElement>(null)
-
-  const { scrollY } = useScroll()
-  useMotionValueEvent(scrollY, 'change', (v) => setScrolled(v > 24))
-
-  const onHome = pathname === '/'
-  const links = onHome ? [...sectionLinks, ...appLinks] : appLinks
-  const drawerLinks = [...sectionLinks, ...appLinks]
-
-  // Escape closes the drawer and returns focus to the button that opened it.
-  useEffect(() => {
-    if (!open) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setOpen(false)
-        triggerRef.current?.focus()
-      }
-    }
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
-  }, [open])
-
-  // Move focus into the drawer when it opens so keyboard users land there.
-  useEffect(() => {
-    if (open) drawerRef.current?.focus()
-  }, [open])
-
-  const isActive = (href: string) =>
-    !href.includes('#') && href !== '/' && pathname?.startsWith(href)
 
   return (
     <>
-      <header
-        data-surface="dark"
-        className="fixed inset-x-0 top-0"
-        style={{ zIndex: 'var(--z-sticky)' }}
+      <nav
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          zIndex: 'var(--z-sticky)',
+          background: 'rgba(16, 25, 11, 0.82)',
+          backdropFilter: 'blur(16px) saturate(1.1)',
+          WebkitBackdropFilter: 'blur(16px) saturate(1.1)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '0.85rem 5%',
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          boxShadow: '0 10px 30px -12px rgba(0,0,0,0.5)',
+        }}
       >
-        {/* Surface fades in on scroll rather than sitting as permanent glass,
-            so the hero reads full-bleed at rest. */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 border-b transition-[opacity,backdrop-filter] duration-[var(--duration-slow)] ease-[var(--ease-out-quart)]"
+        <Link
+          href="/"
+          onClick={() => setOpen(false)}
           style={{
-            opacity: scrolled ? 1 : 0,
-            background: 'color-mix(in oklab, var(--color-pine-950) 88%, transparent)',
-            backdropFilter: scrolled ? 'blur(12px)' : 'none',
-            WebkitBackdropFilter: scrolled ? 'blur(12px)' : 'none',
-            borderColor: 'var(--line)',
+            fontFamily: 'var(--font-heading), sans-serif',
+            fontSize: '1.4rem',
+            color: '#fff',
+            textTransform: 'uppercase',
+            letterSpacing: '0.02em',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.55rem',
+            textDecoration: 'none',
           }}
-        />
-
-        <nav
-          aria-label="Pangunahing nabigasyon"
-          className="relative mx-auto flex max-w-[1600px] items-center gap-8 px-[6vw] py-4"
         >
-          <Link
-            href="/"
-            onClick={() => setOpen(false)}
-            className="text-ink-inv group flex shrink-0 items-baseline gap-2 text-xl"
-          >
-            <span className="u-display tracking-tight">AgriPulse</span>
-            {/* The pulse in the name, made literal. */}
-            <span
-              aria-hidden="true"
-              className="bg-ember-500 size-1.5 shrink-0 rounded-full"
-              style={{ animation: 'nav-pulse 2.8s var(--ease-in-out-quart) infinite' }}
-            />
-          </Link>
+          <span style={{ fontSize: '1.6rem', lineHeight: 1 }} aria-hidden="true">🌾</span>
+          <span>
+            Agri<span style={{ color: 'var(--accent-turquoise-light)' }}>Pulse</span>
+          </span>
+        </Link>
 
-          <ul className="ml-auto hidden items-center gap-7 lg:flex">
-            {links.map(({ label, href }) => (
+        <ul
+          style={{ gap: '2rem', listStyle: 'none', margin: 0, padding: 0 }}
+          className="hidden md:flex"
+        >
+          {links.map(({ label, href }) => {
+            const isActive = pathname === href || (href !== '/' && pathname?.startsWith(href.split('#')[0]) && !href.includes('#'))
+            return (
               <li key={href}>
                 <Link
                   href={href}
-                  aria-current={isActive(href) ? 'page' : undefined}
-                  className={`nav-link relative text-sm transition-colors duration-[var(--duration-base)] ${
-                    isActive(href)
-                      ? 'text-ink-inv font-semibold'
-                      : 'text-ink-inv-muted hover:text-ink-inv'
-                  }`}
+                  style={{
+                    position: 'relative',
+                    color: isActive ? 'var(--accent-turquoise-light)' : 'rgba(255,255,255,0.86)',
+                    textDecoration: 'none',
+                    fontWeight: isActive ? 700 : 500,
+                    fontSize: '0.9rem',
+                    transition: 'color var(--dur-base) var(--ease-out-quart)',
+                  }}
+                  className={`nav-link-item${isActive ? ' is-active' : ''}`}
                 >
                   {label}
                 </Link>
               </li>
-            ))}
-          </ul>
+            )
+          })}
+        </ul>
 
-          <Link
-            href="/mobile-wizard"
-            className="bg-ember-500 text-pine-950 hover:bg-ember-400 ml-auto hidden shrink-0 rounded-full px-5 py-2.5 text-sm font-bold transition-colors duration-[var(--duration-base)] lg:ml-0 lg:block"
-          >
-            Isumite ang tanim
-          </Link>
+        <div className="hidden md:flex">
+          <NavLinks />
+        </div>
 
-          <button
-            ref={triggerRef}
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            aria-label={open ? 'Isara ang menu' : 'Buksan ang menu'}
-            aria-expanded={open}
-            aria-controls="site-drawer"
-            className="ml-auto flex size-10 shrink-0 flex-col items-center justify-center gap-[5px] lg:hidden"
-          >
-            <span
-              aria-hidden="true"
-              className="bg-ink-inv block h-0.5 w-6 rounded-full transition-transform duration-[var(--duration-base)] ease-[var(--ease-out-quart)]"
-              style={{ transform: open ? 'translateY(7px) rotate(45deg)' : undefined }}
-            />
-            <span
-              aria-hidden="true"
-              className="bg-ink-inv block h-0.5 w-6 rounded-full transition-opacity duration-[var(--duration-base)]"
-              style={{ opacity: open ? 0 : 1 }}
-            />
-            <span
-              aria-hidden="true"
-              className="bg-ink-inv block h-0.5 w-6 rounded-full transition-transform duration-[var(--duration-base)] ease-[var(--ease-out-quart)]"
-              style={{ transform: open ? 'translateY(-7px) rotate(-45deg)' : undefined }}
-            />
-          </button>
-        </nav>
-      </header>
+        {/* Hamburger — mobile only */}
+        <button
+          className="md:hidden"
+          onClick={() => setOpen((v) => !v)}
+          aria-label={open ? 'Close menu' : 'Open menu'}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '0.5rem',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '5px',
+            width: '44px',
+            height: '44px',
+          }}
+        >
+          <span style={{
+            display: 'block', width: '24px', height: '2px', background: 'var(--accent-turquoise-light)',
+            borderRadius: '2px',
+            transition: 'transform var(--dur-slow) var(--ease-out-quart), opacity var(--dur-base)',
+            transform: open ? 'translateY(7px) rotate(45deg)' : 'none',
+          }} />
+          <span style={{
+            display: 'block', width: '24px', height: '2px', background: 'var(--accent-turquoise-light)',
+            borderRadius: '2px',
+            transition: 'opacity var(--dur-base)',
+            opacity: open ? 0 : 1,
+          }} />
+          <span style={{
+            display: 'block', width: '24px', height: '2px', background: 'var(--accent-turquoise-light)',
+            borderRadius: '2px',
+            transition: 'transform var(--dur-slow) var(--ease-out-quart), opacity var(--dur-base)',
+            transform: open ? 'translateY(-7px) rotate(-45deg)' : 'none',
+          }} />
+        </button>
+      </nav>
 
+      {/* Backdrop */}
       <div
         onClick={() => setOpen(false)}
-        aria-hidden="true"
-        className="fixed inset-0 bg-black/60 transition-opacity duration-[var(--duration-slow)] lg:hidden"
         style={{
-          zIndex: 'var(--z-overlay)',
+          position: 'fixed',
+          inset: 0,
+          zIndex: 'var(--z-backdrop)',
+          background: 'rgba(8,12,6,0.6)',
+          backdropFilter: open ? 'blur(2px)' : 'none',
           opacity: open ? 1 : 0,
           pointerEvents: open ? 'auto' : 'none',
+          transition: 'opacity var(--dur-slow) var(--ease-out-quart)',
         }}
       />
 
-      {/* `inert` keeps the closed drawer out of the tab order entirely —
-          previously its links stayed focusable behind the page. */}
+      {/* Sidebar drawer — slides in from right */}
       <div
-        id="site-drawer"
-        ref={drawerRef}
-        data-surface="dark"
-        tabIndex={-1}
-        inert={!open}
-        aria-label="Menu"
-        className="bg-pine-950 fixed inset-y-0 right-0 flex h-full w-[78vw] max-w-sm flex-col border-l px-7 pt-24 pb-8 transition-transform duration-[var(--duration-slow)] ease-[var(--ease-out-quint)] lg:hidden"
         style={{
-          zIndex: 'var(--z-modal)',
-          borderColor: 'var(--line)',
+          position: 'fixed',
+          top: 0,
+          right: 0,
+          width: '78vw',
+          maxWidth: '340px',
+          height: '100%',
+          zIndex: 'var(--z-drawer)',
+          background: 'linear-gradient(180deg, #142010 0%, #0c150a 100%)',
+          borderLeft: '1px solid rgba(93,158,135,0.18)',
+          boxShadow: '-24px 0 60px -20px rgba(0,0,0,0.6)',
+          display: 'flex',
+          flexDirection: 'column',
+          paddingTop: '5rem',
+          paddingBottom: '2rem',
+          paddingLeft: '1.75rem',
+          paddingRight: '1.75rem',
           transform: open ? 'translateX(0)' : 'translateX(100%)',
+          transition: 'transform var(--dur-slow) var(--ease-out-quint)',
         }}
       >
-        <nav aria-label="Menu" className="flex flex-col">
-          {drawerLinks.map(({ label, href }) => (
-            <Link
-              key={href}
-              href={href}
-              onClick={() => setOpen(false)}
-              aria-current={isActive(href) ? 'page' : undefined}
-              className={`flex items-center justify-between border-b py-4 text-base transition-colors duration-[var(--duration-base)] ${
-                isActive(href) ? 'text-ember-400 font-bold' : 'text-ink-inv hover:text-ember-400'
-              }`}
-              style={{ borderColor: 'var(--line)' }}
-            >
-              {label}
-              <span aria-hidden="true" className="text-ink-inv-muted">
-                ›
-              </span>
-            </Link>
-          ))}
+        <button
+          onClick={() => setOpen(false)}
+          aria-label="Close menu"
+          style={{
+            position: 'absolute',
+            top: '1rem',
+            right: '1rem',
+            background: 'rgba(255,255,255,0.06)',
+            border: '1px solid rgba(255,255,255,0.12)',
+            borderRadius: 'var(--radius-full)',
+            cursor: 'pointer',
+            color: 'var(--accent-turquoise-light)',
+            fontSize: '1.1rem',
+            lineHeight: 1,
+            width: '40px',
+            height: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          ✕
+        </button>
+
+        <p className="eyebrow" style={{ color: 'var(--accent-turquoise-light)', opacity: 0.7, marginBottom: '1.25rem' }}>
+          Navigation
+        </p>
+
+        <nav style={{ display: 'flex', flexDirection: 'column' }}>
+          {links.map(({ label, href }) => {
+            const isActive = pathname === href || (href !== '/' && pathname?.startsWith(href.split('#')[0]) && !href.includes('#'))
+            return (
+              <Link
+                key={href}
+                href={href}
+                onClick={() => setOpen(false)}
+                style={{
+                  color: isActive ? 'var(--accent-turquoise-light)' : 'rgba(255,255,255,0.85)',
+                  textDecoration: 'none',
+                  fontWeight: isActive ? 700 : 500,
+                  fontSize: '1rem',
+                  letterSpacing: '0.01em',
+                  padding: '0.9rem 0',
+                  borderBottom: '1px solid rgba(255,255,255,0.07)',
+                  transition: 'color var(--dur-base) var(--ease-out-quart)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                {label}
+                <span style={{ color: isActive ? 'var(--accent-turquoise)' : 'rgba(255,255,255,0.35)', fontSize: '0.9rem' }}>›</span>
+              </Link>
+            )
+          })}
         </nav>
 
-        <Link
-          href="/mobile-wizard"
-          onClick={() => setOpen(false)}
-          className="bg-ember-500 text-pine-950 hover:bg-ember-400 mt-8 rounded-full py-3.5 text-center text-base font-bold transition-colors duration-[var(--duration-base)]"
-        >
-          Isumite ang tanim
-        </Link>
+        <div style={{ marginTop: '2rem' }}>
+          <NavLinks />
+        </div>
       </div>
 
       <style>{`
-        @keyframes nav-pulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.35; transform: scale(0.8); }
-        }
-        .nav-link::after {
+        .nav-link-item::after {
           content: '';
           position: absolute;
           left: 0;
           bottom: -6px;
           width: 100%;
-          height: 1.5px;
-          background: var(--color-ember-500);
+          height: 2px;
+          border-radius: 2px;
+          background: var(--accent-turquoise);
           transform: scaleX(0);
           transform-origin: right;
-          transition: transform var(--duration-base) var(--ease-out-quart);
+          transition: transform var(--dur-slow) var(--ease-out-expo);
         }
-        .nav-link:hover::after {
+        .nav-link-item.is-active::after { background: var(--accent-turquoise-light); }
+        .nav-link-item:hover { color: var(--accent-turquoise-light) !important; }
+        .nav-link-item:hover::after,
+        .nav-link-item.is-active::after {
           transform: scaleX(1);
           transform-origin: left;
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .nav-link::after { transition: none; }
         }
       `}</style>
     </>

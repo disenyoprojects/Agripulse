@@ -267,10 +267,12 @@ export default function MobileWizardPage() {
                 <div style={{ height: '6px', background: 'rgba(255,255,255,0.3)', borderRadius: '3px', overflow: 'hidden', marginTop: '15px' }}>
                   <div style={{
                     height: '100%',
-                    width: `${progress}%`,
+                    width: '100%',
                     background: '#F4A300',
                     borderRadius: '3px',
-                    transition: 'width 0.3s ease',
+                    transformOrigin: 'left center',
+                    transform: `scaleX(${progress / 100})`,
+                    transition: 'transform 0.3s ease',
                   }} />
                 </div>
               )}
@@ -286,10 +288,11 @@ export default function MobileWizardPage() {
             <div style={{ textAlign: 'center', padding: '2rem 0' }}>
               <div style={{ fontSize: '72px', marginBottom: '1rem' }}>🌾</div>
               <h1 style={{
-                fontFamily: 'Anton, sans-serif',
+                fontFamily: 'var(--font-heading), sans-serif',
                 fontWeight: 400,
                 fontSize: '2rem',
                 color: '#2D5016',
+                letterSpacing: '-0.01em',
                 marginBottom: '0.5rem',
               }}>
                 Magtanim Nang Matalino
@@ -349,7 +352,7 @@ export default function MobileWizardPage() {
           {/* Step 2 — Name */}
           {step === 2 && (
             <div>
-              <h2 style={{ fontFamily: 'Anton, sans-serif', fontWeight: 400, fontSize: '1.5rem', color: '#2D5016', marginBottom: '4px' }}>Pangalan mo</h2>
+              <h2 style={{ fontFamily: 'var(--font-heading), sans-serif', fontWeight: 400, fontSize: '1.5rem', color: '#2D5016', letterSpacing: '-0.01em', marginBottom: '4px' }}>Pangalan mo</h2>
               <p style={{ fontSize: '0.875rem', color: '#666', marginBottom: '1.5rem' }}>Ayon sa iyong government ID</p>
               <input
                 type="text"
@@ -373,9 +376,9 @@ export default function MobileWizardPage() {
             <div>
               {welcomeBack && (
                 <div style={{
-                  background: 'rgba(107,154,76,0.12)',
-                  border: '1.5px solid #6b9a4c',
-                  borderRadius: '12px',
+                  background: 'var(--accent-turquoise-50)',
+                  border: '1px solid var(--accent-turquoise-200)',
+                  borderRadius: 'var(--radius-md)',
                   padding: '12px 16px',
                   marginBottom: '1.25rem',
                   display: 'flex',
@@ -384,7 +387,7 @@ export default function MobileWizardPage() {
                 }}>
                   <span style={{ fontSize: '1.5rem' }}>👋</span>
                   <div>
-                    <p style={{ fontWeight: 700, color: '#2D5016', fontSize: '0.9rem', marginBottom: '2px' }}>
+                    <p style={{ fontWeight: 700, color: 'var(--accent-turquoise-strong)', fontSize: '0.9rem', marginBottom: '2px' }}>
                       Welcome back, {welcomeBack}!
                     </p>
                     <p style={{ fontSize: '0.78rem', color: '#555' }}>
@@ -654,7 +657,7 @@ export default function MobileWizardPage() {
           {step === 10 && (
             <div style={{ textAlign: 'center', padding: '3rem 0' }}>
               <div style={{ fontSize: '5rem', marginBottom: '1rem', animation: 'successPop 0.6s ease' }}>🎉</div>
-              <h2 style={{ fontFamily: 'Anton, sans-serif', fontWeight: 400, fontSize: '2.5rem', color: '#2D5016', marginBottom: '0.5rem' }}>
+              <h2 style={{ fontFamily: 'var(--font-heading), sans-serif', fontWeight: 400, fontSize: '2.5rem', color: '#2D5016', letterSpacing: '-0.02em', marginBottom: '0.5rem' }}>
                 Salamat!
               </h2>
               <p style={{ color: '#666', marginBottom: '2rem' }}>Natanggap na ang iyong submission.</p>
@@ -666,7 +669,7 @@ export default function MobileWizardPage() {
                 <p style={{ fontSize: '0.75rem', color: '#a8c98a', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '1px' }}>
                   REFERENCE NUMBER
                 </p>
-                <p style={{ fontFamily: 'Anton, sans-serif', fontWeight: 400, fontSize: '2rem', color: '#F4A300' }}>
+                <p style={{ fontFamily: 'var(--font-heading), sans-serif', fontWeight: 400, fontSize: '2rem', color: '#F4A300', letterSpacing: '-0.01em' }}>
                   {referenceNumber}
                 </p>
                 <p style={{ fontSize: '0.75rem', color: '#a8c98a', marginTop: '12px' }}>
@@ -792,16 +795,21 @@ export default function MobileWizardPage() {
           100%{transform:scale(1);opacity:1}
         }
         .next-btn:disabled { opacity: 0.4 !important; cursor: not-allowed !important; }
+        input:focus-visible, select:focus-visible, textarea:focus-visible {
+          border-color: var(--accent-turquoise) !important;
+          box-shadow: var(--ring);
+        }
       `}</style>
     </main>
   )
 }
 
 const inputStyle: React.CSSProperties = {
-  width: '100%', padding: '14px 16px', borderRadius: '12px',
-  border: '1.5px solid #E0E0E0', background: '#FAFAFA',
+  width: '100%', padding: '14px 16px', borderRadius: 'var(--radius-md)',
+  border: '1.5px solid rgba(16,25,11,0.14)', background: '#fff',
   fontSize: '1rem', color: '#2C2C2C', outline: 'none',
   fontFamily: 'inherit',
+  transition: 'border-color var(--dur-base), box-shadow var(--dur-base)',
 }
 
 const choiceBtn: React.CSSProperties = {
@@ -811,7 +819,7 @@ const choiceBtn: React.CSSProperties = {
 }
 
 const stepTitleStyle: React.CSSProperties = {
-  fontFamily: 'Anton, sans-serif', fontWeight: 400,
+  fontFamily: 'var(--font-heading), sans-serif', fontWeight: 400,
   fontSize: '1.5rem', color: '#2D5016', marginBottom: '4px',
 }
 

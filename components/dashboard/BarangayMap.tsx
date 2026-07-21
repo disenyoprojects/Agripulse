@@ -4,64 +4,55 @@ interface Props {
 
 export default function BarangayMap({ barangays }: Props) {
   return (
-    <div style={{
-      background: 'white',
-      padding: '30px',
-      borderRadius: '16px',
-      marginBottom: '30px',
-      border: '3px solid #A8C686',
-    }}>
-      <h2 style={{
-        fontFamily: 'Archivo Black, sans-serif',
-        fontSize: '1.5rem',
-        color: '#3E2723',
-        marginBottom: '20px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px',
-      }}>
-        🗺️ Barangay Participation Map
+    <div className="card p-7 mb-6">
+      <h2 className="font-heading text-[1.3rem] text-[#243016] mb-5" style={{ letterSpacing: '-0.01em' }}>
+        Barangay Participation
       </h2>
 
       {barangays.length === 0 ? (
-        <p style={{ color: '#666', fontSize: '0.95rem' }}>No barangay data yet.</p>
+        <p className="text-[#6b7360] text-[0.95rem]">No barangay data yet.</p>
       ) : (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-          gap: '15px',
-        }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.85rem' }}>
           {barangays.map(({ barangay, _count }) => (
             <div
               key={barangay}
+              className="barangay-tile"
               style={{
-                background: 'linear-gradient(135deg, #FAF6F0 0%, white 100%)',
-                padding: '20px',
-                borderRadius: '12px',
-                border: '2px solid #A8C686',
+                background: '#fff',
+                padding: '1.1rem',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid rgba(16,25,11,0.09)',
                 textAlign: 'center',
-                transition: 'all 0.3s',
-                cursor: 'default',
+                transition: 'transform var(--dur-base) var(--ease-out-quart), box-shadow var(--dur-base) var(--ease-out-quart), border-color var(--dur-base) var(--ease-out-quart)',
               }}
             >
-              <div style={{ fontWeight: 700, color: '#2D5016', marginBottom: '10px', fontSize: '0.9rem' }}>
+              <div style={{ fontWeight: 600, color: '#243016', marginBottom: '0.5rem', fontSize: '0.88rem' }}>
                 {barangay || 'Unknown'}
               </div>
-              <div style={{
-                fontSize: '2rem',
-                fontFamily: 'Archivo Black, sans-serif',
-                color: '#F4A300',
+              <div data-nums style={{
+                fontSize: '1.9rem',
+                fontFamily: 'var(--font-heading), sans-serif',
+                color: 'var(--accent-turquoise-strong)',
                 lineHeight: 1,
+                letterSpacing: '-0.02em',
               }}>
                 {_count.id}
               </div>
-              <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '4px' }}>
+              <div style={{ fontSize: '0.72rem', color: '#8a917e', marginTop: '0.3rem' }}>
                 {_count.id === 1 ? 'farmer' : 'farmers'}
               </div>
             </div>
           ))}
         </div>
       )}
+
+      <style>{`
+        .barangay-tile:hover {
+          transform: translateY(-3px);
+          box-shadow: var(--shadow-md);
+          border-color: var(--accent-turquoise-200) !important;
+        }
+      `}</style>
     </div>
   )
 }

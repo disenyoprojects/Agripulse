@@ -13,7 +13,7 @@ import {
 
 ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend)
 
-const COLORS = ['#2D5016','#F4A300','#4A7C2C','#A8C686','#0066CC','#E85D6B','#3FAE95','#D6E85C']
+const COLORS = ['#2D5016','#5d9e87','#F4A300','#4A7C2C','#0066CC','#E85D6B','#a8c98a','#c97f24']
 
 interface Props {
   labels: string[]

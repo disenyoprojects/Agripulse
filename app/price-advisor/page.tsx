@@ -170,30 +170,32 @@ export default function PriceAdvisorPage() {
 
       {/* Hero */}
       <section style={{
-        background: 'linear-gradient(155deg, #25361a 0%, #3f5c2c 100%)',
+        background: 'radial-gradient(ellipse 60% 80% at 90% 10%, rgba(93,158,135,0.20) 0%, transparent 55%), linear-gradient(155deg, #25361a 0%, #3f5c2c 100%)',
         padding: '64px 40px 84px',
         position: 'relative',
         overflow: 'hidden',
       }}>
         <div style={{
           position: 'absolute', inset: 0,
-          backgroundImage: 'repeating-linear-gradient(120deg, rgba(255,255,255,0.035) 0 2px, transparent 2px 26px)',
+          backgroundImage: 'repeating-linear-gradient(120deg, rgba(255,255,255,0.028) 0 1px, transparent 1px 26px)',
           pointerEvents: 'none',
         }} />
         <div style={{ maxWidth: '760px', position: 'relative' }}>
           <span style={{
             display: 'inline-block',
-            background: 'rgba(255,255,255,0.12)',
-            color: '#a8c98a',
-            fontFamily: 'var(--font-baloo2, Baloo 2, sans-serif)',
-            fontWeight: 600,
-            fontSize: '0.78rem',
-            letterSpacing: '1.2px',
+            background: 'rgba(93,158,135,0.18)',
+            border: '1px solid rgba(93,158,135,0.35)',
+            color: 'var(--accent-turquoise-light)',
+            fontFamily: 'var(--font-ui, sans-serif)',
+            fontWeight: 700,
+            fontSize: '0.75rem',
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
             padding: '6px 16px',
             borderRadius: '999px',
             marginBottom: '18px',
           }}>
-            AI PRICE ADVISOR
+            AI Price Advisor
           </span>
           <h1 style={{
             fontFamily: 'var(--font-baloo2, Baloo 2, sans-serif)',
@@ -421,17 +423,19 @@ export default function PriceAdvisorPage() {
           }}>
             <span style={{
               display: 'inline-block',
-              background: '#a8c98a',
-              color: '#25361a',
-              fontFamily: 'var(--font-baloo2, Baloo 2, sans-serif)',
+              background: 'var(--accent-turquoise-50)',
+              border: '1px solid var(--accent-turquoise-200)',
+              color: 'var(--accent-turquoise-strong)',
+              fontFamily: 'var(--font-ui, sans-serif)',
               fontWeight: 700,
               fontSize: '0.75rem',
-              letterSpacing: '1.2px',
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
               padding: '6px 16px',
               borderRadius: '999px',
               marginBottom: '14px',
             }}>
-              AI RECOMMENDATION
+              AI Recommendation
             </span>
             <h2 style={{
               fontFamily: 'var(--font-baloo2, Baloo 2, sans-serif)',
@@ -578,6 +582,10 @@ export default function PriceAdvisorPage() {
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
+        input:focus-visible, select:focus-visible {
+          border-color: var(--accent-turquoise) !important;
+          box-shadow: var(--ring);
+        }
         @media (max-width: 680px) {
           .field-grid { grid-template-columns: 1fr !important; }
           .stat-grid { grid-template-columns: 1fr !important; }
@@ -591,13 +599,14 @@ const inputStyle: React.CSSProperties = {
   fontFamily: 'inherit',
   fontSize: '0.94rem',
   padding: '11px 13px',
-  border: '1.5px solid #dfe2d3',
-  borderRadius: '10px',
-  background: '#f8f6ef',
+  border: '1.5px solid rgba(16,25,11,0.14)',
+  borderRadius: 'var(--radius-md)',
+  background: '#fff',
   color: '#26301b',
   outline: 'none',
   width: '100%',
   boxSizing: 'border-box',
+  transition: 'border-color var(--dur-base), box-shadow var(--dur-base)',
 }
 
 const labelStyle: React.CSSProperties = {

@@ -62,170 +62,201 @@ export default async function LeaderboardPage() {
   const [rankings, totals] = await Promise.all([getLeaderboard(), getTotals()])
 
   return (
-    <main style={{
-      background: 'linear-gradient(135deg, #2D5016 0%, #1a3010 100%)',
-      color: 'white',
-      minHeight: '100vh',
-      paddingTop: '80px',
-      paddingBottom: '40px',
-    }}>
-      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px' }}>
+    <main
+      className="min-h-screen pt-20 pb-12"
+      style={{
+        background:
+          'radial-gradient(ellipse 70% 50% at 50% 0%, rgba(93,158,135,0.12) 0%, transparent 50%), linear-gradient(160deg, #1a2e10 0%, #0c150a 100%)',
+      }}
+    >
+      <div className="max-w-[820px] mx-auto px-5">
 
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '40px', animation: 'fadeIn 0.6s ease' }}>
-          <div style={{ fontSize: '60px', marginBottom: '10px', animation: 'pulse 2s infinite' }}>🌾</div>
-          <h1 style={{
-            fontFamily: 'Archivo Black, sans-serif',
-            fontSize: '42px',
-            color: '#F4A300',
-            marginBottom: '10px',
-            textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
-          }}>
+        <div className="text-center py-12">
+          <div aria-hidden="true" className="text-[5rem] mb-4 leading-none inline-block">🌾</div>
+          <h1
+            className="font-heading mb-3"
+            style={{
+              fontSize: 'clamp(2rem, 5vw, 2.8rem)',
+              color: 'var(--color-accent-gold)',
+              letterSpacing: '-0.02em',
+            }}
+          >
             AgriPulse Leaderboard
           </h1>
-          <p style={{ fontSize: '18px', opacity: 0.9, marginBottom: '20px' }}>
+          <p className="text-[1.05rem] mb-5" style={{ color: '#dfe6d4' }}>
             Top Contributing Farmers — BLISTT Area
           </p>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            background: 'rgba(46,125,50,0.3)',
-            padding: '8px 16px',
-            borderRadius: '20px',
-            fontSize: '14px',
-            marginBottom: '10px',
-          }}>
-            <span style={{
-              width: '10px', height: '10px',
-              background: '#4CAF50', borderRadius: '50%',
-              animation: 'blink 1.5s infinite',
-              display: 'inline-block',
-            }} />
+          <span
+            className="inline-flex items-center gap-2 text-sm px-4 py-1.5 rounded-full"
+            style={{
+              background: 'rgba(93,158,135,0.14)',
+              border: '1px solid rgba(93,158,135,0.28)',
+              color: 'var(--accent-turquoise-light)',
+            }}
+          >
+            <span
+              aria-hidden="true"
+              className="w-2.5 h-2.5 rounded-full shrink-0"
+              style={{ background: 'var(--accent-turquoise)', animation: 'blink 1.5s infinite' }}
+            />
             Live Data
-          </div>
+          </span>
         </div>
 
-        {/* 4 Stat Cards */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-          gap: '20px',
-          marginBottom: '40px',
-        }}>
+        {/* Stat grid */}
+        <div className="grid [grid-template-columns:repeat(auto-fit,minmax(150px,1fr))] gap-4 mb-8">
           {[
             { label: 'Farmers', value: totals.farmers },
             { label: 'Submissions', value: totals.submissions },
             { label: 'Ha Tracked', value: totals.hectares.toFixed(1) },
             { label: 'Points Earned', value: totals.points },
           ].map(({ label, value }) => (
-            <div key={label} style={{
-              background: 'rgba(255,255,255,0.1)',
-              padding: '20px',
-              borderRadius: '15px',
-              textAlign: 'center',
-              backdropFilter: 'blur(10px)',
-              border: '2px solid rgba(244,163,0,0.3)',
-            }}>
-              <div style={{ fontSize: '36px', fontWeight: 800, color: '#F4A300', marginBottom: '5px' }}>
+            <div
+              key={label}
+              className="surface-glass text-center p-5 rounded-2xl"
+              style={{ border: '1px solid rgba(93,158,135,0.22)' }}
+            >
+              <div
+                data-nums
+                className="font-heading"
+                style={{
+                  fontSize: '2.2rem',
+                  color: 'var(--color-accent-gold)',
+                  letterSpacing: '-0.02em',
+                  lineHeight: 1,
+                }}
+              >
                 {value}
               </div>
-              <div style={{ fontSize: '14px', opacity: 0.8 }}>{label}</div>
+              <div className="text-[0.85rem] mt-1.5" style={{ color: 'rgba(255,255,255,0.65)' }}>
+                {label}
+              </div>
             </div>
           ))}
         </div>
 
-        {/* Rankings */}
-        <div style={{
-          background: 'rgba(255,255,255,0.05)',
-          borderRadius: '20px',
-          padding: '30px',
-          backdropFilter: 'blur(20px)',
-          border: '2px solid rgba(244,163,0,0.2)',
-        }}>
-          <h2 style={{
-            fontSize: '28px',
-            fontWeight: 800,
-            marginBottom: '25px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '15px',
-          }}>
-            <span style={{ fontSize: '32px' }}>🏆</span>
+        {/* Rankings panel */}
+        <div
+          className="surface-glass rounded-3xl p-6 mb-8"
+          style={{ border: '1px solid rgba(93,158,135,0.18)' }}
+        >
+          <h2
+            className="font-heading text-[1.5rem] mb-5 flex items-center gap-3"
+            style={{ color: 'white', letterSpacing: '-0.01em' }}
+          >
+            <span aria-hidden="true">🏆</span>
             Top 10 Contributors
           </h2>
 
           {rankings.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '3rem 0', opacity: 0.7 }}>
-              <p style={{ fontSize: '3rem', marginBottom: '1rem' }}>🌱</p>
+            <div className="text-center py-12" style={{ color: 'rgba(255,255,255,0.55)' }}>
+              <p className="text-5xl mb-4">🌱</p>
               <p>Walang datos pa. Mag-submit sa Farmer Portal!</p>
             </div>
           ) : (
-            rankings.map((r, idx) => (
-              <div
-                key={r.rank}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '20px',
-                  background: 'rgba(255,255,255,0.1)',
-                  borderRadius: '15px',
-                  marginBottom: '15px',
-                  border: '2px solid transparent',
-                  transition: 'all 0.3s ease',
-                  animationDelay: `${idx * 0.1}s`,
-                }}
-                className="farmer-row"
-              >
-                <div style={{
-                  fontSize: '24px',
-                  fontWeight: 800,
-                  width: '50px',
-                  textAlign: 'center',
-                  color: r.rank === 1 ? '#FFD700' : r.rank === 2 ? '#C0C0C0' : r.rank === 3 ? '#CD7F32' : 'white',
-                }}>
-                  {medal(r.rank) ? (
-                    <span style={{ fontSize: '32px' }}>{medal(r.rank)}</span>
-                  ) : (
-                    `#${r.rank}`
-                  )}
-                </div>
+            <div className="flex flex-col gap-2.5">
+              {rankings.map((r) => (
+                <div
+                  key={r.rank}
+                  className="ranking-row flex items-center gap-4 rounded-2xl p-4"
+                  style={{
+                    background: 'rgba(255,255,255,0.07)',
+                    border: '1px solid rgba(255,255,255,0.07)',
+                    transition: `all var(--dur-base) var(--ease-out-quart)`,
+                  }}
+                >
+                  {/* Rank / Medal */}
+                  <div
+                    className="w-11 text-center font-heading text-[1.35rem] shrink-0"
+                    style={{
+                      color:
+                        r.rank === 1
+                          ? '#FFD700'
+                          : r.rank === 2
+                          ? '#C0C0C0'
+                          : r.rank === 3
+                          ? '#CD7F32'
+                          : 'rgba(255,255,255,0.45)',
+                      letterSpacing: '-0.02em',
+                    }}
+                  >
+                    {medal(r.rank) ?? `#${r.rank}`}
+                  </div>
 
-                <div style={{ flex: 1, marginLeft: '15px' }}>
-                  <div style={{ fontSize: '18px', fontWeight: 700, marginBottom: '5px' }}>{r.name}</div>
-                  <div style={{ fontSize: '14px', opacity: 0.7, display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
-                    <span>📍 {r.municipality}</span>
-                    <span>🌾 {r.cropName}</span>
-                    {r.hectares && <span>📏 {r.hectares}ha</span>}
+                  {/* Farmer info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-bold text-white text-[0.97rem] truncate">{r.name}</div>
+                    <div
+                      className="text-[0.8rem] mt-0.5 flex gap-3 flex-wrap"
+                      style={{ color: 'rgba(255,255,255,0.50)' }}
+                    >
+                      <span>📍 {r.municipality}</span>
+                      <span>🌾 {r.cropName}</span>
+                      {r.hectares && <span>📏 {r.hectares}ha</span>}
+                    </div>
+                  </div>
+
+                  {/* Points */}
+                  <div className="text-right shrink-0">
+                    <div
+                      data-nums
+                      className="font-heading"
+                      style={{
+                        fontSize: '1.75rem',
+                        color: 'var(--color-accent-gold)',
+                        letterSpacing: '-0.02em',
+                        lineHeight: 1,
+                      }}
+                    >
+                      {r.points}
+                    </div>
+                    <div className="text-[0.68rem] mt-0.5" style={{ color: 'rgba(255,255,255,0.38)' }}>
+                      POINTS
+                    </div>
+                    <div className="text-[0.78rem] mt-1" style={{ color: 'rgba(255,255,255,0.50)' }}>
+                      {r.submissions} sub{r.submissions !== 1 ? 's' : ''}
+                    </div>
                   </div>
                 </div>
-
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '28px', fontWeight: 800, color: '#F4A300' }}>{r.points}</div>
-                  <div style={{ fontSize: '12px', opacity: 0.7 }}>POINTS</div>
-                  <div style={{ fontSize: '14px', opacity: 0.8, marginTop: '5px' }}>
-                    {r.submissions} submission{r.submissions !== 1 ? 's' : ''}
-                  </div>
-                </div>
-              </div>
-            ))
+              ))}
+            </div>
           )}
         </div>
 
-        <div style={{ textAlign: 'center', marginTop: '40px', paddingTop: '30px', borderTop: '1px solid rgba(255,255,255,0.2)', opacity: 0.7, fontSize: '14px' }}>
-          <p><strong>AgriPulse System</strong> — The Pulse of Predictive Farming</p>
-          <p style={{ marginTop: '10px' }}>© 2026 DisenyoDigitals | In collaboration with The Locale Farm & Session Groceries</p>
+        <div className="flex gap-3 justify-center mb-8">
+          <Link href="/mobile-wizard" className="btn btn-primary btn-sm">
+            Farmer Portal →
+          </Link>
+          <Link href="/" className="btn btn-on-dark btn-sm">
+            Home
+          </Link>
         </div>
+
+        <footer
+          className="text-center text-[0.8rem] pb-4"
+          style={{
+            color: 'rgba(255,255,255,0.30)',
+            borderTop: '1px solid rgba(255,255,255,0.07)',
+            paddingTop: '24px',
+          }}
+        >
+          <p>
+            <strong style={{ color: 'rgba(255,255,255,0.50)' }}>AgriPulse System</strong> — The Pulse of
+            Predictive Farming
+          </p>
+          <p className="mt-2">
+            © 2026 DisenyoDigitals | In collaboration with The Locale Farm &amp; Session Groceries
+          </p>
+        </footer>
       </div>
 
       <style>{`
-        @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
-        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-        .farmer-row:hover {
-          background: rgba(244,163,0,0.2) !important;
-          border-color: #F4A300 !important;
-          transform: translateX(5px);
+        .ranking-row:hover {
+          background: rgba(93,158,135,0.12) !important;
+          border-color: rgba(93,158,135,0.30) !important;
+          transform: translateX(4px);
         }
       `}</style>
     </main>

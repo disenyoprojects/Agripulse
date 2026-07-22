@@ -6,7 +6,19 @@ export const dynamic = 'force-dynamic'
 
 const STATUS_ORDER: Record<string, number> = { PENDING: 0, APPROVED: 1, REJECTED: 2 }
 
-export default async function FarmerPortfoliosPage() {
+const FILTER_MAP: Record<string, 'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED'> = {
+  pending: 'PENDING',
+  approved: 'APPROVED',
+  rejected: 'REJECTED',
+}
+
+export default async function FarmerPortfoliosPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ filter?: string }>
+}) {
+  const { filter } = await searchParams
+  const initialFilter = FILTER_MAP[filter ?? ''] ?? 'ALL'
   const unsorted = await getAllFarmersWithStats()
   // Surface farmers awaiting review first, preserving the repository's recency order within each group.
   const sorted = [...unsorted].sort(
@@ -87,7 +99,7 @@ export default async function FarmerPortfoliosPage() {
         {farmers.length === 0 ? (
           <div className="card p-8 text-[#6b7360]">No farmers yet — submissions will appear here.</div>
         ) : (
-          <FarmersTable farmers={farmers} />
+          <FarmersTable farmers={farmers} initialFilter={initialFilter} />
         )}
       </div>
 

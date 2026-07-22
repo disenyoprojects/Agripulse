@@ -1,4 +1,6 @@
 import { auth } from '@/auth'
+import { db } from '@/lib/db'
+import Link from 'next/link'
 import CropChart from '@/components/dashboard/CropChart'
 import StatsCard from '@/components/dashboard/StatsCard'
 import AlertSection from '@/components/dashboard/AlertSection'
@@ -26,6 +28,8 @@ const EMPTY_DASHBOARD = {
   totalSubmissions: 0,
   totalPoints: 0,
   totalHectares: 0,
+  pendingFarmers: 0,
+  pendingSubmissions: 0,
   cropBreakdown: [] as Awaited<ReturnType<typeof getCropBreakdown>>,
   barangayBreakdown: [] as Awaited<ReturnType<typeof getBarangayBreakdown>>,
   weeklyLabels: [] as string[],
@@ -45,6 +49,8 @@ async function getDashboardData() {
       barangayBreakdown,
       weeklySubmissions,
       harvestSubmissions,
+      pendingFarmers,
+      pendingSubmissions,
     ] = await Promise.all([
       getFarmerCount(),
       getSubmissionCount(),
@@ -54,6 +60,8 @@ async function getDashboardData() {
       getBarangayBreakdown(),
       getWeeklySubmissions(),
       getHarvestSubmissions(),
+      db.farmer.count({ where: { status: 'PENDING' } }),
+      db.submission.count({ where: { status: 'PENDING' } }),
     ])
 
     const { labels: weeklyLabels, values: weeklyValues } =
@@ -72,6 +80,8 @@ async function getDashboardData() {
       weeklyValues,
       harvestTimelineLabels,
       harvestTimelineValues,
+      pendingFarmers,
+      pendingSubmissions,
     }
   } catch (error) {
     console.error('Dashboard data fetch failed:', error)
@@ -121,6 +131,39 @@ export default async function DashboardPage() {
       </div>
 
       <div className="max-w-[1400px] mx-auto px-[5%] py-8">
+        {/* Pending actions banner */}
+        {(data.pendingFarmers > 0 || data.pendingSubmissions > 0) && (
+          <div
+            className="rounded-2xl p-4 sm:p-5 mb-6 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-5"
+            style={{ background: '#FDF3E7', border: '1px solid rgba(193,90,0,0.22)' }}
+          >
+            <div className="flex items-center gap-2.5">
+              <span aria-hidden="true" className="text-xl">⏳</span>
+              <span className="font-bold text-[#C15A00]">Needs your attention</span>
+            </div>
+            <div className="flex flex-wrap gap-2.5 sm:ml-auto">
+              {data.pendingFarmers > 0 && (
+                <Link
+                  href="/dashboard/farmers?filter=pending"
+                  className="btn btn-sm"
+                  style={{ background: '#fff', color: '#C15A00', border: '1px solid rgba(193,90,0,0.3)' }}
+                >
+                  {data.pendingFarmers} farmer{data.pendingFarmers !== 1 ? 's' : ''} to review →
+                </Link>
+              )}
+              {data.pendingSubmissions > 0 && (
+                <Link
+                  href="/dashboard/farmers"
+                  className="btn btn-sm"
+                  style={{ background: '#fff', color: '#C15A00', border: '1px solid rgba(193,90,0,0.3)' }}
+                >
+                  {data.pendingSubmissions} submission{data.pendingSubmissions !== 1 ? 's' : ''} pending →
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* KPI Cards — 2×2 on mobile, 4-across on desktop */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-6">
           <StatsCard label="Active Farmers" value={data.totalFarmers} icon="👨‍🌾" />

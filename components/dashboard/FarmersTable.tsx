@@ -39,9 +39,15 @@ function StatusBadge({ status }: { status: Status }) {
   )
 }
 
-export default function FarmersTable({ farmers }: { farmers: FarmerRow[] }) {
+export default function FarmersTable({
+  farmers,
+  initialFilter = 'ALL',
+}: {
+  farmers: FarmerRow[]
+  initialFilter?: Filter
+}) {
   const [query, setQuery] = useState('')
-  const [filter, setFilter] = useState<Filter>('ALL')
+  const [filter, setFilter] = useState<Filter>(initialFilter)
 
   const counts = useMemo(
     () => ({

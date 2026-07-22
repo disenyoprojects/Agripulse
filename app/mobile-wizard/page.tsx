@@ -788,9 +788,9 @@ export default function MobileWizardPage() {
                 background: 'rgba(244,163,0,0.1)', border: '1px solid #F4A300',
                 borderRadius: '12px', padding: '1rem', textAlign: 'left', marginBottom: '1.5rem',
               }}>
-                <p style={{ fontWeight: 700, color: '#2D5016', fontSize: '0.9rem' }}>+10 Data Points nakuha! 🌟</p>
+                <p style={{ fontWeight: 700, color: '#2D5016', fontSize: '0.9rem' }}>+10 Data Points na naghihintay 🌟</p>
                 <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '4px' }}>
-                  Ang iyong puntos ay maidadagdag sa iyong leaderboard ranking.
+                  Makukuha mo ang puntos kapag na-verify na ng LGU ang iyong submission.
                 </p>
               </div>
 

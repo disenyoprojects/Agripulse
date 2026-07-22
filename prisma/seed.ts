@@ -9,17 +9,20 @@ const adapter = new PrismaPg(pool)
 const db = new PrismaClient({ adapter })
 
 async function main() {
-  const password = await bcrypt.hash('change-me-on-first-login', 12)
+  const email = process.env.SEED_ADMIN_EMAIL ?? 'admin@agripulse.gov.ph'
+  const plain = process.env.SEED_ADMIN_PASSWORD
+  if (!plain) {
+    console.warn(
+      '⚠️  SEED_ADMIN_PASSWORD not set — using an insecure default. Set it in your env for real deployments.'
+    )
+  }
+  const password = await bcrypt.hash(plain ?? 'change-me-on-first-login', 12)
   await db.lguUser.upsert({
-    where: { email: 'admin@agripulse.gov.ph' },
+    where: { email },
     update: {},
-    create: {
-      email: 'admin@agripulse.gov.ph',
-      name: 'LGU Admin',
-      password,
-    },
+    create: { email, name: 'LGU Admin', password },
   })
-  console.log('Seed complete — LGU admin: admin@agripulse.gov.ph')
+  console.log(`Seed complete — LGU admin: ${email}`)
 }
 
 main().finally(() => db.$disconnect())

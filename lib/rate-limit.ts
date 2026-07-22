@@ -47,7 +47,7 @@ export async function checkRateLimit(
   windowMs: number
 ): Promise<{ allowed: boolean; retryAfterSec: number }> {
   try {
-    return await db.$transaction(async (tx) => {
+    const result = await db.$transaction(async (tx) => {
       const now = new Date()
       const existing = await tx.rateLimit.findUnique({ where: { key } })
       const decision = evaluateWindow(now, existing, limit, windowMs)
@@ -60,10 +60,24 @@ export async function checkRateLimit(
 
       return { allowed: decision.allowed, retryAfterSec: decision.retryAfterSec }
     })
+
+    // Opportunistically purge expired rows (~2% of calls) so the table can't
+    // grow unbounded as unique IPs accumulate. Fire-and-forget; never blocks.
+    if (Math.random() < 0.02) {
+      purgeExpiredRateLimits().catch(() => {})
+    }
+
+    return result
   } catch (error) {
     console.error('Rate limit check failed (failing open):', error)
     return { allowed: true, retryAfterSec: 0 }
   }
+}
+
+/** Delete every rate-limit window that has already expired. Safe to call from a cron. */
+export async function purgeExpiredRateLimits(): Promise<number> {
+  const { count } = await db.rateLimit.deleteMany({ where: { expiresAt: { lt: new Date() } } })
+  return count
 }
 
 /** Best-effort client identifier from proxy headers (Vercel sets x-forwarded-for). */

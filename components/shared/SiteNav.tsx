@@ -4,16 +4,25 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 
-const links = [
-  { label: 'Problem', href: '/#problem' },
-  { label: 'Solution', href: '/#solution' },
-  { label: 'Impact', href: '/#impact' },
-  { label: 'Farmer Portal', href: '/mobile-wizard' },
-  { label: 'LGU Dashboard', href: '/dashboard' },
-  { label: 'Leaderboard', href: '/leaderboard' },
-  { label: 'Status', href: '/status' },
-  { label: 'Price Advisor', href: '/price-advisor' },
+type NavLink = { label: string; href: string; icon: string }
+
+const farmerLinks: NavLink[] = [
+  { label: 'Farmer Portal', href: '/mobile-wizard', icon: '🌾' },
+  { label: 'Leaderboard', href: '/leaderboard', icon: '🏆' },
+  { label: 'Status', href: '/status', icon: '🔎' },
+  { label: 'Price Advisor', href: '/price-advisor', icon: '💰' },
 ]
+
+const adminLinks: NavLink[] = [
+  { label: 'LGU Dashboard', href: '/dashboard', icon: '📊' },
+]
+
+const desktopLinks: NavLink[] = [...farmerLinks, ...adminLinks]
+
+function isActiveHref(pathname: string | null, href: string): boolean {
+  if (href === '/') return pathname === '/'
+  return pathname === href || (pathname?.startsWith(href) ?? false)
+}
 
 export default function SiteNav() {
   const pathname = usePathname()
@@ -64,8 +73,8 @@ export default function SiteNav() {
           style={{ gap: '2rem', listStyle: 'none', margin: 0, padding: 0 }}
           className="hidden md:flex"
         >
-          {links.map(({ label, href }) => {
-            const isActive = pathname === href || (href !== '/' && pathname?.startsWith(href.split('#')[0]) && !href.includes('#'))
+          {desktopLinks.map(({ label, href }) => {
+            const isActive = isActiveHref(pathname, href)
             return (
               <li key={href}>
                 <Link
@@ -163,6 +172,7 @@ export default function SiteNav() {
           paddingRight: '1.75rem',
           transform: open ? 'translateX(0)' : 'translateX(100%)',
           transition: 'transform var(--dur-slow) var(--ease-out-quint)',
+          overflowY: 'auto',
         }}
       >
         <button
@@ -189,38 +199,18 @@ export default function SiteNav() {
           ✕
         </button>
 
-        <p className="eyebrow" style={{ color: 'var(--accent-turquoise-light)', opacity: 0.7, marginBottom: '1.25rem' }}>
-          Navigation
-        </p>
-
-        <nav style={{ display: 'flex', flexDirection: 'column' }}>
-          {links.map(({ label, href }) => {
-            const isActive = pathname === href || (href !== '/' && pathname?.startsWith(href.split('#')[0]) && !href.includes('#'))
-            return (
-              <Link
-                key={href}
-                href={href}
-                onClick={() => setOpen(false)}
-                style={{
-                  color: isActive ? 'var(--accent-turquoise-light)' : 'rgba(255,255,255,0.85)',
-                  textDecoration: 'none',
-                  fontWeight: isActive ? 700 : 500,
-                  fontSize: '1rem',
-                  letterSpacing: '0.01em',
-                  padding: '0.9rem 0',
-                  borderBottom: '1px solid rgba(255,255,255,0.07)',
-                  transition: 'color var(--dur-base) var(--ease-out-quart)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}
-              >
-                {label}
-                <span style={{ color: isActive ? 'var(--accent-turquoise)' : 'rgba(255,255,255,0.35)', fontSize: '0.9rem' }}>›</span>
-              </Link>
-            )
-          })}
-        </nav>
+        <DrawerSection
+          eyebrow="Para sa Magsasaka"
+          links={farmerLinks}
+          pathname={pathname}
+          onNavigate={() => setOpen(false)}
+        />
+        <DrawerSection
+          eyebrow="Para sa LGU Staff"
+          links={adminLinks}
+          pathname={pathname}
+          onNavigate={() => setOpen(false)}
+        />
       </div>
 
       <style>{`
@@ -246,5 +236,59 @@ export default function SiteNav() {
         }
       `}</style>
     </>
+  )
+}
+
+function DrawerSection({
+  eyebrow,
+  links,
+  pathname,
+  onNavigate,
+}: {
+  eyebrow: string
+  links: NavLink[]
+  pathname: string | null
+  onNavigate: () => void
+}) {
+  return (
+    <div style={{ marginBottom: '1.75rem' }}>
+      <p
+        className="eyebrow"
+        style={{ color: 'var(--accent-turquoise-light)', opacity: 0.7, marginBottom: '0.5rem' }}
+      >
+        {eyebrow}
+      </p>
+      <nav style={{ display: 'flex', flexDirection: 'column' }}>
+        {links.map(({ label, href, icon }) => {
+          const isActive = isActiveHref(pathname, href)
+          return (
+            <Link
+              key={href}
+              href={href}
+              onClick={onNavigate}
+              style={{
+                color: isActive ? 'var(--accent-turquoise-light)' : 'rgba(255,255,255,0.85)',
+                textDecoration: 'none',
+                fontWeight: isActive ? 700 : 500,
+                fontSize: '1rem',
+                letterSpacing: '0.01em',
+                padding: '0.85rem 0',
+                borderBottom: '1px solid rgba(255,255,255,0.07)',
+                transition: 'color var(--dur-base) var(--ease-out-quart)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+              }}
+            >
+              <span style={{ fontSize: '1.15rem', width: '1.5rem', textAlign: 'center' }} aria-hidden="true">
+                {icon}
+              </span>
+              <span style={{ flex: 1 }}>{label}</span>
+              <span style={{ color: isActive ? 'var(--accent-turquoise)' : 'rgba(255,255,255,0.35)', fontSize: '0.9rem' }}>›</span>
+            </Link>
+          )
+        })}
+      </nav>
+    </div>
   )
 }

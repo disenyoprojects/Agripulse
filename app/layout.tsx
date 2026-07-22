@@ -3,7 +3,7 @@ import { Archivo_Black, Nunito, DM_Sans, Baloo_2 } from 'next/font/google'
 import './globals.css'
 import SmoothScroll from '@/components/providers/SmoothScroll'
 import GrainOverlay from '@/components/ui/GrainOverlay'
-import SiteNav from '@/components/shared/SiteNav'
+import ConditionalNav from '@/components/shared/ConditionalNav'
 
 const archivoBlack = Archivo_Black({
   weight: '400',
@@ -43,7 +43,7 @@ export default function RootLayout({
     >
       <body className="flex flex-col">
         <GrainOverlay />
-        <SiteNav />
+        <ConditionalNav />
         <SmoothScroll>{children}</SmoothScroll>
       </body>
     </html>

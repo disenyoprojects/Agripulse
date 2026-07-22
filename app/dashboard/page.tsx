@@ -1,10 +1,9 @@
-import { auth, signOut } from '@/auth'
+import { auth } from '@/auth'
 import CropChart from '@/components/dashboard/CropChart'
 import StatsCard from '@/components/dashboard/StatsCard'
 import AlertSection from '@/components/dashboard/AlertSection'
 import BarangayMap from '@/components/dashboard/BarangayMap'
 import WeeklyChart from '@/components/dashboard/WeeklyChart'
-import Link from 'next/link'
 import {
   getFarmerCount,
   getBarangayBreakdown,
@@ -97,7 +96,7 @@ export default async function DashboardPage() {
   const data = await getDashboardData()
 
   return (
-    <main className="bg-[#FAF6F0] min-h-screen pt-20">
+    <main className="bg-[#FAF6F0] min-h-screen">
       {/* Dashboard Header */}
       <div
         className="text-white px-[5%] py-8 relative overflow-hidden"
@@ -107,40 +106,23 @@ export default async function DashboardPage() {
           boxShadow: 'var(--shadow-lg)',
         }}
       >
-        <div className="max-w-[1400px] mx-auto flex justify-between items-center flex-wrap gap-5">
-          <div>
-            <h1 className="font-heading text-[1.8rem] flex items-center gap-3" style={{ letterSpacing: '-0.01em' }}>
-              <span aria-hidden="true">🌾</span>
-              Agri<span style={{ color: 'var(--accent-turquoise-light)' }}>Pulse</span>
-            </h1>
-            <p className="opacity-85 text-[0.9rem] mt-1">
-              BLISTT Area · Real-Time Crop Monitoring
-              {session?.user?.email && (
-                <span className="ml-3 opacity-70">— {session.user.email}</span>
-              )}
-            </p>
-          </div>
-
-          <div className="flex gap-2.5 items-center flex-wrap">
-            <Link href="/" className="btn btn-sm btn-on-dark">Home</Link>
-            <Link href="/dashboard/farmers" className="btn btn-sm btn-on-dark">Farmers</Link>
-            <Link href="/mobile-wizard" className="btn btn-sm btn-on-dark">Farmer Form</Link>
-            <Link href="/dashboard/settings" className="btn btn-sm btn-on-dark">⚙️ Settings</Link>
-            <form
-              action={async () => {
-                'use server'
-                await signOut({ redirectTo: '/auth/login' })
-              }}
-            >
-              <button type="submit" className="btn btn-sm btn-on-dark">Sign Out</button>
-            </form>
-          </div>
+        <div className="max-w-[1400px] mx-auto">
+          <h1 className="font-heading text-[1.8rem] flex items-center gap-3" style={{ letterSpacing: '-0.01em' }}>
+            <span aria-hidden="true">🌾</span>
+            Agri<span style={{ color: 'var(--accent-turquoise-light)' }}>Pulse</span>
+          </h1>
+          <p className="opacity-85 text-[0.9rem] mt-1">
+            BLISTT Area · Real-Time Crop Monitoring
+            {session?.user?.email && (
+              <span className="ml-3 opacity-70">— {session.user.email}</span>
+            )}
+          </p>
         </div>
       </div>
 
       <div className="max-w-[1400px] mx-auto px-[5%] py-8">
-        {/* KPI Cards */}
-        <div className="grid [grid-template-columns:repeat(auto-fit,minmax(230px,1fr))] gap-5 mb-6">
+        {/* KPI Cards — 2×2 on mobile, 4-across on desktop */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-6">
           <StatsCard label="Active Farmers" value={data.totalFarmers} icon="👨‍🌾" />
           <StatsCard label="Hectares Tracked" value={`${data.totalHectares.toFixed(1)}`} icon="🌾" />
           <StatsCard label="Crop Varieties" value={data.cropBreakdown.length} icon="🥬" highlight />
@@ -150,8 +132,8 @@ export default async function DashboardPage() {
         {/* Alerts */}
         <AlertSection cropBreakdown={data.cropBreakdown} totalSubmissions={data.totalSubmissions} />
 
-        {/* Charts 2×2 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {/* Charts — 1 column on mobile, 2 on tablet+ */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div className="card p-7">
             <h2 className="font-heading text-[1.15rem] text-[#243016]" style={{ letterSpacing: '-0.01em' }}>Crop Distribution</h2>
             <p className="text-[0.85rem] text-[#6b7360] mt-0.5 mb-5">Current planting breakdown by crop type</p>
@@ -203,7 +185,35 @@ export default async function DashboardPage() {
           {data.cropBreakdown.length === 0 ? (
             <p className="text-[#6b7360] text-[0.95rem]">No data yet — submissions will appear here.</p>
           ) : (
-            <table className="w-full border-collapse text-sm">
+          <>
+            {/* Mobile: stacked cards */}
+            <div className="flex flex-col gap-3 md:hidden">
+              {data.cropBreakdown.map((c) => {
+                const total = data.totalSubmissions || 1
+                const pct = Math.round((c._count.cropName / total) * 100)
+                const hectares = Number(c._sum.farmSizeHectares ?? 0)
+                const status = getStatus(pct)
+                return (
+                  <div key={c.cropName} className="card p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="font-semibold text-primary-green">{c.cropName}</span>
+                      <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${status.text}`}>
+                        <span aria-hidden="true" className="w-2 h-2 rounded-full" style={{ background: status.dot }} />
+                        {status.label}
+                      </span>
+                    </div>
+                    <div className="flex gap-4 mt-2 text-[0.82rem] text-[#5a5f52]">
+                      <span data-nums>{c._count.cropName} subs</span>
+                      <span data-nums>{hectares > 0 ? `${hectares.toFixed(1)} ha` : '— ha'}</span>
+                      <span data-nums>{pct}% share</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Tablet+: table */}
+            <table className="w-full border-collapse text-sm hidden md:table">
               <thead>
                 <tr>
                   {['Crop Type', 'Submissions', 'Hectares', 'Next Harvest', 'Saturation', 'Status'].map((h) => (
@@ -247,6 +257,7 @@ export default async function DashboardPage() {
                 })}
               </tbody>
             </table>
+          </>
           )}
         </div>
       </div>

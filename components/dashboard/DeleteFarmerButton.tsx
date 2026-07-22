@@ -7,9 +7,11 @@ import { deleteFarmer } from '@/app/dashboard/farmers/actions'
 export default function DeleteFarmerButton({
   farmerId,
   farmerName,
+  className,
 }: {
   farmerId: string
   farmerName: string
+  className?: string
 }) {
   const router = useRouter()
   const [confirm, setConfirm] = useState(false)
@@ -18,8 +20,12 @@ export default function DeleteFarmerButton({
   return (
     <>
       <button
-        className="btn btn-sm"
-        style={{ background: 'rgba(211,47,47,0.14)', color: '#ffd7d0', border: '1px solid rgba(211,47,47,0.4)' }}
+        className={className ?? 'btn btn-sm'}
+        style={
+          className
+            ? { color: '#b52a2a', borderColor: 'rgba(211,47,47,0.4)' }
+            : { background: 'rgba(211,47,47,0.14)', color: '#ffd7d0', border: '1px solid rgba(211,47,47,0.4)' }
+        }
         onClick={() => setConfirm(true)}
       >
         🗑️ Delete

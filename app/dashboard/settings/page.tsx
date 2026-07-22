@@ -10,7 +10,7 @@ export default async function SettingsPage() {
   if (!session?.user) redirect('/auth/login')
 
   return (
-    <main className="bg-[#FAF6F0] min-h-screen pt-20">
+    <main className="bg-[#FAF6F0] min-h-screen">
       <div
         className="text-white px-[5%] py-8 relative overflow-hidden"
         style={{

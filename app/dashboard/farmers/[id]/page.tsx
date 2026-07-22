@@ -55,7 +55,7 @@ export default async function FarmerPortfolioPage({
   }
 
   return (
-    <main className="bg-[#FAF6F0] min-h-screen pt-20">
+    <main className="bg-[#FAF6F0] min-h-screen">
       {/* Header */}
       <div
         className="text-white px-[5%] py-8 relative overflow-hidden"
@@ -65,60 +65,38 @@ export default async function FarmerPortfolioPage({
           boxShadow: 'var(--shadow-lg)',
         }}
       >
-        <div className="max-w-[1400px] mx-auto flex justify-between items-center flex-wrap gap-5">
-          <div>
-            <p
-              className="text-[0.8rem] font-bold uppercase tracking-wider mb-1"
-              style={{ color: 'var(--accent-turquoise-light)', opacity: 0.85 }}
-            >
-              Farmer Portfolio
-            </p>
-            <div className="flex items-center gap-3 flex-wrap">
-              <h1
-                className="font-heading text-[1.8rem]"
-                style={{ letterSpacing: '-0.01em' }}
-              >
-                {farmer.fullName}
-              </h1>
-              {(() => {
-                const st = FARMER_STATUS_STYLE[farmer.status] ?? FARMER_STATUS_STYLE.PENDING
-                return (
-                  <span
-                    className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full"
-                    style={{ background: st.bg, color: st.text, border: `1px solid ${st.border}` }}
-                  >
-                    <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: st.dot }} />
-                    {st.label}
-                  </span>
-                )
-              })()}
-            </div>
-            <p className="opacity-80 text-[0.9rem] mt-1">
-              {farmer.barangay}, {farmer.municipality}
-              {farmer.contactNumber && (
-                <span className="ml-4 opacity-70">· {farmer.contactNumber}</span>
-              )}
-            </p>
+        <div className="max-w-[1400px] mx-auto">
+          {/* Breadcrumb */}
+          <nav aria-label="Breadcrumb" className="text-[0.78rem] mb-3" style={{ color: 'rgba(255,255,255,0.7)' }}>
+            <Link href="/dashboard" className="hover:underline" style={{ color: 'inherit' }}>Dashboard</Link>
+            <span className="mx-1.5 opacity-60">/</span>
+            <Link href="/dashboard/farmers" className="hover:underline" style={{ color: 'inherit' }}>Farmers</Link>
+            <span className="mx-1.5 opacity-60">/</span>
+            <span style={{ color: 'var(--accent-turquoise-light)' }}>{farmer.fullName}</span>
+          </nav>
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="font-heading text-[1.8rem]" style={{ letterSpacing: '-0.01em' }}>
+              {farmer.fullName}
+            </h1>
+            {(() => {
+              const st = FARMER_STATUS_STYLE[farmer.status] ?? FARMER_STATUS_STYLE.PENDING
+              return (
+                <span
+                  className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full"
+                  style={{ background: st.bg, color: st.text, border: `1px solid ${st.border}` }}
+                >
+                  <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: st.dot }} />
+                  {st.label}
+                </span>
+              )
+            })()}
           </div>
-          <div className="flex gap-2.5 flex-wrap">
-            {farmer.status !== 'APPROVED' && (
-              <form action={approveFarmer.bind(null, farmer.id)}>
-                <button type="submit" className="btn btn-sm" style={{ background: '#EBF5EC', color: '#1e6b24', border: '1px solid rgba(46,125,50,0.22)' }}>
-                  ✓ Approve
-                </button>
-              </form>
+          <p className="opacity-80 text-[0.9rem] mt-1">
+            {farmer.barangay}, {farmer.municipality}
+            {farmer.contactNumber && (
+              <span className="ml-4 opacity-70">· {farmer.contactNumber}</span>
             )}
-            {farmer.status !== 'REJECTED' && (
-              <form action={rejectFarmer.bind(null, farmer.id)}>
-                <button type="submit" className="btn btn-sm" style={{ background: '#FDECEC', color: '#b52a2a', border: '1px solid rgba(211,47,47,0.22)' }}>
-                  ✕ Reject
-                </button>
-              </form>
-            )}
-            <DeleteFarmerButton farmerId={farmer.id} farmerName={farmer.fullName} />
-            <Link href="/dashboard/farmers" className="btn btn-sm btn-on-dark">← All Farmers</Link>
-            <Link href="/dashboard" className="btn btn-sm btn-on-dark">Dashboard</Link>
-          </div>
+          </p>
         </div>
       </div>
 
@@ -163,7 +141,59 @@ export default async function FarmerPortfolioPage({
           {farmer.submissions.length === 0 ? (
             <p className="p-8 text-[#6b7360]">No submissions yet.</p>
           ) : (
-            <table className="w-full border-collapse text-sm">
+          <>
+            {/* Mobile: submission cards */}
+            <div className="flex flex-col gap-3 p-4 md:hidden">
+              {farmer.submissions.map((s) => {
+                const st = STATUS_STYLE[s.status] ?? STATUS_STYLE.PENDING
+                return (
+                  <div key={s.id} className="rounded-xl p-4" style={{ border: '1px solid #eeeae0', background: '#faf8f2' }}>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="font-semibold text-primary-green">{s.cropName}</span>
+                      <span
+                        className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full"
+                        style={{ background: st.bg, color: st.text, border: `1px solid ${st.border}` }}
+                      >
+                        <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: st.dot }} />
+                        {s.status}
+                      </span>
+                    </div>
+                    <p className="font-mono text-[0.72rem] text-[#8a917e] mt-1">{s.referenceNumber}</p>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-[0.8rem] text-[#5a5f52]">
+                      <span>🌱 {new Date(s.plantingDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                      <span>🌾 {new Date(s.harvestDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                      <span data-nums>{Number(s.farmSizeHectares ?? 0) > 0 ? `${Number(s.farmSizeHectares).toFixed(2)} ha` : '— ha'}</span>
+                      <span className="font-semibold text-accent-gold" data-nums>{s.pointsEarned} pts</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-3 mt-3">
+                      {s.photoMime ? (
+                        <a
+                          href={`/api/submissions/${s.id}/photo`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-semibold"
+                          style={{ color: 'var(--accent-turquoise-strong)' }}
+                        >
+                          📷 View photo
+                        </a>
+                      ) : <span className="text-xs text-[#b0b8a6]">No photo</span>}
+                      {s.status === 'PENDING' && (isApproved ? (
+                        <form action={verifySubmission.bind(null, s.id)}>
+                          <button type="submit" className="btn btn-sm" style={{ background: '#EBF5EC', color: '#1e6b24', border: '1px solid rgba(46,125,50,0.22)' }}>
+                            ✓ Verify
+                          </button>
+                        </form>
+                      ) : (
+                        <span className="text-xs text-[#8a917e]">Approve farmer first</span>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Tablet+: table */}
+            <table className="w-full border-collapse text-sm hidden md:table">
               <thead>
                 <tr>
                   {['Reference', 'Crop', 'Photo', 'Planted', 'Harvest', 'Hectares', 'Points', 'Status', 'Action'].map(
@@ -267,13 +297,40 @@ export default async function FarmerPortfolioPage({
                 })}
               </tbody>
             </table>
+          </>
           )}
         </div>
       </div>
 
-      <footer className="text-center py-8 text-[#8a917e] text-[0.85rem]">
+      <footer className="text-center py-8 pb-28 text-[#8a917e] text-[0.85rem]">
         © 2026 AgriPulse System | DisenyoDigitals
       </footer>
+
+      {/* Sticky action bar — Approve / Reject / Delete */}
+      <div
+        className="sticky bottom-0 z-10 border-t border-[#e6e2d6] bg-white/95 backdrop-blur px-[5%] py-3"
+        style={{ boxShadow: '0 -8px 24px -12px rgba(0,0,0,0.2)' }}
+      >
+        <div className="max-w-[1400px] mx-auto flex gap-2.5">
+          {farmer.status !== 'APPROVED' && (
+            <form action={approveFarmer.bind(null, farmer.id)} className="flex-1">
+              <button type="submit" className="btn w-full" style={{ background: '#2E7D32', color: '#fff', border: 'none' }}>
+                ✓ Approve
+              </button>
+            </form>
+          )}
+          {farmer.status !== 'REJECTED' && (
+            <form action={rejectFarmer.bind(null, farmer.id)} className="flex-1">
+              <button type="submit" className="btn w-full" style={{ background: '#D32F2F', color: '#fff', border: 'none' }}>
+                ✕ Reject
+              </button>
+            </form>
+          )}
+          <div className="flex-1 flex">
+            <DeleteFarmerButton farmerId={farmer.id} farmerName={farmer.fullName} className="btn w-full btn-secondary" />
+          </div>
+        </div>
+      </div>
     </main>
   )
 }

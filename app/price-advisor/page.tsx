@@ -170,7 +170,7 @@ export default function PriceAdvisorPage() {
     <main style={{ background: '#f8f6ef', minHeight: '100vh', paddingTop: '72px' }}>
 
       {/* Hero */}
-      <section style={{
+      <section className="pa-hero" style={{
         background: 'radial-gradient(ellipse 60% 80% at 90% 10%, rgba(93,158,135,0.20) 0%, transparent 55%), linear-gradient(155deg, #25361a 0%, #3f5c2c 100%)',
         padding: '64px 40px 84px',
         position: 'relative',
@@ -218,7 +218,7 @@ export default function PriceAdvisorPage() {
       </section>
 
       {/* Content area */}
-      <div style={{ maxWidth: '920px', margin: '0 auto', padding: '0 40px 60px' }}>
+      <div className="pa-content" style={{ maxWidth: '920px', margin: '0 auto', padding: '0 40px 60px' }}>
 
         {/* Advisor card — floats over hero */}
         <section style={{
@@ -448,7 +448,7 @@ export default function PriceAdvisorPage() {
             </h2>
 
             {/* Price hero */}
-            <div style={{
+            <div className="pa-price-hero" style={{
               background: 'linear-gradient(135deg, #3f5c2c, #25361a)',
               borderRadius: '16px',
               padding: '28px 32px',
@@ -590,6 +590,10 @@ export default function PriceAdvisorPage() {
         @media (max-width: 680px) {
           .field-grid { grid-template-columns: 1fr !important; }
           .stat-grid { grid-template-columns: 1fr !important; }
+          .pa-hero { padding: 40px 20px 60px !important; }
+          .pa-content { padding: 0 20px 40px !important; }
+          .pa-price-hero { flex-direction: column !important; align-items: flex-start !important; }
+          .pa-price-hero > div:last-child { text-align: left !important; }
         }
       `}</style>
       <div className="md:hidden" style={{ height: '72px' }} />

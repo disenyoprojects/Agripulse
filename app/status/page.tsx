@@ -35,11 +35,78 @@ const STATUS_META: Record<string, { label: string; sub: string; emoji: string; b
   },
 }
 
+function StatusTimeline({ status }: { status: 'PENDING' | 'APPROVED' | 'REJECTED' }) {
+  const rejected = status === 'REJECTED'
+  const steps = [
+    { label: 'Nag-submit', state: 'done' as const },
+    { label: 'Sinusuri', state: status === 'PENDING' ? ('current' as const) : ('done' as const) },
+    {
+      label: rejected ? 'Hindi Naaprubahan' : 'Aprubado',
+      state: status === 'PENDING' ? ('upcoming' as const) : ('done' as const),
+    },
+  ]
+
+  const colorFor = (state: 'done' | 'current' | 'upcoming', isLast: boolean) => {
+    if (state === 'upcoming') return '#c9cbbe'
+    if (isLast && rejected) return '#D32F2F'
+    if (state === 'current') return '#F4A300'
+    return 'var(--accent-turquoise)'
+  }
+
+  return (
+    <div className="flex items-start justify-between">
+      {steps.map((s, i) => {
+        const isLast = i === steps.length - 1
+        const color = colorFor(s.state, isLast)
+        return (
+          <div key={s.label} className="flex-1 flex flex-col items-center relative">
+            {/* connector to next */}
+            {i < steps.length - 1 && (
+              <span
+                className="absolute top-3 left-1/2 h-0.5"
+                style={{
+                  width: '100%',
+                  background: steps[i + 1].state === 'upcoming' ? '#e0e2d6' : 'var(--accent-turquoise)',
+                }}
+                aria-hidden="true"
+              />
+            )}
+            <span
+              className="relative z-10 w-6 h-6 rounded-full flex items-center justify-center text-[11px] text-white font-bold"
+              style={{ background: color }}
+            >
+              {s.state === 'upcoming' ? '' : s.state === 'current' ? '•' : '✓'}
+            </span>
+            <span
+              className="text-[0.68rem] mt-1.5 text-center leading-tight"
+              style={{ color: s.state === 'upcoming' ? '#9aa192' : '#5a5f52', fontWeight: s.state === 'current' ? 700 : 500 }}
+            >
+              {s.label}
+            </span>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 export default function StatusPage() {
   const [phone, setPhone] = useState('')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<LookupResult | null>(null)
   const [error, setError] = useState('')
+  const [copied, setCopied] = useState(false)
+
+  async function copyPhone() {
+    if (!phone.trim()) return
+    try {
+      await navigator.clipboard.writeText(phone.trim())
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    } catch {
+      /* clipboard unavailable — ignore */
+    }
+  }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
@@ -86,14 +153,25 @@ export default function StatusPage() {
 
         <div className="card p-7">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="Numero ng telepono"
-              className="field-input w-full"
-              autoComplete="tel"
-            />
+            <div className="flex gap-2">
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Numero ng telepono"
+                className="field-input w-full"
+                autoComplete="tel"
+              />
+              <button
+                type="button"
+                onClick={copyPhone}
+                disabled={!phone.trim()}
+                className="btn btn-secondary btn-sm shrink-0"
+                aria-label="Kopyahin ang numero"
+              >
+                {copied ? '✓ Nakopya' : '📋 Kopyahin'}
+              </button>
+            </div>
             <motion.button
               type="submit"
               disabled={loading || !phone.trim()}
@@ -122,10 +200,13 @@ export default function StatusPage() {
             </p>
           )}
 
-          {result?.found && meta && (
+          {result?.found && meta && result.status && (
             <div className="mt-5">
+              {/* Progress timeline */}
+              <StatusTimeline status={result.status} />
+
               <div
-                className="rounded-2xl p-5 text-center"
+                className="rounded-2xl p-5 text-center mt-4"
                 style={{ background: meta.bg, border: `1px solid ${meta.border}` }}
               >
                 <div className="text-[2.5rem] leading-none mb-2" aria-hidden="true">{meta.emoji}</div>

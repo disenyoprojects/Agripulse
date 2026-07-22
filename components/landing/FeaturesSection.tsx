@@ -21,16 +21,16 @@ const features = [
   {
     icon: '🏆',
     label: 'Leaderboard',
-    href: null,
+    href: '/leaderboard',
     desc: 'Incentivize farmers with points',
-    soon: true,
+    soon: false,
   },
   {
     icon: '🤖',
     label: 'AI Price Advisor',
-    href: null,
+    href: '/price-advisor',
     desc: 'Claude-powered farmgate price estimates',
-    soon: true,
+    soon: false,
   },
 ]
 

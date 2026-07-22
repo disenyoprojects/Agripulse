@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useSearchParams } from 'next/navigation'
-import { motion } from 'framer-motion'
+import { motion, useAnimationControls } from 'framer-motion'
 import { Suspense } from 'react'
 
 const spring = { type: 'spring', stiffness: 500, damping: 22 } as const
@@ -13,8 +13,15 @@ function LoginForm() {
   const callbackUrl = searchParams.get('callbackUrl') ?? '/dashboard'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const shake = useAnimationControls()
+
+  function fail(message: string) {
+    setError(message)
+    shake.start({ x: [0, -8, 8, -4, 4, 0], transition: { duration: 0.4 } })
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -27,13 +34,13 @@ function LoginForm() {
         redirect: false,
       })
       if (result?.error) {
-        setError('Invalid email or password.')
+        fail('Invalid email or password.')
       } else {
         const safe = callbackUrl.startsWith('/') ? callbackUrl : '/dashboard'
         window.location.href = safe
       }
     } catch {
-      setError('Something went wrong. Please try again.')
+      fail('Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -48,7 +55,7 @@ function LoginForm() {
       }}
     >
       <div className="w-full max-w-sm">
-        <div className="card p-8">
+        <motion.div className="card p-8" animate={shake}>
           {/* Brand mark */}
           <div className="text-center mb-8">
             <span
@@ -91,15 +98,25 @@ function LoginForm() {
               >
                 Password
               </label>
-              <input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="field-input w-full"
-                placeholder="••••••••"
-              />
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="field-input w-full pr-11"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-lg text-[#6b7a5f] hover:bg-[#eef1e9]"
+                >
+                  {showPassword ? '🙈' : '👁️'}
+                </button>
+              </div>
             </div>
 
             {error && (
@@ -131,7 +148,7 @@ function LoginForm() {
           <p className="text-center text-xs text-[#8a917e] mt-7">
             © 2026 AgriPulse System | DisenyoDigitals
           </p>
-        </div>
+        </motion.div>
       </div>
     </main>
   )

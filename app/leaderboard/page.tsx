@@ -1,6 +1,7 @@
 import { db } from '@/lib/db'
 import Link from 'next/link'
 import FarmerBottomTabs from '@/components/shared/FarmerBottomTabs'
+import LeaderboardRankings from '@/components/leaderboard/LeaderboardRankings'
 
 export const dynamic = 'force-dynamic'
 
@@ -54,13 +55,6 @@ async function getTotals() {
   ])
   const hectares = Number(hectaresAggregate._sum.farmSizeHectares ?? 0)
   return { farmers, submissions, points: submissions * 10, hectares }
-}
-
-function medal(rank: number) {
-  if (rank === 1) return '🥇'
-  if (rank === 2) return '🥈'
-  if (rank === 3) return '🥉'
-  return null
 }
 
 export default async function LeaderboardPage() {
@@ -154,79 +148,7 @@ export default async function LeaderboardPage() {
             Top 10 Contributors
           </h2>
 
-          {rankings.length === 0 ? (
-            <div className="text-center py-12" style={{ color: 'rgba(255,255,255,0.55)' }}>
-              <p className="text-5xl mb-4">🌱</p>
-              <p>Walang datos pa. Mag-submit sa Farmer Portal!</p>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-2.5">
-              {rankings.map((r) => (
-                <div
-                  key={r.rank}
-                  className="ranking-row flex items-center gap-4 rounded-2xl p-4"
-                  style={{
-                    background: 'rgba(255,255,255,0.07)',
-                    border: '1px solid rgba(255,255,255,0.07)',
-                    transition: `all var(--dur-base) var(--ease-out-quart)`,
-                  }}
-                >
-                  {/* Rank / Medal */}
-                  <div
-                    className="w-11 text-center font-heading text-[1.35rem] shrink-0"
-                    style={{
-                      color:
-                        r.rank === 1
-                          ? '#FFD700'
-                          : r.rank === 2
-                          ? '#C0C0C0'
-                          : r.rank === 3
-                          ? '#CD7F32'
-                          : 'rgba(255,255,255,0.45)',
-                      letterSpacing: '-0.02em',
-                    }}
-                  >
-                    {medal(r.rank) ?? `#${r.rank}`}
-                  </div>
-
-                  {/* Farmer info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="font-bold text-white text-[0.97rem] truncate">{r.name}</div>
-                    <div
-                      className="text-[0.8rem] mt-0.5 flex gap-3 flex-wrap"
-                      style={{ color: 'rgba(255,255,255,0.50)' }}
-                    >
-                      <span>📍 {r.municipality}</span>
-                      <span>🌾 {r.cropName}</span>
-                      {r.hectares && <span>📏 {r.hectares}ha</span>}
-                    </div>
-                  </div>
-
-                  {/* Points */}
-                  <div className="text-right shrink-0">
-                    <div
-                      data-nums
-                      className="font-heading"
-                      style={{
-                        fontSize: '1.75rem',
-                        color: 'var(--color-accent-gold)',
-                        letterSpacing: '-0.02em',
-                        lineHeight: 1,
-                      }}
-                    >
-                      {r.points}
-                    </div>
-                    <div className="text-[0.68rem] mt-0.5" style={{ color: 'rgba(255,255,255,0.38)' }}>
-                      POINTS
-                    </div>
-                    <div className="text-[0.78rem] mt-1" style={{ color: 'rgba(255,255,255,0.50)' }}>
-                      {r.submissions} sub{r.submissions !== 1 ? 's' : ''}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          <LeaderboardRankings rankings={rankings} />
         </div>
 
         <div className="flex gap-3 justify-center mb-8">

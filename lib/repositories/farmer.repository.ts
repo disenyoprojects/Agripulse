@@ -49,6 +49,7 @@ export async function getFarmerWithSubmissions(id: string) {
           pointsEarned: true,
           status: true,
           submittedAt: true,
+          photoMime: true,
         },
       },
     },

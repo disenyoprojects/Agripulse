@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { BARANGAYS, BARANGAY_MANUAL } from '@/lib/barangays'
 
 const spring = { type: 'spring', stiffness: 500, damping: 22 } as const
 
@@ -56,8 +57,8 @@ const ISSUES = [
   { id: 'disease', label: 'Sakit ng Halaman' },
   { id: 'flood', label: 'Baha' },
   { id: 'wind', label: 'Malakas na Hangin' },
-  { id: 'other', label: 'Iba pa...' },
   { id: 'none', label: 'Walang Problema' },
+  { id: 'other', label: 'Iba pa...' },
 ]
 
 const TOTAL_STEPS = 9
@@ -100,9 +101,20 @@ export default function MobileWizardPage() {
   const [gpsLoading, setGpsLoading] = useState(false)
   const [gpsError, setGpsError] = useState('')
   const [error, setError] = useState('')
+  const [barangayManual, setBarangayManual] = useState(false)
+  const [photo, setPhoto] = useState<File | null>(null)
+  const [photoPreview, setPhotoPreview] = useState('')
 
   function update(field: keyof FormData, value: string | string[]) {
     setForm((prev) => ({ ...prev, [field]: value }))
+  }
+
+  function selectPhoto(file: File | null) {
+    setPhotoPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev)
+      return file ? URL.createObjectURL(file) : ''
+    })
+    setPhoto(file)
   }
 
   function toggleIssue(id: string) {
@@ -136,6 +148,9 @@ export default function MobileWizardPage() {
           municipality: data.municipality,
           barangay: data.barangay,
         }))
+        setBarangayManual(
+          !(BARANGAYS[data.municipality] ?? []).includes(data.barangay)
+        )
       } else {
         setWelcomeBack(null)
       }
@@ -154,6 +169,8 @@ export default function MobileWizardPage() {
     setError('')
     setWelcomeBack(null)
     setGpsError('')
+    setBarangayManual(false)
+    selectPhoto(null)
   }
 
   async function handleSubmit() {
@@ -182,10 +199,13 @@ export default function MobileWizardPage() {
         gpsLng: form.gpsLng ? parseFloat(form.gpsLng) : undefined,
         issues: resolvedIssues,
       }
+      const body = new FormData()
+      body.append('payload', JSON.stringify(payload))
+      if (photo) body.append('photo', photo)
+
       const res = await fetch('/api/farmers', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body,
       })
       const data = await res.json()
       if (!res.ok || !data.success) throw new Error(typeof data.error === 'string' ? data.error : 'Submission failed. Please try again.')
@@ -402,7 +422,12 @@ export default function MobileWizardPage() {
                 {MUNICIPALITIES.map((m) => (
                   <motion.button
                     key={m}
-                    onClick={() => update('municipality', m)}
+                    onClick={() => {
+                      if (form.municipality === m) return
+                      update('municipality', m)
+                      update('barangay', '')
+                      setBarangayManual(false)
+                    }}
                     whileHover={{ scale: 1.04, y: -2 }}
                     whileTap={{ scale: 0.97 }}
                     transition={spring}
@@ -418,13 +443,48 @@ export default function MobileWizardPage() {
                 ))}
               </div>
               {form.municipality && (
-                <input
-                  type="text"
-                  value={form.barangay}
-                  onChange={(e) => update('barangay', e.target.value)}
-                  placeholder="Barangay"
-                  style={{ ...inputStyle, marginTop: '16px' }}
-                />
+                <>
+                  <select
+                    value={
+                      barangayManual
+                        ? BARANGAY_MANUAL
+                        : (BARANGAYS[form.municipality] ?? []).includes(form.barangay)
+                          ? form.barangay
+                          : ''
+                    }
+                    onChange={(e) => {
+                      const value = e.target.value
+                      if (value === BARANGAY_MANUAL) {
+                        setBarangayManual(true)
+                        update('barangay', '')
+                      } else {
+                        setBarangayManual(false)
+                        update('barangay', value)
+                      }
+                    }}
+                    style={{ ...inputStyle, marginTop: '16px', cursor: 'pointer' }}
+                  >
+                    <option value="" disabled>
+                      Piliin ang Barangay
+                    </option>
+                    {(BARANGAYS[form.municipality] ?? []).map((b) => (
+                      <option key={b} value={b}>
+                        {b}
+                      </option>
+                    ))}
+                    <option value={BARANGAY_MANUAL}>Iba pa — i-type ko</option>
+                  </select>
+                  {barangayManual && (
+                    <input
+                      type="text"
+                      value={form.barangay}
+                      onChange={(e) => update('barangay', e.target.value)}
+                      placeholder="Isulat ang barangay"
+                      style={{ ...inputStyle, marginTop: '12px' }}
+                      autoFocus
+                    />
+                  )}
+                </>
               )}
             </div>
           )}
@@ -554,6 +614,53 @@ export default function MobileWizardPage() {
                       style={{ ...inputStyle, marginTop: '12px' }}
                     />
                   )}
+
+                  {/* Optional crop photo — helps the LGU verify real farmers */}
+                  <div style={{ marginTop: '20px' }}>
+                    <p style={{ fontSize: '0.875rem', fontWeight: 700, color: '#2D5016', marginBottom: '4px' }}>
+                      📷 Larawan ng pananim <span style={{ color: '#999', fontWeight: 500 }}>(opsyonal)</span>
+                    </p>
+                    <p style={{ fontSize: '0.78rem', color: '#666', marginBottom: '10px' }}>
+                      Kumuha ng litrato ng iyong taniman para mapabilis ang pag-verify ng LGU.
+                    </p>
+                    {photoPreview ? (
+                      <div style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', border: '1.5px solid #E0E0E0' }}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={photoPreview} alt="Preview ng pananim" style={{ width: '100%', maxHeight: '260px', objectFit: 'cover', display: 'block' }} />
+                        <button
+                          type="button"
+                          onClick={() => selectPhoto(null)}
+                          style={{
+                            position: 'absolute', top: '8px', right: '8px',
+                            background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none',
+                            borderRadius: '999px', width: '32px', height: '32px', cursor: 'pointer', fontSize: '15px',
+                          }}
+                          aria-label="Alisin ang larawan"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ) : (
+                      <label
+                        style={{
+                          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                          gap: '6px', padding: '20px', borderRadius: '12px', cursor: 'pointer',
+                          border: '2px dashed #C9CBBE', background: '#FAF9F4', color: '#5a5f52',
+                          fontSize: '0.85rem', fontWeight: 600, textAlign: 'center',
+                        }}
+                      >
+                        <span style={{ fontSize: '1.6rem' }} aria-hidden="true">📸</span>
+                        Mag-tap para kumuha ng litrato
+                        <input
+                          type="file"
+                          accept="image/*"
+                          capture="environment"
+                          onChange={(e) => selectPhoto(e.target.files?.[0] ?? null)}
+                          style={{ display: 'none' }}
+                        />
+                      </label>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -687,6 +794,19 @@ export default function MobileWizardPage() {
                 </p>
               </div>
 
+              <div style={{
+                background: 'var(--accent-turquoise-50)', border: '1px solid var(--accent-turquoise-200)',
+                borderRadius: '12px', padding: '1rem', textAlign: 'left', marginBottom: '1.5rem',
+              }}>
+                <p style={{ fontWeight: 700, color: 'var(--accent-turquoise-strong)', fontSize: '0.9rem' }}>
+                  ⏳ Naghihintay ng pagsusuri ng LGU
+                </p>
+                <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '4px' }}>
+                  Susuriin muna ng LGU ang iyong rehistro. Lalabas ka sa pampublikong leaderboard
+                  kapag na-aprubahan na.
+                </p>
+              </div>
+
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <motion.button
                   onClick={resetForm}
@@ -708,12 +828,19 @@ export default function MobileWizardPage() {
                 }}>
                   🏆 Tingnan ang Leaderboard
                 </Link>
+                <Link href="/status" style={{
+                  display: 'block', background: 'white', color: 'var(--accent-turquoise-strong)',
+                  border: '2px solid var(--accent-turquoise)', padding: '14px', borderRadius: '12px',
+                  fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none', textAlign: 'center',
+                }}>
+                  🔎 Tingnan ang Status ng Rehistro
+                </Link>
                 <Link href="/" style={{
                   display: 'block', background: 'white', color: '#2D5016',
                   border: '2px solid #2D5016', padding: '14px', borderRadius: '12px',
                   fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none', textAlign: 'center',
                 }}>
-                  🏠 Umuwi
+                  🏠 Bumalik
                 </Link>
               </div>
             </div>

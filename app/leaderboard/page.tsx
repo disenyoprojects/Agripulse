@@ -6,6 +6,7 @@ export const dynamic = 'force-dynamic'
 async function getLeaderboard() {
   const rankings = await db.submission.groupBy({
     by: ['farmerId'],
+    where: { farmer: { status: 'APPROVED' } },
     _sum: { pointsEarned: true },
     _count: { farmerId: true },
     orderBy: { _sum: { pointsEarned: 'desc' } },
@@ -43,9 +44,12 @@ async function getLeaderboard() {
 
 async function getTotals() {
   const [farmers, submissions, hectaresAggregate] = await Promise.all([
-    db.farmer.count(),
-    db.submission.count(),
-    db.submission.aggregate({ _sum: { farmSizeHectares: true } }),
+    db.farmer.count({ where: { status: 'APPROVED' } }),
+    db.submission.count({ where: { farmer: { status: 'APPROVED' } } }),
+    db.submission.aggregate({
+      where: { farmer: { status: 'APPROVED' } },
+      _sum: { farmSizeHectares: true },
+    }),
   ])
   const hectares = Number(hectaresAggregate._sum.farmSizeHectares ?? 0)
   return { farmers, submissions, points: submissions * 10, hectares }

@@ -3,6 +3,8 @@ import { notFound, redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
 import { auth } from '@/auth'
+import { approveFarmer, rejectFarmer } from '../actions'
+import DeleteFarmerButton from '@/components/dashboard/DeleteFarmerButton'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
@@ -11,6 +13,12 @@ const STATUS_STYLE: Record<string, { dot: string; text: string; bg: string; bord
   PENDING:  { dot: '#FF6F00', text: '#C15A00', bg: '#FDF3E7', border: 'rgba(193,90,0,0.18)' },
   VERIFIED: { dot: '#2E7D32', text: '#1e6b24', bg: '#EBF5EC', border: 'rgba(46,125,50,0.18)' },
   REJECTED: { dot: '#D32F2F', text: '#b52a2a', bg: '#FDECEC', border: 'rgba(211,47,47,0.18)' },
+}
+
+const FARMER_STATUS_STYLE: Record<string, { dot: string; text: string; bg: string; border: string; label: string }> = {
+  PENDING:  { dot: '#FF6F00', text: '#C15A00', bg: '#FDF3E7', border: 'rgba(193,90,0,0.18)', label: 'Pending review' },
+  APPROVED: { dot: '#2E7D32', text: '#1e6b24', bg: '#EBF5EC', border: 'rgba(46,125,50,0.18)', label: 'Approved' },
+  REJECTED: { dot: '#D32F2F', text: '#b52a2a', bg: '#FDECEC', border: 'rgba(211,47,47,0.18)', label: 'Rejected' },
 }
 
 export default async function FarmerPortfolioPage({
@@ -30,10 +38,15 @@ export default async function FarmerPortfolioPage({
   )
   const pendingCount = farmer.submissions.filter((s) => s.status === 'PENDING').length
 
+  const isApproved = farmer.status === 'APPROVED'
+
   async function verifySubmission(submissionId: string) {
     'use server'
     const session = await auth()
     if (!session?.user) redirect('/auth/login')
+    // Only verified (real) farmers may have their submissions verified.
+    const owner = await db.farmer.findUnique({ where: { id }, select: { status: true } })
+    if (owner?.status !== 'APPROVED') return
     await db.submission.update({
       where: { id: submissionId },
       data: { status: 'VERIFIED', pointsEarned: 10 },
@@ -60,12 +73,26 @@ export default async function FarmerPortfolioPage({
             >
               Farmer Portfolio
             </p>
-            <h1
-              className="font-heading text-[1.8rem]"
-              style={{ letterSpacing: '-0.01em' }}
-            >
-              {farmer.fullName}
-            </h1>
+            <div className="flex items-center gap-3 flex-wrap">
+              <h1
+                className="font-heading text-[1.8rem]"
+                style={{ letterSpacing: '-0.01em' }}
+              >
+                {farmer.fullName}
+              </h1>
+              {(() => {
+                const st = FARMER_STATUS_STYLE[farmer.status] ?? FARMER_STATUS_STYLE.PENDING
+                return (
+                  <span
+                    className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full"
+                    style={{ background: st.bg, color: st.text, border: `1px solid ${st.border}` }}
+                  >
+                    <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: st.dot }} />
+                    {st.label}
+                  </span>
+                )
+              })()}
+            </div>
             <p className="opacity-80 text-[0.9rem] mt-1">
               {farmer.barangay}, {farmer.municipality}
               {farmer.contactNumber && (
@@ -74,6 +101,21 @@ export default async function FarmerPortfolioPage({
             </p>
           </div>
           <div className="flex gap-2.5 flex-wrap">
+            {farmer.status !== 'APPROVED' && (
+              <form action={approveFarmer.bind(null, farmer.id)}>
+                <button type="submit" className="btn btn-sm" style={{ background: '#EBF5EC', color: '#1e6b24', border: '1px solid rgba(46,125,50,0.22)' }}>
+                  ✓ Approve
+                </button>
+              </form>
+            )}
+            {farmer.status !== 'REJECTED' && (
+              <form action={rejectFarmer.bind(null, farmer.id)}>
+                <button type="submit" className="btn btn-sm" style={{ background: '#FDECEC', color: '#b52a2a', border: '1px solid rgba(211,47,47,0.22)' }}>
+                  ✕ Reject
+                </button>
+              </form>
+            )}
+            <DeleteFarmerButton farmerId={farmer.id} farmerName={farmer.fullName} />
             <Link href="/dashboard/farmers" className="btn btn-sm btn-on-dark">← All Farmers</Link>
             <Link href="/dashboard" className="btn btn-sm btn-on-dark">Dashboard</Link>
           </div>
@@ -124,7 +166,7 @@ export default async function FarmerPortfolioPage({
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr>
-                  {['Reference', 'Crop', 'Planted', 'Harvest', 'Hectares', 'Points', 'Status', 'Action'].map(
+                  {['Reference', 'Crop', 'Photo', 'Planted', 'Harvest', 'Hectares', 'Points', 'Status', 'Action'].map(
                     (h) => (
                       <th
                         key={h}
@@ -145,6 +187,21 @@ export default async function FarmerPortfolioPage({
                         {s.referenceNumber}
                       </td>
                       <td className="py-3.5 px-4 font-semibold text-primary-green">{s.cropName}</td>
+                      <td className="py-3.5 px-4">
+                        {s.photoMime ? (
+                          <a
+                            href={`/api/submissions/${s.id}/photo`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-xs font-semibold"
+                            style={{ color: 'var(--accent-turquoise-strong)' }}
+                          >
+                            📷 View
+                          </a>
+                        ) : (
+                          <span className="text-[#b0b8a6]">—</span>
+                        )}
+                      </td>
                       <td className="py-3.5 px-4 text-[#5a5f52]">
                         {new Date(s.plantingDate).toLocaleDateString('en-US', {
                           month: 'short',
@@ -181,21 +238,29 @@ export default async function FarmerPortfolioPage({
                         </span>
                       </td>
                       <td className="py-3.5 px-4">
-                        {s.status === 'PENDING' && (
-                          <form action={verifySubmission.bind(null, s.id)}>
-                            <button
-                              type="submit"
-                              className="btn btn-sm"
-                              style={{
-                                background: '#EBF5EC',
-                                color: '#1e6b24',
-                                border: '1px solid rgba(46,125,50,0.22)',
-                              }}
+                        {s.status === 'PENDING' &&
+                          (isApproved ? (
+                            <form action={verifySubmission.bind(null, s.id)}>
+                              <button
+                                type="submit"
+                                className="btn btn-sm"
+                                style={{
+                                  background: '#EBF5EC',
+                                  color: '#1e6b24',
+                                  border: '1px solid rgba(46,125,50,0.22)',
+                                }}
+                              >
+                                ✓ Verify
+                              </button>
+                            </form>
+                          ) : (
+                            <span
+                              className="text-xs text-[#8a917e]"
+                              title="Approve the farmer first"
                             >
-                              ✓ Verify
-                            </button>
-                          </form>
-                        )}
+                              Approve farmer first
+                            </span>
+                          ))}
                       </td>
                     </tr>
                   )

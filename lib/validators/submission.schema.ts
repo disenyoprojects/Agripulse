@@ -26,7 +26,6 @@ export const submissionSchema = z.object({
   farmSizeSqm: z.number().positive().optional(),
   gpsLat: z.number().min(-90).max(90).optional(),
   gpsLng: z.number().min(-180).max(180).optional(),
-  photoUrl: z.string().url().optional(),
   issues: z.array(z.string()).default([]),
 })
 

@@ -13,8 +13,22 @@ model Farmer {
   municipality  String
   barangay      String
   contactNumber String?      @unique
+  status        FarmerStatus @default(PENDING)
+  verifiedAt    DateTime?
   createdAt     DateTime     @default(now())
   submissions   Submission[]
+  attachments   Attachment[]
+}
+
+model Attachment {
+  id        String   @id @default(cuid())
+  farmer    Farmer   @relation(fields: [farmerId], references: [id], onDelete: Cascade)
+  farmerId  String
+  fileName  String
+  mimeType  String
+  size      Int
+  data      Bytes
+  createdAt DateTime @default(now())
 }
 
 model Submission {
@@ -31,7 +45,8 @@ model Submission {
   farmSizeSqm      Decimal?         @db.Decimal(10, 2)
   gpsLat           Decimal?         @db.Decimal(10, 7)
   gpsLng           Decimal?         @db.Decimal(10, 7)
-  photoUrl         String?
+  photoData        Bytes?
+  photoMime        String?
   issues           String[]
   pointsEarned     Int              @default(0)
   status           SubmissionStatus @default(PENDING)
@@ -46,6 +61,12 @@ model LguUser {
   createdAt DateTime @default(now())
 }
 
+model RateLimit {
+  key       String   @id
+  count     Int      @default(0)
+  expiresAt DateTime
+}
+
 enum CropCategory {
   LEAFY_VEGETABLES
   FRUITING_VEGETABLES
@@ -56,5 +77,11 @@ enum CropCategory {
 enum SubmissionStatus {
   PENDING
   VERIFIED
+  REJECTED
+}
+
+enum FarmerStatus {
+  PENDING
+  APPROVED
   REJECTED
 }

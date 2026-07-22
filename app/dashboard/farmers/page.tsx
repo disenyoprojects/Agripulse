@@ -1,15 +1,28 @@
 import { getAllFarmersWithStats } from '@/lib/repositories/farmer.repository'
+import FarmerRowMenu from '@/components/dashboard/FarmerRowMenu'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
+const FARMER_STATUS_STYLE: Record<string, { dot: string; text: string; bg: string; border: string; label: string }> = {
+  PENDING:  { dot: '#FF6F00', text: '#C15A00', bg: '#FDF3E7', border: 'rgba(193,90,0,0.18)', label: 'Pending' },
+  APPROVED: { dot: '#2E7D32', text: '#1e6b24', bg: '#EBF5EC', border: 'rgba(46,125,50,0.18)', label: 'Approved' },
+  REJECTED: { dot: '#D32F2F', text: '#b52a2a', bg: '#FDECEC', border: 'rgba(211,47,47,0.18)', label: 'Rejected' },
+}
+
+const STATUS_ORDER: Record<string, number> = { PENDING: 0, APPROVED: 1, REJECTED: 2 }
+
 export default async function FarmerPortfoliosPage() {
-  const farmers = await getAllFarmersWithStats()
+  const unsorted = await getAllFarmersWithStats()
+  // Surface farmers awaiting review first, preserving the repository's recency order within each group.
+  const farmers = [...unsorted].sort(
+    (a, b) => (STATUS_ORDER[a.status] ?? 3) - (STATUS_ORDER[b.status] ?? 3)
+  )
 
   const totals = {
     count: farmers.length,
+    pendingFarmers: farmers.filter((f) => f.status === 'PENDING').length,
     submissions: farmers.reduce((s, f) => s + f.totalSubmissions, 0),
-    pending: farmers.reduce((s, f) => s + f.pending, 0),
     verified: farmers.reduce((s, f) => s + f.verified, 0),
   }
 
@@ -47,9 +60,9 @@ export default async function FarmerPortfoliosPage() {
         <div className="grid [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))] gap-5 mb-6">
           {([
             { label: 'Total Farmers', value: totals.count, color: '#2D5016' },
+            { label: 'Pending Review', value: totals.pendingFarmers, color: '#C15A00' },
             { label: 'Total Submissions', value: totals.submissions, color: '#2D5016' },
-            { label: 'Pending Verification', value: totals.pending, color: '#C15A00' },
-            { label: 'Verified', value: totals.verified, color: '#2E7D32' },
+            { label: 'Verified Submissions', value: totals.verified, color: '#2E7D32' },
           ] as const).map(({ label, value, color }) => (
             <div key={label} className="card card-interactive text-center p-6">
               <p
@@ -72,7 +85,7 @@ export default async function FarmerPortfoliosPage() {
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr>
-                  {['Farmer', 'Barangay', 'Municipality', 'Submissions', 'Pending', 'Verified', 'Points', ''].map(
+                  {['Farmer', 'Status', 'Barangay', 'Municipality', 'Submissions', 'Pending', 'Verified', 'Points', ''].map(
                     (h) => (
                       <th
                         key={h}
@@ -91,6 +104,24 @@ export default async function FarmerPortfoliosPage() {
                     className="border-b border-[#eeeae0] hover:bg-[#faf8f2] transition-colors"
                   >
                     <td className="py-3.5 px-4 font-semibold text-primary-green">{f.fullName}</td>
+                    <td className="py-3.5 px-4">
+                      {(() => {
+                        const st = FARMER_STATUS_STYLE[f.status] ?? FARMER_STATUS_STYLE.PENDING
+                        return (
+                          <span
+                            className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full whitespace-nowrap"
+                            style={{ background: st.bg, color: st.text, border: `1px solid ${st.border}` }}
+                          >
+                            <span
+                              aria-hidden="true"
+                              className="w-1.5 h-1.5 rounded-full shrink-0"
+                              style={{ background: st.dot }}
+                            />
+                            {st.label}
+                          </span>
+                        )
+                      })()}
+                    </td>
                     <td className="py-3.5 px-4 text-[#5a5f52]">{f.barangay || '—'}</td>
                     <td className="py-3.5 px-4 text-[#5a5f52]">{f.municipality}</td>
                     <td className="py-3.5 px-4 text-[#5a5f52] text-center" data-nums>
@@ -123,13 +154,8 @@ export default async function FarmerPortfoliosPage() {
                     <td className="py-3.5 px-4 text-center font-semibold text-accent-gold" data-nums>
                       {f.totalPoints}
                     </td>
-                    <td className="py-3.5 px-4">
-                      <Link
-                        href={`/dashboard/farmers/${f.id}`}
-                        className="btn btn-sm btn-secondary"
-                      >
-                        View →
-                      </Link>
+                    <td className="py-3.5 px-4 text-right">
+                      <FarmerRowMenu farmerId={f.id} farmerName={f.fullName} status={f.status} />
                     </td>
                   </tr>
                 ))}

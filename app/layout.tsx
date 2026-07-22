@@ -39,9 +39,9 @@ export default function RootLayout({
   return (
     <html
       lang="tl"
-      className={`${archivoBlack.variable} ${nunito.variable} ${dmSans.variable} ${baloo2.variable} h-full antialiased`}
+      className={`${archivoBlack.variable} ${nunito.variable} ${dmSans.variable} ${baloo2.variable} antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="flex flex-col">
         <GrainOverlay />
         <SiteNav />
         <SmoothScroll>{children}</SmoothScroll>

@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import NavLinks from '@/components/landing/NavLinks'
 
 const links = [
   { label: 'Problem', href: '/#problem' },
@@ -12,6 +11,7 @@ const links = [
   { label: 'Farmer Portal', href: '/mobile-wizard' },
   { label: 'LGU Dashboard', href: '/dashboard' },
   { label: 'Leaderboard', href: '/leaderboard' },
+  { label: 'Status', href: '/status' },
   { label: 'Price Advisor', href: '/price-advisor' },
 ]
 
@@ -86,10 +86,6 @@ export default function SiteNav() {
             )
           })}
         </ul>
-
-        <div className="hidden md:flex">
-          <NavLinks />
-        </div>
 
         {/* Hamburger — mobile only */}
         <button
@@ -225,10 +221,6 @@ export default function SiteNav() {
             )
           })}
         </nav>
-
-        <div style={{ marginTop: '2rem' }}>
-          <NavLinks />
-        </div>
       </div>
 
       <style>{`

@@ -125,6 +125,7 @@ export default async function DashboardPage() {
             <Link href="/" className="btn btn-sm btn-on-dark">Home</Link>
             <Link href="/dashboard/farmers" className="btn btn-sm btn-on-dark">Farmers</Link>
             <Link href="/mobile-wizard" className="btn btn-sm btn-on-dark">Farmer Form</Link>
+            <Link href="/dashboard/settings" className="btn btn-sm btn-on-dark">⚙️ Settings</Link>
             <form
               action={async () => {
                 'use server'

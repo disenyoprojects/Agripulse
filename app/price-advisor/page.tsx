@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import FarmerBottomTabs from '@/components/shared/FarmerBottomTabs'
 
 const BLISTT_LOCATIONS = [
   'La Trinidad, Benguet',
@@ -591,6 +592,8 @@ export default function PriceAdvisorPage() {
           .stat-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
+      <div className="md:hidden" style={{ height: '72px' }} />
+      <FarmerBottomTabs />
     </main>
   )
 }

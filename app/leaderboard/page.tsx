@@ -1,5 +1,6 @@
 import { db } from '@/lib/db'
 import Link from 'next/link'
+import FarmerBottomTabs from '@/components/shared/FarmerBottomTabs'
 
 export const dynamic = 'force-dynamic'
 
@@ -67,7 +68,7 @@ export default async function LeaderboardPage() {
 
   return (
     <main
-      className="min-h-screen pt-20 pb-12"
+      className="min-h-screen pt-20 pb-24 md:pb-12"
       style={{
         background:
           'radial-gradient(ellipse 70% 50% at 50% 0%, rgba(93,158,135,0.12) 0%, transparent 50%), linear-gradient(160deg, #1a2e10 0%, #0c150a 100%)',
@@ -263,6 +264,7 @@ export default async function LeaderboardPage() {
           transform: translateX(4px);
         }
       `}</style>
+      <FarmerBottomTabs />
     </main>
   )
 }

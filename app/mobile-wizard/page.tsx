@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { BARANGAYS, BARANGAY_MANUAL } from '@/lib/barangays'
+import FarmerBottomTabs from '@/components/shared/FarmerBottomTabs'
 
 const spring = { type: 'spring', stiffness: 500, damping: 22 } as const
 
@@ -73,6 +74,40 @@ const STEP_TITLES: Record<number, string> = {
   7: 'Laki ng Bukid',
   8: 'Petsa ng Ani',
   9: 'Mga Problema',
+}
+
+function SelectedCheck({ show }: { show: boolean }) {
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.span
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0, opacity: 0 }}
+          transition={{ type: 'spring', stiffness: 600, damping: 20 }}
+          style={{
+            position: 'absolute',
+            top: '6px',
+            right: '6px',
+            width: '20px',
+            height: '20px',
+            borderRadius: '50%',
+            background: '#2E7D32',
+            color: 'white',
+            fontSize: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            lineHeight: 1,
+            boxShadow: '0 2px 6px rgba(46,125,50,0.4)',
+          }}
+          aria-hidden="true"
+        >
+          ✓
+        </motion.span>
+      )}
+    </AnimatePresence>
+  )
 }
 
 export default function MobileWizardPage() {
@@ -218,17 +253,16 @@ export default function MobileWizardPage() {
     }
   }
 
-  const progress = Math.round((Math.min(step, TOTAL_STEPS) / TOTAL_STEPS) * 100)
   const isSuccess = step === 10
 
   return (
-    <main style={{ background: '#F8F7F2', minHeight: '100vh', paddingTop: '80px' }}>
+    <main style={{ background: '#F8F7F2', minHeight: '100vh' }}>
       {/* App container */}
       <div style={{
         maxWidth: '900px',
         margin: '0 auto',
         background: 'white',
-        minHeight: 'calc(100vh - 80px)',
+        minHeight: '100vh',
         boxShadow: '0 0 40px rgba(0,0,0,0.06)',
         display: 'flex',
         flexDirection: 'column',
@@ -242,7 +276,7 @@ export default function MobileWizardPage() {
               padding: '20px',
               color: 'white',
               position: 'sticky',
-              top: '80px',
+              top: 0,
               zIndex: 100,
               boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
             }}>
@@ -284,16 +318,29 @@ export default function MobileWizardPage() {
               </div>
 
               {step > 1 && (
-                <div style={{ height: '6px', background: 'rgba(255,255,255,0.3)', borderRadius: '3px', overflow: 'hidden', marginTop: '15px' }}>
-                  <div style={{
-                    height: '100%',
-                    width: '100%',
-                    background: '#F4A300',
-                    borderRadius: '3px',
-                    transformOrigin: 'left center',
-                    transform: `scaleX(${progress / 100})`,
-                    transition: 'transform 0.3s ease',
-                  }} />
+                <div style={{ display: 'flex', gap: '6px', marginTop: '15px' }} aria-hidden="true">
+                  {Array.from({ length: TOTAL_STEPS - 1 }, (_, i) => i + 2).map((n) => {
+                    const state = n < step ? 'done' : n === step ? 'current' : 'upcoming'
+                    return (
+                      <div
+                        key={n}
+                        style={{
+                          flex: 1,
+                          height: '8px',
+                          borderRadius: '999px',
+                          background:
+                            state === 'done'
+                              ? '#F4A300'
+                              : state === 'current'
+                                ? '#F4A300'
+                                : 'rgba(255,255,255,0.28)',
+                          opacity: state === 'current' ? 1 : state === 'done' ? 0.85 : 1,
+                          boxShadow: state === 'current' ? '0 0 0 3px rgba(244,163,0,0.28)' : 'none',
+                          transition: 'background var(--dur-base), box-shadow var(--dur-base)',
+                        }}
+                      />
+                    )
+                  })}
                 </div>
               )}
             </div>
@@ -433,12 +480,14 @@ export default function MobileWizardPage() {
                     transition={spring}
                     style={{
                       ...choiceBtn,
+                      position: 'relative',
                       borderColor: form.municipality === m ? '#F4A300' : '#E0E0E0',
                       background: form.municipality === m ? 'rgba(244,163,0,0.1)' : 'white',
                       color: form.municipality === m ? '#2D5016' : '#666',
                     }}
                   >
                     {m}
+                    <SelectedCheck show={form.municipality === m} />
                   </motion.button>
                 ))}
               </div>
@@ -569,6 +618,7 @@ export default function MobileWizardPage() {
                     transition={spring}
                     style={{
                       ...choiceBtn,
+                      position: 'relative',
                       padding: '16px',
                       borderColor: form.cropCategory === key ? '#F4A300' : '#E0E0E0',
                       background: form.cropCategory === key ? 'rgba(244,163,0,0.1)' : 'white',
@@ -577,6 +627,7 @@ export default function MobileWizardPage() {
                   >
                     <div style={{ fontSize: '2rem', marginBottom: '6px' }}>{emoji}</div>
                     <div style={{ fontSize: '0.8rem' }}>{label}</div>
+                    <SelectedCheck show={form.cropCategory === key} />
                   </motion.button>
                 ))}
               </div>
@@ -593,6 +644,7 @@ export default function MobileWizardPage() {
                         whileTap={{ scale: 0.97 }}
                         transition={spring}
                         style={{
+                          position: 'relative',
                           padding: '10px 12px', borderRadius: '10px',
                           border: `1.5px solid ${form.cropName === c ? '#F4A300' : '#E0E0E0'}`,
                           background: form.cropName === c ? 'rgba(244,163,0,0.1)' : 'white',
@@ -602,6 +654,7 @@ export default function MobileWizardPage() {
                         }}
                       >
                         {c}
+                        <SelectedCheck show={form.cropName === c} />
                       </motion.button>
                     ))}
                   </div>
@@ -828,20 +881,31 @@ export default function MobileWizardPage() {
                 }}>
                   🏆 Tingnan ang Leaderboard
                 </Link>
-                <Link href="/status" style={{
-                  display: 'block', background: 'white', color: 'var(--accent-turquoise-strong)',
-                  border: '2px solid var(--accent-turquoise)', padding: '14px', borderRadius: '12px',
-                  fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none', textAlign: 'center',
-                }}>
-                  🔎 Tingnan ang Status ng Rehistro
-                </Link>
-                <Link href="/" style={{
-                  display: 'block', background: 'white', color: '#2D5016',
-                  border: '2px solid #2D5016', padding: '14px', borderRadius: '12px',
-                  fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none', textAlign: 'center',
-                }}>
-                  🏠 Bumalik
-                </Link>
+
+                <details style={{ marginTop: '4px', textAlign: 'left' }}>
+                  <summary style={{
+                    cursor: 'pointer', listStyle: 'none', textAlign: 'center',
+                    color: '#666', fontSize: '0.9rem', fontWeight: 600, padding: '8px',
+                  }}>
+                    Iba pang opsyon ▾
+                  </summary>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
+                    <Link href="/status" style={{
+                      display: 'block', background: 'white', color: 'var(--accent-turquoise-strong)',
+                      border: '2px solid var(--accent-turquoise)', padding: '14px', borderRadius: '12px',
+                      fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none', textAlign: 'center',
+                    }}>
+                      🔎 Tingnan ang Status ng Rehistro
+                    </Link>
+                    <Link href="/" style={{
+                      display: 'block', background: 'white', color: '#2D5016',
+                      border: '2px solid #2D5016', padding: '14px', borderRadius: '12px',
+                      fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none', textAlign: 'center',
+                    }}>
+                      🏠 Bumalik sa Home
+                    </Link>
+                  </div>
+                </details>
               </div>
             </div>
           )}
@@ -914,6 +978,14 @@ export default function MobileWizardPage() {
           </div>
         )}
       </div>
+
+      {/* Bottom tabs on the welcome + success screens (no Back/Next bar there) */}
+      {(step === 1 || isSuccess) && (
+        <>
+          <div className="md:hidden" style={{ height: '72px' }} />
+          <FarmerBottomTabs />
+        </>
+      )}
 
       <style>{`
         @keyframes successPop {

@@ -1,10 +1,18 @@
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod'
 import { z } from 'zod'
 import { coopBlockFor } from '@/lib/price-advisor/coop-data'
 import { SYSTEM_PROMPT } from '@/lib/price-advisor/system-prompt'
+import { adviceResultSchema } from '@/lib/price-advisor/advice.schema'
+import { checkRateLimit, clientKey } from '@/lib/rate-limit'
 
 const client = new Anthropic()
+
+// Each call bills Anthropic, so this public endpoint is capped tighter than the
+// DB-only submission route: a handful of advice requests per IP per few minutes.
+const RATE_LIMIT = 5
+const RATE_WINDOW_MS = 5 * 60_000
 
 const requestSchema = z.object({
   crop: z.string().min(1),
@@ -18,6 +26,14 @@ const requestSchema = z.object({
 
 export async function POST(request: Request) {
   try {
+    const rate = await checkRateLimit(clientKey(request, 'price-advice'), RATE_LIMIT, RATE_WINDOW_MS)
+    if (!rate.allowed) {
+      return NextResponse.json(
+        { success: false, error: 'Sobra ang bilang ng request. Subukan muli mamaya.' },
+        { status: 429, headers: { 'Retry-After': String(rate.retryAfterSec) } }
+      )
+    }
+
     const body = await request.json()
     const parsed = requestSchema.safeParse(body)
 
@@ -43,22 +59,22 @@ export async function POST(request: Request) {
       .filter(Boolean)
       .join('\n')
 
-    const response = await client.messages.create({
-      model: 'claude-sonnet-4-6',
+    // Structured outputs: the API constrains the response to the schema, so we
+    // read `parsed_output` directly instead of stripping fences and hoping the
+    // text is valid JSON. A safety refusal leaves `parsed_output` null.
+    const response = await client.messages.parse({
+      model: 'claude-sonnet-5',
       max_tokens: 1000,
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: userMessage }],
+      output_config: { format: zodOutputFormat(adviceResultSchema) },
     })
 
-    const textBlock = response.content.find((b) => b.type === 'text')
-    if (!textBlock || textBlock.type !== 'text') {
-      throw new Error('No response from AI')
+    if (!response.parsed_output) {
+      throw new Error(`No structured advice returned (stop_reason: ${response.stop_reason})`)
     }
 
-    const cleaned = textBlock.text.replace(/```json|```/g, '').trim()
-    const result = JSON.parse(cleaned)
-
-    return NextResponse.json({ success: true, data: result })
+    return NextResponse.json({ success: true, data: response.parsed_output })
   } catch (error) {
     console.error('Price advice error:', error)
     return NextResponse.json(

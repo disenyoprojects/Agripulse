@@ -3,6 +3,13 @@ import { db } from '@/lib/db'
 import { submissionSchema } from '@/lib/validators/submission.schema'
 import { checkRateLimit, clientKey } from '@/lib/rate-limit'
 import { assertAllowedFile } from '@/lib/file-validation'
+import {
+  generateReferenceNumber,
+  resolveFarmerAction,
+  isUniqueViolation,
+} from '@/lib/submission-helpers'
+
+const MAX_REFERENCE_ATTEMPTS = 3
 
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024 // 5 MB
 
@@ -56,35 +63,53 @@ export async function POST(request: Request) {
 
     const { farmerName, municipality, barangay, contactNumber, ...submissionData } = parsed.data
 
-    const referenceNumber = `AP${Date.now().toString().slice(-8)}${Math.floor(Math.random() * 90 + 10)}`
+    // Only dedupe by the unique contact number — never by name+barangay, which
+    // would merge two different farmers who share a name. Without a contact
+    // number we always create a fresh record. On reuse we leave the existing
+    // farmer's identity fields untouched (an anonymous submission shouldn't
+    // silently rewrite someone else's stored name/location).
+    const existing = contactNumber
+      ? await db.farmer.findUnique({ where: { contactNumber }, select: { id: true } })
+      : null
 
-    let farmer = contactNumber
-      ? await db.farmer.findUnique({ where: { contactNumber } })
-      : await db.farmer.findFirst({ where: { fullName: farmerName, barangay } })
+    const decision = resolveFarmerAction({ contactNumber, existing })
+    const farmerId =
+      decision.action === 'reuse'
+        ? decision.id
+        : (
+            await db.farmer.create({
+              data: { fullName: farmerName, municipality, barangay, contactNumber },
+              select: { id: true },
+            })
+          ).id
 
-    if (!farmer) {
-      farmer = await db.farmer.create({
-        data: { fullName: farmerName, municipality, barangay, contactNumber },
-      })
-    } else {
-      farmer = await db.farmer.update({
-        where: { id: farmer.id },
-        data: { fullName: farmerName, municipality, barangay },
-      })
+    // `referenceNumber` is unique; a same-millisecond collision throws P2002.
+    // Retry with a fresh number a few times rather than failing a submission
+    // that would succeed on the next attempt.
+    let referenceNumber = ''
+    for (let attempt = 1; ; attempt++) {
+      referenceNumber = generateReferenceNumber()
+      try {
+        await db.submission.create({
+          data: {
+            ...submissionData,
+            farmerId,
+            referenceNumber,
+            pointsEarned: 0,
+            plantingDate: new Date(submissionData.plantingDate),
+            harvestDate: new Date(submissionData.harvestDate),
+            photoData,
+            photoMime,
+          },
+        })
+        break
+      } catch (error) {
+        if (isUniqueViolation(error, 'referenceNumber') && attempt < MAX_REFERENCE_ATTEMPTS) {
+          continue
+        }
+        throw error
+      }
     }
-
-    await db.submission.create({
-      data: {
-        ...submissionData,
-        farmerId: farmer.id,
-        referenceNumber,
-        pointsEarned: 0,
-        plantingDate: new Date(submissionData.plantingDate),
-        harvestDate: new Date(submissionData.harvestDate),
-        photoData,
-        photoMime,
-      },
-    })
 
     return NextResponse.json({ success: true, referenceNumber })
   } catch (error) {

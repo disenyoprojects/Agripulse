@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import FarmerBottomTabs from '@/components/shared/FarmerBottomTabs'
+import BackButton from '@/components/shared/BackButton'
 
 const BLISTT_LOCATIONS = [
   'La Trinidad, Benguet',
@@ -182,6 +183,9 @@ export default function PriceAdvisorPage() {
           pointerEvents: 'none',
         }} />
         <div style={{ maxWidth: '760px', position: 'relative' }}>
+          <div style={{ marginBottom: '20px' }}>
+            <BackButton fallback="/" label="Back" tone="light" />
+          </div>
           <span style={{
             display: 'inline-block',
             background: 'rgba(93,158,135,0.18)',

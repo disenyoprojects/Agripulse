@@ -1,5 +1,6 @@
 import { getAllFarmersWithStats } from '@/lib/repositories/farmer.repository'
 import FarmersTable, { type FarmerRow } from '@/components/dashboard/FarmersTable'
+import BackButton from '@/components/shared/BackButton'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
@@ -67,8 +68,9 @@ export default async function FarmerPortfoliosPage({
               Verify submissions and manage farmer records
             </p>
           </div>
-          <div className="flex gap-2.5">
-            <Link href="/dashboard" className="btn btn-sm btn-on-dark">← Dashboard</Link>
+          <div className="flex gap-2.5 items-center">
+            <BackButton fallback="/dashboard" label="Back" tone="light" />
+            <Link href="/dashboard" className="btn btn-sm btn-on-dark">Dashboard</Link>
           </div>
         </div>
       </div>

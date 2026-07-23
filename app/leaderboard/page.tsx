@@ -2,6 +2,7 @@ import { db } from '@/lib/db'
 import Link from 'next/link'
 import FarmerBottomTabs from '@/components/shared/FarmerBottomTabs'
 import LeaderboardRankings from '@/components/leaderboard/LeaderboardRankings'
+import BackButton from '@/components/shared/BackButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -69,6 +70,10 @@ export default async function LeaderboardPage() {
       }}
     >
       <div className="max-w-[820px] mx-auto px-5">
+
+        <div className="pt-6">
+          <BackButton fallback="/" label="Back" tone="light" />
+        </div>
 
         {/* Header */}
         <div className="text-center py-12">

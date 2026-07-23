@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import FarmerBottomTabs from '@/components/shared/FarmerBottomTabs'
+import BackButton from '@/components/shared/BackButton'
 
 const spring = { type: 'spring', stiffness: 500, damping: 22 } as const
 
@@ -141,6 +142,9 @@ export default function StatusPage() {
       }}
     >
       <div className="w-full max-w-md mt-8">
+        <div className="mb-4">
+          <BackButton fallback="/" label="Back" tone="light" />
+        </div>
         <div className="text-center mb-6">
           <div aria-hidden="true" className="text-[3.5rem] leading-none mb-2">🌾</div>
           <h1 className="font-heading text-[1.9rem]" style={{ color: 'var(--color-accent-gold)', letterSpacing: '-0.015em' }}>

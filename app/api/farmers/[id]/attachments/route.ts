@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { auth } from '@/auth'
 import { assertAllowedFile } from '@/lib/file-validation'
+import { uploadAttachment } from '@/lib/storage/blob'
 
 const MAX_BYTES = 5 * 1024 * 1024 // 5 MB
 
@@ -73,13 +74,19 @@ export async function POST(
       )
     }
 
+    // Store the bytes in the private Blob store; the DB keeps only a reference.
+    // `addRandomSuffix` (in the storage module) guarantees a unique object even
+    // for duplicate file names, so a sanitized name is enough for the path.
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+    const { url: blobUrl } = await uploadAttachment(`farmers/${id}/${safeName}`, bytes, check.mime)
+
     const created = await db.attachment.create({
       data: {
         farmerId: id,
         fileName: file.name,
         mimeType: check.mime,
         size: file.size,
-        data: Buffer.from(bytes),
+        blobUrl,
       },
       select: { id: true, fileName: true, mimeType: true, size: true, createdAt: true },
     })

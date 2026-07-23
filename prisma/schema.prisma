@@ -27,7 +27,7 @@ model Attachment {
   fileName  String
   mimeType  String
   size      Int
-  data      Bytes
+  blobUrl   String
   createdAt DateTime @default(now())
 }
 

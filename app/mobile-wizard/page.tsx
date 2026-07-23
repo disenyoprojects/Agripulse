@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { BARANGAYS, BARANGAY_MANUAL } from '@/lib/barangays'
 import FarmerBottomTabs from '@/components/shared/FarmerBottomTabs'
+import type { FarmerStatus } from '@/app/generated/prisma/client'
 
 const spring = { type: 'spring', stiffness: 500, damping: 22 } as const
 
@@ -63,6 +64,42 @@ const ISSUES = [
 ]
 
 const TOTAL_STEPS = 9
+
+// Status-aware greeting for a recognized returning farmer (Step 3). Approved
+// farmers are told outright — no need to re-check on the /status page.
+const WELCOME_META: Record<FarmerStatus, {
+  emoji: string
+  color: string
+  bg: string
+  border: string
+  title: (name: string) => string
+  sub: string
+}> = {
+  APPROVED: {
+    emoji: '✅',
+    color: '#1e6b24',
+    bg: '#EBF5EC',
+    border: 'rgba(46,125,50,0.28)',
+    title: (name) => `Aprubadong magsasaka, ${name}!`,
+    sub: 'Beripikado ka na ng LGU — hindi mo na kailangang mag-check ng status. Na-load ang iyong lokasyon.',
+  },
+  PENDING: {
+    emoji: '⏳',
+    color: '#C15A00',
+    bg: '#FDF3E7',
+    border: 'rgba(193,90,0,0.28)',
+    title: (name) => `Welcome back, ${name}!`,
+    sub: 'Sinusuri pa ng LGU ang iyong rehistro. Na-load ang iyong lokasyon mula sa nakaraang submission.',
+  },
+  REJECTED: {
+    emoji: '📄',
+    color: '#b52a2a',
+    bg: '#FDECEC',
+    border: 'rgba(211,47,47,0.28)',
+    title: (name) => `Welcome back, ${name}!`,
+    sub: 'Makipag-ugnayan sa iyong LGU office tungkol sa iyong rehistro. Na-load ang iyong lokasyon.',
+  },
+}
 
 const STEP_TITLES: Record<number, string> = {
   1: 'Magsimula',
@@ -132,7 +169,7 @@ export default function MobileWizardPage() {
   const [referenceNumber, setReferenceNumber] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [lookupLoading, setLookupLoading] = useState(false)
-  const [welcomeBack, setWelcomeBack] = useState<string | null>(null)
+  const [welcomeBack, setWelcomeBack] = useState<{ name: string; status: FarmerStatus } | null>(null)
   const [gpsLoading, setGpsLoading] = useState(false)
   const [gpsError, setGpsError] = useState('')
   const [error, setError] = useState('')
@@ -177,7 +214,7 @@ export default function MobileWizardPage() {
       const res = await fetch(`/api/farmers/lookup?phone=${encodeURIComponent(form.contactNumber.trim())}`)
       const data = await res.json()
       if (data.found) {
-        setWelcomeBack(data.fullName)
+        setWelcomeBack({ name: data.fullName, status: data.status })
         setForm((prev) => ({
           ...prev,
           municipality: data.municipality,
@@ -441,28 +478,31 @@ export default function MobileWizardPage() {
           {/* Step 3 — Municipality */}
           {step === 3 && (
             <div>
-              {welcomeBack && (
-                <div style={{
-                  background: 'var(--accent-turquoise-50)',
-                  border: '1px solid var(--accent-turquoise-200)',
-                  borderRadius: 'var(--radius-md)',
-                  padding: '12px 16px',
-                  marginBottom: '1.25rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                }}>
-                  <span style={{ fontSize: '1.5rem' }}>👋</span>
-                  <div>
-                    <p style={{ fontWeight: 700, color: 'var(--accent-turquoise-strong)', fontSize: '0.9rem', marginBottom: '2px' }}>
-                      Welcome back, {welcomeBack}!
-                    </p>
-                    <p style={{ fontSize: '0.78rem', color: '#555' }}>
-                      Na-load ang iyong lokasyon mula sa nakaraang submission.
-                    </p>
+              {welcomeBack && (() => {
+                const meta = WELCOME_META[welcomeBack.status]
+                return (
+                  <div style={{
+                    background: meta.bg,
+                    border: `1px solid ${meta.border}`,
+                    borderRadius: 'var(--radius-md)',
+                    padding: '12px 16px',
+                    marginBottom: '1.25rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                  }}>
+                    <span style={{ fontSize: '1.5rem' }} aria-hidden="true">{meta.emoji}</span>
+                    <div>
+                      <p style={{ fontWeight: 700, color: meta.color, fontSize: '0.9rem', marginBottom: '2px' }}>
+                        {meta.title(welcomeBack.name)}
+                      </p>
+                      <p style={{ fontSize: '0.78rem', color: '#555' }}>
+                        {meta.sub}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              )}
+                )
+              })()}
               <h2 style={stepTitleStyle}>Nasaan ang iyong bukid?</h2>
               <p style={stepSubStyle}>Piliin ang iyong munisipalidad</p>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
@@ -902,7 +942,7 @@ export default function MobileWizardPage() {
                       border: '2px solid #2D5016', padding: '14px', borderRadius: '12px',
                       fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none', textAlign: 'center',
                     }}>
-                      🏠 Bumalik sa Home
+                      🏠 Bumalik sa Homepage
                     </Link>
                   </div>
                 </details>

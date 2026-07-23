@@ -32,16 +32,16 @@ export default function FarmerBottomTabs() {
         left: 0,
         width: '100%',
         zIndex: 'var(--z-sticky)',
-        background: 'rgba(255,255,255,0.97)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        borderTop: '1px solid #e6e2d6',
+        background: 'rgba(16, 25, 11, 0.94)',
+        backdropFilter: 'blur(14px)',
+        WebkitBackdropFilter: 'blur(14px)',
+        borderTop: '1px solid rgba(93,158,135,0.22)',
         display: 'flex',
         justifyContent: 'space-around',
         alignItems: 'stretch',
         height: '60px',
         paddingBottom: 'env(safe-area-inset-bottom)',
-        boxShadow: '0 -6px 20px -10px rgba(0,0,0,0.15)',
+        boxShadow: '0 -8px 24px -12px rgba(0,0,0,0.5)',
       }}
     >
       {TABS.map(({ label, href, icon }) => {
@@ -58,11 +58,11 @@ export default function FarmerBottomTabs() {
               justifyContent: 'center',
               gap: '2px',
               textDecoration: 'none',
-              color: active ? 'var(--accent-turquoise-strong)' : '#9aa192',
+              color: active ? 'var(--accent-turquoise-light)' : 'rgba(255,255,255,0.6)',
               fontWeight: active ? 700 : 500,
             }}
           >
-            <span style={{ fontSize: '1.35rem', lineHeight: 1, filter: active ? 'none' : 'grayscale(0.4)' }} aria-hidden="true">
+            <span style={{ fontSize: '1.35rem', lineHeight: 1, filter: active ? 'none' : 'grayscale(0.5) opacity(0.85)' }} aria-hidden="true">
               {icon}
             </span>
             <span style={{ fontSize: '0.68rem' }}>{label}</span>

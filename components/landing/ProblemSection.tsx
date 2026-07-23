@@ -2,32 +2,34 @@
 
 import { motion } from 'framer-motion'
 
+// Accents drawn from the brand palette only — turquoise, gold, and the earth
+// greens — so the section reads as part of the AgriPulse theme.
 const problems = [
   {
     index: '01',
-    color: '#6f7d28', // number: AA on white
-    bar: '#D6E85C',   // accent bar: vibrant brand lime
+    color: '#356b59', // turquoise-strong — AA on white
+    bar: '#5d9e87',   // brand turquoise
     title: 'Price Crashes',
     description: 'When everyone plants cabbage, prices plummet to ₱5/kg. Farmers lose ₱35,000 per cycle to oversupply.',
   },
   {
     index: '02',
-    color: '#b37200',
-    bar: '#F4A300',
+    color: '#b37200', // deep gold
+    bar: '#F4A300',   // brand accent gold
     title: 'Shortage Spikes',
     description: 'Few plant carrots, prices soar to ₱120/kg. Urban communities face food insecurity and price volatility.',
   },
   {
     index: '03',
-    color: '#2e7d6a',
-    bar: '#3FAE95',
+    color: '#3f5c2c', // green-700
+    bar: '#6b9a4c',   // brand green-500
     title: 'Wasted Produce',
     description: '20-30% of vegetables rot in fields unsold. Environmental waste and lost income opportunities.',
   },
   {
     index: '04',
-    color: '#c33a4a',
-    bar: '#E85D6B',
+    color: '#2D5016', // primary green
+    bar: '#4A7C2C',   // earth medium
     title: 'Blind LGU Planning',
     description: 'Agricultural offices distribute seeds without knowing what\'s being planted — reactive, not predictive.',
   },
@@ -35,7 +37,15 @@ const problems = [
 
 export default function ProblemSection() {
   return (
-    <section id="problem" style={{ padding: '110px 5%', background: 'white', position: 'relative' }}>
+    <section
+      id="problem"
+      style={{
+        padding: '110px 5%',
+        background:
+          'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(93,158,135,0.09) 0%, transparent 55%), var(--color-cream)',
+        position: 'relative',
+      }}
+    >
       <div style={{ textAlign: 'center', maxWidth: '760px', margin: '0 auto 64px' }}>
         <motion.div
           initial={{ opacity: 0, y: 40 }}

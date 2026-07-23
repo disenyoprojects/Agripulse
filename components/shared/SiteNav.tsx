@@ -6,6 +6,8 @@ import { useState } from 'react'
 
 type NavLink = { label: string; href: string; icon: string }
 
+const homeLink: NavLink = { label: 'Home', href: '/', icon: '🏠' }
+
 const farmerLinks: NavLink[] = [
   { label: 'Farmer Portal', href: '/mobile-wizard', icon: '🌾' },
   { label: 'Leaderboard', href: '/leaderboard', icon: '🏆' },
@@ -17,7 +19,7 @@ const adminLinks: NavLink[] = [
   { label: 'LGU Dashboard', href: '/dashboard', icon: '📊' },
 ]
 
-const desktopLinks: NavLink[] = [...farmerLinks, ...adminLinks]
+const desktopLinks: NavLink[] = [homeLink, ...farmerLinks, ...adminLinks]
 
 function isActiveHref(pathname: string | null, href: string): boolean {
   if (href === '/') return pathname === '/'
@@ -199,6 +201,12 @@ export default function SiteNav() {
           ✕
         </button>
 
+        <DrawerSection
+          eyebrow="Pangkalahatan"
+          links={[homeLink]}
+          pathname={pathname}
+          onNavigate={() => setOpen(false)}
+        />
         <DrawerSection
           eyebrow="Para sa Magsasaka"
           links={farmerLinks}

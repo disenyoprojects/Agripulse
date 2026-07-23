@@ -44,3 +44,6 @@ next-env.d.ts
 
 # HTML prototypes
 Agripulse/
+
+# Claude Code local tooling
+.claude/

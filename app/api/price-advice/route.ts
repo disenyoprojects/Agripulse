@@ -64,7 +64,11 @@ export async function POST(request: Request) {
     // text is valid JSON. A safety refusal leaves `parsed_output` null.
     const response = await client.messages.parse({
       model: 'claude-sonnet-5',
-      max_tokens: 1000,
+      max_tokens: 1500,
+      // Sonnet 5 runs adaptive thinking by default (Sonnet 4.6 didn't). This is
+      // a bounded, well-specified extraction, so thinking only burns the token
+      // budget and latency — disable it and keep the whole budget for output.
+      thinking: { type: 'disabled' },
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: userMessage }],
       output_config: { format: zodOutputFormat(adviceResultSchema) },

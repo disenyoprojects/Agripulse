@@ -5,9 +5,18 @@ import { db } from '@/lib/db'
 import { auth } from '@/auth'
 import { approveFarmer, rejectFarmer } from '../actions'
 import DeleteFarmerButton from '@/components/dashboard/DeleteFarmerButton'
+import BackButton from '@/components/shared/BackButton'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
+
+const DATE_FMT: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' }
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
 
 const STATUS_STYLE: Record<string, { dot: string; text: string; bg: string; border: string }> = {
   PENDING:  { dot: '#FF6F00', text: '#C15A00', bg: '#FDF3E7', border: 'rgba(193,90,0,0.18)' },
@@ -66,14 +75,17 @@ export default async function FarmerPortfolioPage({
         }}
       >
         <div className="max-w-[1400px] mx-auto">
-          {/* Breadcrumb */}
-          <nav aria-label="Breadcrumb" className="text-[0.78rem] mb-3" style={{ color: 'rgba(255,255,255,0.7)' }}>
-            <Link href="/dashboard" className="hover:underline" style={{ color: 'inherit' }}>Dashboard</Link>
-            <span className="mx-1.5 opacity-60">/</span>
-            <Link href="/dashboard/farmers" className="hover:underline" style={{ color: 'inherit' }}>Farmers</Link>
-            <span className="mx-1.5 opacity-60">/</span>
-            <span style={{ color: 'var(--accent-turquoise-light)' }}>{farmer.fullName}</span>
-          </nav>
+          <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
+            {/* Breadcrumb */}
+            <nav aria-label="Breadcrumb" className="text-[0.78rem]" style={{ color: 'rgba(255,255,255,0.7)' }}>
+              <Link href="/dashboard" className="hover:underline" style={{ color: 'inherit' }}>Dashboard</Link>
+              <span className="mx-1.5 opacity-60">/</span>
+              <Link href="/dashboard/farmers" className="hover:underline" style={{ color: 'inherit' }}>Farmers</Link>
+              <span className="mx-1.5 opacity-60">/</span>
+              <span style={{ color: 'var(--accent-turquoise-light)' }}>{farmer.fullName}</span>
+            </nav>
+            <BackButton fallback="/dashboard/farmers" label="Back" tone="light" />
+          </div>
           <div className="flex items-center gap-3 flex-wrap">
             <h1 className="font-heading text-[1.8rem]" style={{ letterSpacing: '-0.01em' }}>
               {farmer.fullName}
@@ -122,8 +134,72 @@ export default async function FarmerPortfolioPage({
           ))}
         </div>
 
-        {/* Submissions table */}
-        <div className="card overflow-x-auto">
+        {/* Profile + submissions two-column layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left column — profile details + files */}
+          <div className="lg:col-span-1 flex flex-col gap-6">
+            <div className="card p-6">
+              <h2 className="font-heading text-[1.25rem] text-[#243016] mb-4" style={{ letterSpacing: '-0.01em' }}>
+                Farmer Profile
+              </h2>
+              <dl className="flex flex-col gap-3">
+                {([
+                  ['Full name', farmer.fullName],
+                  ['Contact', farmer.contactNumber ?? '—'],
+                  ['Municipality', farmer.municipality],
+                  ['Barangay', farmer.barangay],
+                  ['Registered', new Date(farmer.createdAt).toLocaleDateString('en-US', DATE_FMT)],
+                  ['Verified', farmer.verifiedAt ? new Date(farmer.verifiedAt).toLocaleDateString('en-US', DATE_FMT) : '—'],
+                ] as const).map(([label, value]) => (
+                  <div key={label} className="flex justify-between items-baseline gap-4 border-b border-[#f0ece2] pb-3 last:border-0 last:pb-0">
+                    <dt className="text-xs uppercase tracking-wider font-bold text-[#8a917e] shrink-0">{label}</dt>
+                    <dd className="text-sm text-[#3a4a2c] font-semibold text-right">{value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+
+            <div className="card p-6">
+              <h2 className="font-heading text-[1.25rem] text-[#243016] mb-1" style={{ letterSpacing: '-0.01em' }}>
+                Attached Files
+              </h2>
+              <p className="text-sm text-[#6b7360] mb-4">
+                {farmer.attachments.length} file{farmer.attachments.length !== 1 ? 's' : ''} uploaded
+              </p>
+              {farmer.attachments.length === 0 ? (
+                <p className="text-sm text-[#8a917e]">No files uploaded yet.</p>
+              ) : (
+                <ul className="flex flex-col gap-2.5">
+                  {farmer.attachments.map((a) => (
+                    <li key={a.id}>
+                      <a
+                        href={`/api/farmers/${farmer.id}/attachments/${a.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 rounded-xl p-3 transition-colors hover:bg-[#faf8f2]"
+                        style={{ border: '1px solid #eeeae0' }}
+                      >
+                        <span aria-hidden="true" className="text-xl shrink-0">
+                          {a.mimeType.startsWith('image/') ? '🖼️' : a.mimeType === 'application/pdf' ? '📄' : '📎'}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-sm font-semibold text-[#2D5016] truncate">{a.fileName}</span>
+                          <span className="block text-xs text-[#8a917e]">
+                            {formatBytes(a.size)} · {new Date(a.createdAt).toLocaleDateString('en-US', DATE_FMT)}
+                          </span>
+                        </span>
+                        <span className="text-xs font-semibold shrink-0" style={{ color: 'var(--accent-turquoise-strong)' }}>View →</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+
+          {/* Right column — submissions */}
+          <div className="lg:col-span-2">
+          <div className="card overflow-x-auto">
           <div className="px-7 pt-6 pb-4 border-b border-[#eeeae0]">
             <h2
               className="font-heading text-[1.25rem] text-[#243016]"
@@ -299,6 +375,8 @@ export default async function FarmerPortfolioPage({
             </table>
           </>
           )}
+          </div>
+          </div>
         </div>
       </div>
 

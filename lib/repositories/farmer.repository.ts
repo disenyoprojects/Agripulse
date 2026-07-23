@@ -52,6 +52,16 @@ export async function getFarmerWithSubmissions(id: string) {
           photoMime: true,
         },
       },
+      attachments: {
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          fileName: true,
+          mimeType: true,
+          size: true,
+          createdAt: true,
+        },
+      },
     },
   })
 }

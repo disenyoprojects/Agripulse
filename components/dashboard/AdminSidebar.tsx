@@ -117,9 +117,11 @@ export default function AdminSidebar({ email }: { email: string }) {
         {signOutBtn}
       </aside>
 
-      {/* Mobile top bar */}
+      {/* Mobile top bar — `display` is left to the class so `lg:hidden` can win
+          on desktop; an inline `display` would override it and leak onto the
+          desktop layout, covering the page header. */}
       <header
-        className="lg:hidden"
+        className="lg:hidden flex items-center justify-between"
         style={{
           position: 'fixed',
           top: 0,
@@ -130,9 +132,6 @@ export default function AdminSidebar({ email }: { email: string }) {
           backdropFilter: 'blur(12px)',
           WebkitBackdropFilter: 'blur(12px)',
           borderBottom: '1px solid rgba(255,255,255,0.08)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
           padding: '0 1rem',
           zIndex: 'var(--z-sticky)',
         }}
@@ -165,11 +164,11 @@ export default function AdminSidebar({ email }: { email: string }) {
         }}
       />
       <aside
-        className="lg:hidden"
+        className="lg:hidden flex"
         style={{
           position: 'fixed', top: 0, left: 0, height: '100%', width: '76vw', maxWidth: '300px',
           background: PANEL_BG, borderRight: '1px solid rgba(93,158,135,0.18)',
-          zIndex: 'var(--z-drawer)', display: 'flex', flexDirection: 'column',
+          zIndex: 'var(--z-drawer)', flexDirection: 'column',
           padding: '1.5rem 1.25rem',
           transform: open ? 'translateX(0)' : 'translateX(-100%)',
           transition: 'transform var(--dur-slow) var(--ease-out-quint)',

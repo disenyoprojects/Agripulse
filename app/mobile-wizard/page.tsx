@@ -317,6 +317,32 @@ export default function MobileWizardPage() {
               zIndex: 100,
               boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
             }}>
+              {/* Web-only way out of the portal. On mobile the farmer bottom
+                  tabs cover this; on desktop those tabs are hidden and the
+                  global nav is suppressed here, so without this the portal is
+                  a dead end. The header ← below is step-back, not an exit. */}
+              <Link
+                href="/"
+                className="hidden md:inline-flex"
+                aria-label="Balik sa AgriPulse home"
+                style={{
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  alignSelf: 'flex-start',
+                  marginBottom: '14px',
+                  padding: '0.35rem 0.8rem',
+                  borderRadius: '999px',
+                  background: 'rgba(255,255,255,0.12)',
+                  border: '1px solid rgba(255,255,255,0.18)',
+                  color: '#fff',
+                  textDecoration: 'none',
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                }}
+              >
+                <span aria-hidden="true">←</span>
+                Balik sa AgriPulse
+              </Link>
               <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                 {step > 1 && (
                   <button

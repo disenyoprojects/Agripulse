@@ -1,197 +1,104 @@
 'use client'
 
+/**
+ * AgriPulse hero — drop-in for components/landing/HeroSection.tsx
+ *
+ * SETUP (2 steps):
+ * 1. Put your text-free illustration in the repo at:  public/hero-bg.png
+ * 2. Replace components/landing/HeroSection.tsx with this file.
+ *    It takes no props — change `<HeroSection counts={counts} />` in
+ *    app/page.tsx to `<HeroSection />` (drop getLiveCounts if unused elsewhere).
+ *
+ * Uses next/image (fill) + next/link. Inline styles + one <style> block for
+ * keyframes. Colors/fonts come from your globals.css tokens.
+ */
+
+import Image from 'next/image'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
-import AnimWidget from './AnimWidget'
+import heroBg from '../../public/hero-bg.png' // or: src="/hero-bg.png" on <Image fill />
 
-const MotionLink = motion(Link)
+const MOTES = Array.from({ length: 15 }).map((_, i) => ({
+  left: (i * 61) % 100,
+  dur: 11 + (i % 6) * 2.4,
+  delay: (i * 0.9) % 8,
+  size: 2 + (i % 3),
+  bottom: 12 + (i % 5) * 6,
+  gold: i % 3 === 0,
+}))
 
-interface Props {
-  counts: { farmers: number; submissions: number }
-}
+/** How dark the center gets for headline legibility (0–0.95). */
+const CENTER_DARKEN = 0.45
 
-const item = {
-  hidden: { opacity: 0, y: 28, filter: 'blur(6px)' },
-  visible: {
-    opacity: 1, y: 0, filter: 'blur(0px)',
-    transition: { duration: 0.85, ease: [0.22, 1, 0.36, 1] as [number,number,number,number] },
-  },
-}
-
-const container = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.12, delayChildren: 0.2 } },
-}
-
-export default function HeroSection({ counts }: Props) {
+export default function HeroSection() {
   return (
-    <section style={{
-      background:
-        'radial-gradient(ellipse 68% 55% at 74% 4%, rgba(93,158,135,0.16) 0%, transparent 55%),' +
-        'radial-gradient(ellipse 70% 55% at 22% 98%, rgba(214,232,92,0.07) 0%, transparent 55%),' +
-        'linear-gradient(160deg, #060A04 0%, #10190B 45%, #2f4a1c 100%)',
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      position: 'relative',
-      overflow: 'hidden',
-      paddingTop: '80px',
-    }}>
-      {/* Background wheat emoji */}
-      <div style={{
-        position: 'absolute',
-        fontSize: '600px',
-        opacity: 0.04,
-        right: '-100px',
-        top: '-100px',
-        animation: 'heroFloat 20s infinite ease-in-out',
-        pointerEvents: 'none',
-        userSelect: 'none',
-      }} aria-hidden="true">🌾</div>
-
-      <div style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        padding: '80px 5%',
-        display: 'grid',
-        gridTemplateColumns: '1.2fr 1fr',
-        gap: '4rem',
+    <section
+      id="top"
+      style={{
+        position: 'relative',
+        minHeight: '100svh',
+        display: 'flex',
         alignItems: 'center',
-        width: '100%',
-      }} className="hero-grid">
-        {/* Left: text */}
-        <motion.div variants={container} initial="hidden" animate="visible">
-          <motion.p variants={item} className="eyebrow" style={{
-            color: 'var(--accent-turquoise-light)',
-            marginBottom: '1.5rem',
-          }}>
-            <span aria-hidden="true" style={{
-              width: '7px', height: '7px', borderRadius: '999px',
-              background: 'var(--accent-turquoise)',
-              boxShadow: '0 0 12px 1px rgba(93,158,135,0.7)',
-            }} />
-            BLISTT Initiative — Cordillera, Philippines
-          </motion.p>
+        overflow: 'hidden',
+        paddingTop: 80,
+        background: 'linear-gradient(160deg,#060A04 0%,#10190B 45%,#2f4a1c 100%)',
+        fontFamily: "'DM Sans', system-ui, sans-serif",
+        color: '#fff',
+      }}
+    >
+      {/* full-bleed illustrated background (text-free) */}
+      <Image
+        src={heroBg}
+        alt=""
+        aria-hidden
+        fill
+        priority
+        placeholder="blur"
+        sizes="100vw"
+        style={{ objectFit: 'cover', zIndex: 0 }}
+      />
 
-          <motion.h1 variants={item} style={{
-            fontFamily: 'var(--font-heading), sans-serif',
-            textTransform: 'uppercase',
-            fontSize: 'clamp(2.5rem, 5vw, 4.25rem)',
-            color: 'white',
-            lineHeight: 1.02,
-            letterSpacing: '-0.02em',
-            marginBottom: '1.25rem',
-          }}>
-            From Reactive Farming to{' '}
-            <span style={{ color: 'var(--color-harvest-lime)' }}>Predictive Farming</span>
-          </motion.h1>
+      {/* atmospheric center darkening: clean readable middle, detailed edges */}
+      <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'linear-gradient(180deg, rgba(6,10,4,0.45) 0%, rgba(6,10,4,0.14) 20%, transparent 46%)' }} />
+      <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: `linear-gradient(90deg, transparent 12%, rgba(6,10,4,${CENTER_DARKEN * 0.45}) 23%, rgba(6,10,4,${CENTER_DARKEN}) 35%, rgba(6,10,4,${CENTER_DARKEN}) 65%, rgba(6,10,4,${CENTER_DARKEN * 0.45}) 77%, transparent 88%)` }} />
+      <div style={{ position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none', background: `radial-gradient(ellipse 44% 46% at 50% 40%, rgba(6,10,4,${CENTER_DARKEN * 0.5}) 0%, transparent 72%)` }} />
 
-          <motion.p variants={item} style={{
-            fontSize: '1.4rem',
-            color: 'var(--accent-turquoise-light)',
-            marginBottom: '1.5rem',
-            fontWeight: 600,
-            letterSpacing: '-0.01em',
-          }}>
-            Community-Powered Agricultural Intelligence
-          </motion.p>
-
-          <motion.p variants={item} style={{
-            fontSize: '1.1rem',
-            color: 'rgba(255,255,255,0.82)',
-            lineHeight: 1.75,
-            marginBottom: '2.5rem',
-            maxWidth: '38ch',
-          }}>
-            Transform guesswork into data. Help farmers plant smarter, earn steadier,
-            and build resilient food security through simple mobile data sharing.
-          </motion.p>
-
-          <motion.div variants={item} style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            <MotionLink
-              href="/mobile-wizard"
-              whileHover={{ y: -2 }}
-              whileTap={{ scale: 0.98 }}
-              className="btn btn-lg"
-              style={{
-                background: 'var(--color-harvest-lime)',
-                color: '#12150C',
-                boxShadow: '0 10px 30px -8px rgba(214,232,92,0.5)',
-              }}
-            >
-              Submit Farm Data
-            </MotionLink>
-            <MotionLink
-              href="/dashboard"
-              whileHover={{ y: -2 }}
-              whileTap={{ scale: 0.98 }}
-              className="btn btn-lg hero-secondary"
-              style={{
-                background: 'rgba(93,158,135,0.08)',
-                color: 'var(--accent-turquoise-light)',
-                border: '1px solid var(--accent-turquoise)',
-              }}
-            >
-              View Dashboard
-            </MotionLink>
-          </motion.div>
-        </motion.div>
-
-        {/* Right: animated widget + stats card */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 1, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <AnimWidget />
-
-          {/* Stats card */}
-          <div className="surface-glass" style={{
-            padding: '2rem',
-            color: 'white',
-            boxShadow: 'var(--shadow-xl)',
-          }}>
-            {[
-              { number: '25-40%', label: 'Farmer Income Stabilization' },
-              { number: '30%', label: 'Post-Harvest Waste Reduction' },
-              { number: '60%', label: 'LGU Planning Efficiency' },
-            ].map(({ number, label }, i) => (
-              <div key={label} style={{
-                marginBottom: i < 2 ? '1.5rem' : 0,
-                paddingBottom: i < 2 ? '1.5rem' : 0,
-                borderBottom: i < 2 ? '1px solid rgba(255,255,255,0.1)' : 'none',
-              }}>
-                <div data-nums style={{
-                  fontFamily: 'var(--font-heading), sans-serif',
-                  fontSize: '2.75rem',
-                  color: i === 0 ? 'var(--accent-turquoise-light)' : 'var(--color-harvest-lime)',
-                  lineHeight: 1,
-                  letterSpacing: '-0.01em',
-                }}>
-                  {i === 0 ? counts.farmers.toLocaleString() || number : number}
-                </div>
-                <div style={{ fontSize: '0.9rem', opacity: 0.85, marginTop: '0.5rem', lineHeight: 1.4 }}>
-                  {i === 0 ? `Registered Farmers` : label}
-                </div>
-              </div>
-            ))}
-          </div>
-        </motion.div>
+      {/* floating motes */}
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 6 }}>
+        {MOTES.map((m, i) => (
+          <span key={i} style={{ position: 'absolute', left: `${m.left}%`, bottom: `${m.bottom}%`, width: m.size, height: m.size, borderRadius: '50%', background: m.gold ? 'rgba(214,232,92,0.9)' : 'rgba(255,255,255,0.8)', boxShadow: '0 0 8px rgba(214,232,92,0.6)', animation: `agpMote ${m.dur}s ${m.delay}s ease-in infinite` }} />
+        ))}
       </div>
 
+      {/* hero content */}
+      <div style={{ position: 'relative', zIndex: 20, maxWidth: 1200, margin: '0 auto', padding: '110px 5% 90px', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+        <div style={{ maxWidth: 'min(900px,94%)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <p className="eyebrow" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, fontSize: '0.78rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#a7d0be', marginBottom: '1.4rem', textShadow: '0 2px 12px rgba(0,0,0,0.6)' }}>
+            <span aria-hidden style={{ width: 7, height: 7, borderRadius: 999, background: '#5d9e87', boxShadow: '0 0 12px 1px rgba(93,158,135,0.8)' }} />
+            BLISST Initiative — Cordillera, Philippines
+          </p>
+          <h1 style={{ fontFamily: 'var(--font-heading), Archivo Black, sans-serif', textTransform: 'uppercase', fontSize: 'clamp(2.9rem,7vw,6rem)', color: '#fff', lineHeight: 0.98, letterSpacing: '-0.02em', marginBottom: '1.5rem', textShadow: '0 4px 34px rgba(0,0,0,0.7)' }}>
+            From Reactive Farming to <span style={{ color: '#D6E85C' }}>Predictive Farming</span>
+          </h1>
+          <p style={{ fontFamily: 'var(--font-display), Baloo 2, sans-serif', fontSize: 'clamp(1.25rem,2.4vw,1.7rem)', color: '#9fd6c1', marginBottom: '1.5rem', fontWeight: 600, letterSpacing: '-0.01em', textShadow: '0 2px 18px rgba(0,0,0,0.65)' }}>Community-Powered Agricultural Intelligence</p>
+          <p style={{ fontFamily: 'var(--font-body), Nunito, sans-serif', fontSize: 'clamp(1.05rem,1.4vw,1.2rem)', color: 'rgba(255,255,255,0.94)', lineHeight: 1.7, marginBottom: '2.4rem', maxWidth: '52ch', textShadow: '0 2px 16px rgba(0,0,0,0.75)' }}>Transform guesswork into data. Help farmers plant smarter, earn steadier, and build resilient food security through simple mobile data sharing.</p>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <Link href="/mobile-wizard" className="btn btn-lg" style={{ background: '#D6E85C', color: '#12150C', boxShadow: '0 10px 34px -8px rgba(214,232,92,0.55)' }}>Submit Farm Data</Link>
+            <Link href="/dashboard" className="btn btn-lg" style={{ background: 'rgba(16,25,11,0.35)', color: '#fff', border: '1px solid rgba(255,255,255,0.5)', backdropFilter: 'blur(4px)' }}>View Dashboard</Link>
+          </div>
+        </div>
+      </div>
+
+      {/* scroll cue */}
+      <Link href="#top" style={{ position: 'absolute', bottom: 22, left: '50%', transform: 'translateX(-50%)', zIndex: 20, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.75)', textShadow: '0 2px 10px rgba(0,0,0,0.7)', textDecoration: 'none' }}>
+        Scroll
+        <span style={{ width: 22, height: 34, border: '1.5px solid rgba(255,255,255,0.6)', borderRadius: 999, position: 'relative' }}>
+          <span style={{ position: 'absolute', top: 6, left: '50%', transform: 'translateX(-50%)', width: 3, height: 7, borderRadius: 2, background: '#D6E85C', animation: 'agpBob 1.8s ease-in-out infinite' }} />
+        </span>
+      </Link>
+
       <style>{`
-        .hero-secondary:hover {
-          background: var(--accent-turquoise) !important;
-          color: var(--on-turquoise) !important;
-          border-color: var(--accent-turquoise) !important;
-        }
-        @keyframes heroFloat {
-          0%,100%{transform:rotate(0deg)}
-          50%{transform:translateY(-30px) rotate(5deg)}
-        }
-        @media (max-width: 900px) {
-          .hero-grid { grid-template-columns: 1fr !important; }
-        }
+        @keyframes agpMote { 0% { transform: translate(0,0); opacity: 0; } 12% { opacity: .85; } 88% { opacity: .7; } 100% { transform: translate(20px,-130px); opacity: 0; } }
+        @keyframes agpBob { 0%,100% { transform: translate(-50%,0); opacity: .5; } 50% { transform: translate(-50%,8px); opacity: 1; } }
       `}</style>
     </section>
   )

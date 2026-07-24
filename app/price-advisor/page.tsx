@@ -600,7 +600,7 @@ export default function PriceAdvisorPage() {
           .pa-price-hero > div:last-child { text-align: left !important; }
         }
       `}</style>
-      <div className="md:hidden" style={{ height: '72px' }} />
+      <div className="md:hidden" style={{ height: 'calc(72px + env(safe-area-inset-bottom))' }} />
       <FarmerBottomTabs />
     </main>
   )

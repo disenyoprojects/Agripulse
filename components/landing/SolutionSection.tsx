@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import CropReportPhone from './CropReportPhone'
 
 const agriPostFeatures = [
   '30-second mobile submission',
@@ -148,40 +149,9 @@ export default function SolutionSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="surface-glass"
-            style={{ padding: '2.25rem', boxShadow: 'var(--shadow-xl)' }}
+            style={{ display: 'flex', justifyContent: 'center' }}
           >
-            <div style={{ background: 'linear-gradient(160deg, #2D5016, #234011)', borderRadius: 'var(--radius-lg)', padding: '1.5rem' }}>
-              <p style={{ color: 'var(--accent-turquoise-light)', fontWeight: 700, marginBottom: '1rem', fontSize: '0.9rem' }}>Isumite ang Iyong Tanim 🌾</p>
-              {[
-                'Uri ng Tanim: Repolyo (Cabbage)',
-                'Sukat: 0.5 ektarya',
-                'Petsa ng Tanim: Mayo 20, 2026',
-                'Aasahang Ani: Hulyo 15, 2026',
-              ].map((line) => (
-                <div key={line} style={{
-                  background: 'rgba(255,255,255,0.08)',
-                  padding: '0.75rem 1rem',
-                  borderRadius: 'var(--radius-sm)',
-                  marginBottom: '0.5rem',
-                  fontSize: '0.9rem',
-                  color: 'rgba(255,255,255,0.85)',
-                }}>{line}</div>
-              ))}
-              <div style={{
-                background: 'var(--color-harvest-lime)',
-                color: '#10190B',
-                fontWeight: 700,
-                textAlign: 'center',
-                padding: '0.85rem',
-                borderRadius: 'var(--radius-sm)',
-                marginTop: '1rem',
-                fontSize: '0.9rem',
-                letterSpacing: '0.02em',
-              }}>
-                ISUMITE NGAYON
-              </div>
-            </div>
+            <CropReportPhone />
           </motion.div>
         </div>
 

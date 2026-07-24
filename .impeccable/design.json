@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-24T00:00:00Z",
+  "title": "Design System: AgriPulse",
+  "extensions": {
+    "colorMeta": {
+      "primary-green":   { "role": "primary",   "displayName": "Forest Green",   "canonical": "#2D5016", "tonalRamp": ["#0c1507","#10190b","#1c3210","#2D5016","#3f6b21","#54862f","#7fa34a","#a8c686"] },
+      "earth-very-dark": { "role": "primary",   "displayName": "Deep Earth",     "canonical": "#10190B", "tonalRamp": ["#060a04","#10190b","#1a2810","#243a17","#2f4a1c","#3f6b21","#6b9a4c","#a8c98a"] },
+      "turquoise":       { "role": "secondary", "displayName": "Grey Turquoise", "canonical": "#5d9e87", "tonalRamp": ["#1b3129","#25443a","#356b59","#3f7d68","#5d9e87","#8fbfa9","#c4ddd2","#eef6f2"] },
+      "harvest-lime":    { "role": "tertiary",  "displayName": "Harvest Lime",   "canonical": "#D6E85C", "tonalRamp": ["#3f4a12","#586a1c","#6b9a4c","#8fb84a","#b6d23f","#D6E85C","#e6f08c","#f2f7c4"] },
+      "accent-gold":     { "role": "tertiary",  "displayName": "Accent Gold",    "canonical": "#F4A300", "tonalRamp": ["#5a3d00","#8a5a00","#b37200","#d18a00","#F4A300","#ffb01f","#ffc85c","#ffe0a3"] },
+      "cream":           { "role": "neutral",   "displayName": "Cream",          "canonical": "#F8F7F2", "tonalRamp": ["#2c2c2c","#5a5f52","#6b7360","#9aa290","#c4c8bc","#e6e2d6","#f2f0e9","#F8F7F2"] },
+      "soil":            { "role": "neutral",   "displayName": "Soil",           "canonical": "#2C2C2C", "tonalRamp": ["#101010","#1c1c1c","#2C2C2C","#444444","#6b6b6b","#9a9a9a","#c4c4c4","#e6e6e6"] },
+      "ink-muted":       { "role": "neutral",   "displayName": "Muted Ink",      "canonical": "#6b7360", "tonalRamp": ["#2a2f24","#3a4030","#4a5140","#5a6150","#6b7360","#8a9180","#adb3a3","#d0d4c8"] }
+    },
+    "typographyMeta": {
+      "display":  { "displayName": "Display", "purpose": "Archivo Black, uppercase; hero and section headlines and KPI numbers." },
+      "headline": { "displayName": "Headline", "purpose": "Baloo 2, 700; friendly card and sub-section titles inside tools." },
+      "body":     { "displayName": "Body", "purpose": "Nunito; all prose. Cap at 65-75ch." },
+      "label":    { "displayName": "Label", "purpose": "DM Sans, 700; field labels, table headers, small UI." }
+    },
+    "shadows": [
+      { "name": "sm",     "value": "0 1px 2px rgba(16,25,11,0.06), 0 2px 6px rgba(16,25,11,0.05)", "purpose": "Resting card elevation on cream." },
+      { "name": "lg",     "value": "0 4px 8px rgba(16,25,11,0.05), 0 18px 40px -12px rgba(16,25,11,0.18)", "purpose": "Interactive card hover lift." },
+      { "name": "xl",     "value": "0 8px 16px rgba(16,25,11,0.06), 0 30px 60px -18px rgba(16,25,11,0.24)", "purpose": "Drawers, overlays, hero stats card." },
+      { "name": "accent", "value": "0 6px 20px -6px rgba(93,158,135,0.5)", "purpose": "Turquoise focus/active glow only." }
+    ],
+    "motion": [
+      { "name": "ease-out-quart", "value": "cubic-bezier(0.25, 1, 0.5, 1)", "purpose": "Default state-transition easing." },
+      { "name": "ease-out-quint", "value": "cubic-bezier(0.22, 1, 0.36, 1)", "purpose": "Drawer / larger movement." },
+      { "name": "ease-out-expo",  "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Reveal / underline sweeps." },
+      { "name": "dur-fast", "value": "150ms", "purpose": "Micro state changes." },
+      { "name": "dur-base", "value": "200ms", "purpose": "Standard transitions." },
+      { "name": "dur-slow", "value": "320ms", "purpose": "Drawers, reveals." }
+    ],
+    "breakpoints": [
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The established CTA on light surfaces.",
+      "html": "<button class=\"ds-btn-primary\">Submit Farm Data</button>",
+      "css": ".ds-btn-primary { display:inline-flex; align-items:center; justify-content:center; height:46px; padding:0 24px; font-family:'DM Sans',system-ui,sans-serif; font-weight:700; font-size:0.9rem; letter-spacing:0.01em; color:#3a2600; background:#F4A300; border:1px solid transparent; border-radius:999px; box-shadow:0 1px 2px rgba(16,25,11,0.06),0 2px 6px rgba(16,25,11,0.05); cursor:pointer; transition:transform 200ms cubic-bezier(0.25,1,0.5,1),box-shadow 200ms cubic-bezier(0.25,1,0.5,1),background-color 200ms; } .ds-btn-primary:hover { background:#ffb01f; transform:translateY(-2px); box-shadow:0 2px 4px rgba(16,25,11,0.05),0 8px 20px -6px rgba(16,25,11,0.12); } .ds-btn-primary:focus-visible { outline:none; box-shadow:0 0 0 3px rgba(93,158,135,0.45); }"
+    },
+    {
+      "name": "Hero Button",
+      "kind": "button",
+      "refersTo": "button-hero",
+      "description": "Green-to-turquoise gradient CTA for the biggest moments.",
+      "html": "<button class=\"ds-btn-hero\">Get Started</button>",
+      "css": ".ds-btn-hero { display:inline-flex; align-items:center; justify-content:center; height:46px; padding:0 24px; font-family:'DM Sans',system-ui,sans-serif; font-weight:700; font-size:0.9rem; color:#ffffff; border:none; border-radius:999px; background:linear-gradient(135deg,#2D5016 0%,#356b59 100%); box-shadow:0 2px 4px rgba(16,25,11,0.05),0 8px 20px -6px rgba(16,25,11,0.12); cursor:pointer; transition:transform 200ms cubic-bezier(0.25,1,0.5,1),box-shadow 200ms; } .ds-btn-hero:hover { background:linear-gradient(135deg,#366021 0%,#3f7d68 100%); transform:translateY(-2px); box-shadow:0 4px 8px rgba(16,25,11,0.05),0 18px 40px -12px rgba(16,25,11,0.18),0 6px 20px -6px rgba(93,158,135,0.5); } .ds-btn-hero:focus-visible { outline:none; box-shadow:0 0 0 3px rgba(93,158,135,0.45); }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Quiet turquoise-tint action.",
+      "html": "<button class=\"ds-btn-secondary\">View Dashboard</button>",
+      "css": ".ds-btn-secondary { display:inline-flex; align-items:center; justify-content:center; height:46px; padding:0 24px; font-family:'DM Sans',system-ui,sans-serif; font-weight:700; font-size:0.9rem; color:#356b59; background:#eef6f2; border:1px solid #c4ddd2; border-radius:999px; cursor:pointer; transition:transform 200ms cubic-bezier(0.25,1,0.5,1),background-color 200ms,border-color 200ms; } .ds-btn-secondary:hover { background:#dcebe4; border-color:#5d9e87; transform:translateY(-2px); } .ds-btn-secondary:focus-visible { outline:none; box-shadow:0 0 0 3px rgba(93,158,135,0.45); }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "White surface on the cream field; lifts on hover when interactive.",
+      "html": "<div class=\"ds-card\"><h3 class=\"ds-card-title\">Crop Distribution</h3><p class=\"ds-card-sub\">Current planting breakdown by crop type</p></div>",
+      "css": ".ds-card { background:#ffffff; border:1px solid rgba(16,25,11,0.08); border-radius:24px; box-shadow:0 1px 2px rgba(16,25,11,0.06),0 2px 6px rgba(16,25,11,0.05); padding:1.75rem; transition:transform 200ms cubic-bezier(0.25,1,0.5,1),box-shadow 200ms,border-color 200ms; } .ds-card:hover { transform:translateY(-4px); box-shadow:0 4px 8px rgba(16,25,11,0.05),0 18px 40px -12px rgba(16,25,11,0.18); border-color:#c4ddd2; } .ds-card-title { font-family:'Archivo Black',sans-serif; font-size:1.15rem; color:#243016; letter-spacing:-0.01em; margin:0; } .ds-card-sub { font-family:'Nunito',system-ui,sans-serif; font-size:0.85rem; color:#6b7360; margin:0.25rem 0 0; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "field-input",
+      "description": "White field with turquoise focus.",
+      "html": "<label class=\"ds-field-label\">Farm Size (hectares)<input class=\"ds-field-input\" placeholder=\"0.5\" /></label>",
+      "css": ".ds-field-label { display:block; font-family:'DM Sans',system-ui,sans-serif; font-size:0.8rem; font-weight:700; color:#2D5016; letter-spacing:0.01em; margin-bottom:0.4rem; } .ds-field-input { width:100%; height:46px; padding:0 0.9rem; font-family:'Nunito',system-ui,sans-serif; font-size:0.95rem; color:#2C2C2C; background:#ffffff; border:1px solid rgba(16,25,11,0.14); border-radius:14px; outline:none; transition:border-color 150ms cubic-bezier(0.25,1,0.5,1),box-shadow 150ms; } .ds-field-input::placeholder { color:#9aa290; } .ds-field-input:hover { border-color:rgba(16,25,11,0.26); } .ds-field-input:focus-visible { border-color:#5d9e87; box-shadow:0 0 0 3px rgba(93,158,135,0.45); }"
+    },
+    {
+      "name": "Accent Badge",
+      "kind": "chip",
+      "refersTo": "badge-accent",
+      "description": "Turquoise-tint pill for tags and 'live' markers.",
+      "html": "<span class=\"ds-badge-accent\">Live</span>",
+      "css": ".ds-badge-accent { display:inline-flex; align-items:center; gap:0.4rem; padding:0.3rem 0.75rem; font-family:'DM Sans',system-ui,sans-serif; font-size:0.72rem; font-weight:700; letter-spacing:0.02em; line-height:1.2; color:#356b59; background:#eef6f2; border-radius:999px; }"
+    },
+    {
+      "name": "Status Pill",
+      "kind": "custom",
+      "refersTo": "badge-accent",
+      "description": "Colored dot + text label for market state; red/orange/green. Never color alone.",
+      "html": "<span class=\"ds-status\"><span class=\"ds-status-dot\"></span>Oversupply Risk</span>",
+      "css": ".ds-status { display:inline-flex; align-items:center; gap:0.5rem; font-family:'DM Sans',system-ui,sans-serif; font-size:0.8rem; font-weight:600; color:#D32F2F; } .ds-status-dot { width:9px; height:9px; border-radius:50%; background:#D32F2F; box-shadow:0 0 0 4px rgba(211,47,47,0.18); flex-shrink:0; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Ground Truth",
+    "overview": "AgriPulse takes what is literally in the soil and turns it into foresight. Deep highland earth-greens are the ground, lit by grey-turquoise (#5d9e87) for data, state and trust, and a rare harvest-lime for growth. Marketing surfaces drench the viewer in near-black forest green; working tools sit on warm cream so numbers stay legible. The design serves two audiences with one component vocabulary: dense and report-grade for the LGU officer, Facebook-simple for the farmer.",
+    "keyCharacteristics": [
+      "Earthy, drenched deep-greens on brand surfaces; warm cream on working tools.",
+      "One rare harvest-lime for growth moments; grey-turquoise for data, state, and trust.",
+      "Confident display type (Archivo Black) over friendly body type (Nunito / DM Sans).",
+      "Soft rounding (14-24px) and earth-tinted shadows, never neutral black.",
+      "Two audiences, one component vocabulary."
+    ],
+    "rules": [
+      { "name": "The Harvest-Lime Rule", "body": "Harvest-lime (#D6E85C) marks growth and reward only. As a background or decorative fill, it is wrong.", "section": "colors" },
+      { "name": "The Green-Tinted Neutral Rule", "body": "Grays are forbidden. Muted text is #6b7360; shadows are tinted toward rgba(16,25,11,...), never neutral black.", "section": "colors" },
+      { "name": "The Numbers-Are-Tabular Rule", "body": "Any figure that updates or aligns in a column carries tabular-nums. Money and hectares never dance.", "section": "typography" },
+      { "name": "The Lift-On-Intent Rule", "body": "Cards rest flat-ish and lift only on hover or focus. Motion conveys the state.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep the established theme: deep earth-greens as ground, grey-turquoise (#5d9e87) for data/state/trust, harvest-lime for growth moments only.",
+      "Do put working tools on cream (#F8F7F2) and drench marketing surfaces in deep green (#10190B).",
+      "Do pair every status color with a text label and a dot; never rely on color alone.",
+      "Do use tinted, earth-toned shadows and green-tinted muted text (#6b7360).",
+      "Do reuse the shared vocabulary (.btn, .card, .field-input, .badge) across both audiences.",
+      "Do keep the global turquoise focus ring on every interactive element."
+    ],
+    "donts": [
+      "Don't make it look like a sterile government portal: no gray, dense, bureaucratic form-walls.",
+      "Don't make it look like a cold corporate agritech SaaS: no navy-and-gray chart-soup.",
+      "Don't make it childish or cartoonish: the income stakes are real.",
+      "Don't make it flashy crypto/fintech: no neon gradients, no hype-glow.",
+      "Don't use neutral grays or neutral-black shadows anywhere.",
+      "Don't use border-left (or any side) greater than 1px as a colored accent stripe.",
+      "Don't use harvest-lime as a background or decoration.",
+      "Don't set display inline on an element that relies on a *:hidden Tailwind class."
+    ]
+  }
+}

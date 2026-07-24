@@ -1,4 +1,3 @@
-import { db } from '@/lib/db'
 import HeroSection from '@/components/landing/HeroSection'
 import ProblemSection from '@/components/landing/ProblemSection'
 import SolutionSection from '@/components/landing/SolutionSection'
@@ -8,22 +7,10 @@ import ImpactSection from '@/components/landing/ImpactSection'
 import CtaSection from '@/components/landing/CtaSection'
 import LandingFooter from '@/components/landing/LandingFooter'
 
-export const dynamic = 'force-dynamic'
-
-async function getLiveCounts() {
-  const [farmers, submissions] = await Promise.all([
-    db.farmer.count(),
-    db.submission.count(),
-  ])
-  return { farmers, submissions }
-}
-
-export default async function LandingPage() {
-  const counts = await getLiveCounts()
-
+export default function LandingPage() {
   return (
     <main>
-      <HeroSection counts={counts} />
+      <HeroSection />
       <ProblemSection />
       <SolutionSection />
       <FeaturesSection />

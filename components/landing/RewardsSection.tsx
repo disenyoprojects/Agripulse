@@ -12,12 +12,22 @@ const rewards = [
 export default function RewardsSection() {
   return (
     <section style={{
-      background: 'linear-gradient(135deg, #D6E85C 0%, #F4A300 100%)',
-      padding: '96px 5%',
-      color: '#12150C',
       position: 'relative',
+      overflow: 'hidden',
+      background: '#10190B',
+      padding: '96px 5%',
+      color: '#fff',
     }}>
-      <div style={{ maxWidth: '1180px', margin: '0 auto', textAlign: 'center' }}>
+      {/* turquoise data-wash + a faint lime warmth for the reward moment
+          (glow only — never a lime fill, per the Harvest-Lime Rule) */}
+      <div style={{
+        position: 'absolute', inset: 0, pointerEvents: 'none',
+        background:
+          'radial-gradient(ellipse 60% 50% at 50% -5%, rgba(93,158,135,0.14) 0%, transparent 58%),' +
+          'radial-gradient(ellipse 70% 55% at 50% 108%, rgba(214,232,92,0.06) 0%, transparent 55%)',
+      }} />
+
+      <div style={{ position: 'relative', zIndex: 2, maxWidth: '1180px', margin: '0 auto', textAlign: 'center' }}>
         <motion.div
           initial={{ opacity: 0, y: 30, scale: 0.9 }}
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
@@ -38,7 +48,7 @@ export default function RewardsSection() {
             textTransform: 'uppercase',
             fontSize: 'clamp(2rem, 4vw, 3rem)',
             margin: '0 0 16px',
-            color: '#10190B',
+            color: '#fff',
             letterSpacing: '-0.02em',
             lineHeight: 1.08,
           }}
@@ -50,9 +60,10 @@ export default function RewardsSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
-          style={{ fontSize: '1.2rem', margin: '0 auto 48px', maxWidth: '620px', lineHeight: 1.6, color: '#2a3510' }}
+          style={{ fontSize: '1.2rem', margin: '0 auto 48px', maxWidth: '620px', lineHeight: 1.6, color: 'rgba(255,255,255,0.88)' }}
         >
-          Bawat submission ay kumikita ng <strong>+10 Data Points</strong>.
+          Bawat submission ay kumikita ng{' '}
+          <strong style={{ color: 'var(--color-harvest-lime)' }}>+10 Data Points</strong>.
           Makakuha ng fertilizer vouchers, training, at iba pang rewards!
         </motion.p>
 
@@ -71,19 +82,25 @@ export default function RewardsSection() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
               whileHover={{ y: -6 }}
-              style={{ padding: '1.75rem', textAlign: 'left', boxShadow: 'var(--shadow-md)' }}
+              style={{
+                padding: '1.75rem',
+                textAlign: 'left',
+                background: 'rgba(255,255,255,0.045)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                boxShadow: 'none',
+              }}
             >
               <h3 style={{
                 fontFamily: 'var(--font-display), sans-serif',
                 fontWeight: 700,
                 fontSize: '1.35rem',
                 marginBottom: '0.4rem',
-                color: '#10190B',
+                color: '#fff',
                 letterSpacing: '-0.01em',
               }}>
                 {title}
               </h3>
-              <p style={{ color: '#5a5f52', margin: 0, fontSize: '0.95rem', lineHeight: 1.55 }}>{desc}</p>
+              <p style={{ color: 'rgba(255,255,255,0.6)', margin: 0, fontSize: '0.95rem', lineHeight: 1.55 }}>{desc}</p>
             </motion.div>
           ))}
         </div>
@@ -93,19 +110,20 @@ export default function RewardsSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7, delay: 0.36, ease: [0.16, 1, 0.3, 1] }}
-          className="surface-glass"
           style={{
             marginTop: '2.5rem',
             padding: '1.75rem 2rem',
-            background: 'rgba(255,255,255,0.28)',
-            border: '1px solid rgba(255,255,255,0.4)',
+            borderRadius: 'var(--radius-lg)',
+            background: 'rgba(93,158,135,0.12)',
+            border: '1px solid rgba(93,158,135,0.28)',
             textAlign: 'left',
           }}
         >
-          <p style={{ fontSize: '1.1rem', fontWeight: 700, margin: '0 0 6px', color: '#12150C' }}>
-            Mas maraming submission = Mas maraming rewards!
+          <p style={{ fontSize: '1.1rem', fontWeight: 700, margin: '0 0 6px', color: '#fff' }}>
+            Mas maraming submission = Mas maraming{' '}
+            <span style={{ color: 'var(--color-harvest-lime)' }}>rewards!</span>
           </p>
-          <p style={{ fontSize: '0.98rem', margin: 0, color: '#2a3510', lineHeight: 1.55 }}>
+          <p style={{ fontSize: '0.98rem', margin: 0, color: 'rgba(255,255,255,0.78)', lineHeight: 1.55 }}>
             Top contributors get exclusive access to new seeds, tools, and market connections.
           </p>
         </motion.div>

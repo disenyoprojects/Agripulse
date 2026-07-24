@@ -2,18 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-
-const TABS = [
-  { label: 'Home', href: '/', icon: '🏠' },
-  { label: 'Submit', href: '/mobile-wizard', icon: '🌾' },
-  { label: 'Leaderboard', href: '/leaderboard', icon: '🏆' },
-  { label: 'Status', href: '/status', icon: '🔎' },
-]
-
-function isActive(pathname: string | null, href: string): boolean {
-  if (href === '/') return pathname === '/'
-  return pathname?.startsWith(href) ?? false
-}
+import { bottomTabLinks, isActiveHref } from './nav-links'
 
 /**
  * Facebook/Instagram-style bottom tab bar for farmer-facing pages. Mobile only.
@@ -24,7 +13,7 @@ export default function FarmerBottomTabs() {
 
   return (
     <nav
-      className="md:hidden"
+      className="md:hidden flex"
       aria-label="Farmer navigation"
       style={{
         position: 'fixed',
@@ -36,7 +25,6 @@ export default function FarmerBottomTabs() {
         backdropFilter: 'blur(14px)',
         WebkitBackdropFilter: 'blur(14px)',
         borderTop: '1px solid rgba(93,158,135,0.22)',
-        display: 'flex',
         justifyContent: 'space-around',
         alignItems: 'stretch',
         height: '60px',
@@ -44,8 +32,8 @@ export default function FarmerBottomTabs() {
         boxShadow: '0 -8px 24px -12px rgba(0,0,0,0.5)',
       }}
     >
-      {TABS.map(({ label, href, icon }) => {
-        const active = isActive(pathname, href)
+      {bottomTabLinks.map(({ label, short, href, icon }) => {
+        const active = isActiveHref(pathname, href)
         return (
           <Link
             key={href}
@@ -65,7 +53,7 @@ export default function FarmerBottomTabs() {
             <span style={{ fontSize: '1.35rem', lineHeight: 1, filter: active ? 'none' : 'grayscale(0.5) opacity(0.85)' }} aria-hidden="true">
               {icon}
             </span>
-            <span style={{ fontSize: '0.68rem' }}>{label}</span>
+            <span style={{ fontSize: '0.68rem' }}>{short ?? label}</span>
           </Link>
         )
       })}

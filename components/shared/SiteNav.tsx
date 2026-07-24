@@ -3,28 +3,14 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-
-type NavLink = { label: string; href: string; icon: string }
-
-const homeLink: NavLink = { label: 'Home', href: '/', icon: '🏠' }
-
-const farmerLinks: NavLink[] = [
-  { label: 'Farmer Portal', href: '/mobile-wizard', icon: '🌾' },
-  { label: 'Leaderboard', href: '/leaderboard', icon: '🏆' },
-  { label: 'Status', href: '/status', icon: '🔎' },
-  { label: 'Price Advisor', href: '/price-advisor', icon: '💰' },
-]
-
-const adminLinks: NavLink[] = [
-  { label: 'LGU Dashboard', href: '/dashboard', icon: '📊' },
-]
-
-const desktopLinks: NavLink[] = [homeLink, ...farmerLinks, ...adminLinks]
-
-function isActiveHref(pathname: string | null, href: string): boolean {
-  if (href === '/') return pathname === '/'
-  return pathname === href || (pathname?.startsWith(href) ?? false)
-}
+import {
+  type NavLink,
+  homeLink,
+  farmerLinks,
+  adminLinks,
+  desktopLinks,
+  isActiveHref,
+} from './nav-links'
 
 export default function SiteNav() {
   const pathname = usePathname()
@@ -98,17 +84,20 @@ export default function SiteNav() {
           })}
         </ul>
 
-        {/* Hamburger — mobile only */}
+        {/* Hamburger — mobile only. `flex` lives in the className (not inline)
+            so `md:hidden` can win on desktop — an inline `display` would leak
+            the button onto the desktop layout. */}
         <button
-          className="md:hidden"
+          className="md:hidden flex"
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? 'Close menu' : 'Open menu'}
+          aria-expanded={open}
+          aria-controls="site-nav-drawer"
           style={{
             background: 'transparent',
             border: 'none',
             cursor: 'pointer',
             padding: '0.5rem',
-            display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
@@ -153,8 +142,11 @@ export default function SiteNav() {
         }}
       />
 
-      {/* Sidebar drawer — slides in from right */}
+      {/* Sidebar drawer — slides in from right. `inert` when closed so its
+          off-canvas links drop out of the tab order and the a11y tree. */}
       <div
+        id="site-nav-drawer"
+        inert={!open}
         style={{
           position: 'fixed',
           top: 0,

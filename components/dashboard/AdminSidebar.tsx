@@ -11,6 +11,7 @@ const NAV: Item[] = [
   { label: 'Dashboard', href: '/dashboard', icon: '📊' },
   { label: 'Farmers', href: '/dashboard/farmers', icon: '👥' },
   { label: 'Farmer Form', href: '/mobile-wizard', icon: '📝' },
+  { label: 'Price Advisor', href: '/price-advisor', icon: '💰' },
   { label: 'Settings', href: '/dashboard/settings', icon: '⚙️' },
 ]
 
@@ -140,6 +141,8 @@ export default function AdminSidebar({ email }: { email: string }) {
         <button
           onClick={() => setOpen(true)}
           aria-label="Open menu"
+          aria-expanded={open}
+          aria-controls="admin-drawer"
           style={{
             background: 'transparent', border: 'none', cursor: 'pointer',
             padding: '0.5rem', display: 'flex', flexDirection: 'column',
@@ -164,6 +167,8 @@ export default function AdminSidebar({ email }: { email: string }) {
         }}
       />
       <aside
+        id="admin-drawer"
+        inert={!open}
         className="lg:hidden flex"
         style={{
           position: 'fixed', top: 0, left: 0, height: '100%', width: '76vw', maxWidth: '300px',

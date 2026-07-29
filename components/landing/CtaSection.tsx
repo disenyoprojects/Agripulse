@@ -10,13 +10,13 @@ export default function CtaSection() {
     <section style={{
       position: 'relative',
       overflow: 'hidden',
-      background: 'linear-gradient(160deg, #10190B 0%, #16260f 55%, #2f4a1c 100%)',
-      padding: '110px 5%',
+      background: '#F8F7F2',
+      padding: 'clamp(4.5rem, 8vw, 7.5rem) 5%',
     }}>
-      {/* soft turquoise wash — data/trust, echoing the hero and solution glow */}
+      {/* soft turquoise + lime wash — data/trust warmth on the cream surface */}
       <div style={{
         position: 'absolute', inset: 0, pointerEvents: 'none',
-        background: 'radial-gradient(ellipse 60% 55% at 50% 0%, rgba(93,158,135,0.16) 0%, transparent 60%)',
+        background: 'radial-gradient(ellipse 60% 55% at 50% 0%, rgba(93,158,135,0.12) 0%, transparent 60%)',
       }} />
 
       <motion.div
@@ -30,14 +30,14 @@ export default function CtaSection() {
           fontFamily: 'var(--font-heading), sans-serif',
           textTransform: 'uppercase',
           fontSize: 'clamp(2rem, 4.5vw, 3.25rem)',
-          color: '#fff',
+          color: '#1E3A13',
           marginBottom: '1.25rem',
           lineHeight: 1.06,
           letterSpacing: '-0.02em',
         }}>
           Join the Predictive Farming Revolution
         </h2>
-        <p style={{ fontSize: '1.15rem', color: 'rgba(255,255,255,0.9)', lineHeight: 1.7, margin: '0 auto 2.5rem', maxWidth: '52ch' }}>
+        <p style={{ fontSize: '1.15rem', color: 'rgba(28,44,19,0.72)', lineHeight: 1.7, margin: '0 auto 2.5rem', maxWidth: '52ch' }}>
           If you can text, you can help build agricultural intelligence.
           Submit your farm data today and earn rewards while protecting your community&apos;s food security.
         </p>
@@ -62,10 +62,10 @@ export default function CtaSection() {
             whileTap={{ scale: 0.98 }}
             className="btn btn-lg"
             style={{
-              background: 'rgba(16,25,11,0.35)',
-              color: '#fff',
-              border: '1px solid rgba(255,255,255,0.5)',
-              backdropFilter: 'blur(4px)',
+              background: '#fff',
+              color: '#2D5016',
+              border: '1px solid rgba(45,80,22,0.25)',
+              boxShadow: 'var(--shadow-sm)',
             }}
           >
             Explore Dashboard

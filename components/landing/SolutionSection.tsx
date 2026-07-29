@@ -85,8 +85,8 @@ export default function SolutionSection() {
     <section
       id="solution"
       style={{
-        padding: '110px 5%',
-        background: '#10190B',
+        padding: 'clamp(4.5rem, 8vw, 7.5rem) 5%',
+        background: '#1C4015',
         color: 'white',
         position: 'relative',
         overflow: 'hidden',

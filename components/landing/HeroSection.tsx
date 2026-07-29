@@ -27,7 +27,7 @@ const MOTES = Array.from({ length: 15 }).map((_, i) => ({
 }))
 
 /** How dark the center gets for headline legibility (0–0.95). */
-const CENTER_DARKEN = 0.45
+const CENTER_DARKEN = 0.28
 
 export default function HeroSection() {
   return (
@@ -40,7 +40,7 @@ export default function HeroSection() {
         alignItems: 'center',
         overflow: 'hidden',
         paddingTop: 80,
-        background: 'linear-gradient(160deg,#060A04 0%,#10190B 45%,#2f4a1c 100%)',
+        background: 'linear-gradient(160deg,#123510 0%,#1C4015 45%,#437628 100%)',
         fontFamily: "'DM Sans', system-ui, sans-serif",
         color: '#fff',
       }}
@@ -58,7 +58,7 @@ export default function HeroSection() {
       />
 
       {/* atmospheric center darkening: clean readable middle, detailed edges */}
-      <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'linear-gradient(180deg, rgba(6,10,4,0.45) 0%, rgba(6,10,4,0.14) 20%, transparent 46%)' }} />
+      <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'linear-gradient(180deg, rgba(6,10,4,0.26) 0%, rgba(6,10,4,0.08) 20%, transparent 46%)' }} />
       <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: `linear-gradient(90deg, transparent 12%, rgba(6,10,4,${CENTER_DARKEN * 0.45}) 23%, rgba(6,10,4,${CENTER_DARKEN}) 35%, rgba(6,10,4,${CENTER_DARKEN}) 65%, rgba(6,10,4,${CENTER_DARKEN * 0.45}) 77%, transparent 88%)` }} />
       <div style={{ position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none', background: `radial-gradient(ellipse 44% 46% at 50% 40%, rgba(6,10,4,${CENTER_DARKEN * 0.5}) 0%, transparent 72%)` }} />
 

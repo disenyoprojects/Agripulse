@@ -66,13 +66,13 @@ export default async function LeaderboardPage() {
       className="min-h-screen pt-20 pb-24 md:pb-12"
       style={{
         background:
-          'radial-gradient(ellipse 70% 50% at 50% 0%, rgba(93,158,135,0.12) 0%, transparent 50%), linear-gradient(160deg, #1a2e10 0%, #0c150a 100%)',
+          'radial-gradient(ellipse 70% 50% at 50% 0%, rgba(93,158,135,0.08) 0%, transparent 50%), #F8F7F2',
       }}
     >
       <div className="max-w-[820px] mx-auto px-5">
 
         <div className="pt-6">
-          <BackButton fallback="/" label="Back" tone="light" />
+          <BackButton fallback="/" label="Back" tone="dark" />
         </div>
 
         {/* Header */}
@@ -82,13 +82,13 @@ export default async function LeaderboardPage() {
             className="font-heading mb-3"
             style={{
               fontSize: 'clamp(2rem, 5vw, 2.8rem)',
-              color: 'var(--color-accent-gold)',
+              color: 'var(--color-primary-green)',
               letterSpacing: '-0.02em',
             }}
           >
             AgriPulse Leaderboard
           </h1>
-          <p className="text-[1.05rem] mb-5" style={{ color: '#dfe6d4' }}>
+          <p className="text-[1.05rem] mb-5" style={{ color: 'rgba(28,44,19,0.7)' }}>
             Top Contributing Farmers — BLISTT Area
           </p>
           <span
@@ -96,7 +96,7 @@ export default async function LeaderboardPage() {
             style={{
               background: 'rgba(93,158,135,0.14)',
               border: '1px solid rgba(93,158,135,0.28)',
-              color: 'var(--accent-turquoise-light)',
+              color: 'var(--accent-turquoise-strong)',
             }}
           >
             <span
@@ -118,22 +118,22 @@ export default async function LeaderboardPage() {
           ].map(({ label, value }) => (
             <div
               key={label}
-              className="surface-glass text-center p-5 rounded-2xl"
-              style={{ border: '1px solid rgba(93,158,135,0.22)' }}
+              className="card text-center p-5 rounded-2xl"
+              style={{ border: '1px solid rgba(45,80,22,0.10)' }}
             >
               <div
                 data-nums
                 className="font-heading"
                 style={{
                   fontSize: '2.2rem',
-                  color: 'var(--color-accent-gold)',
+                  color: 'var(--color-primary-green)',
                   letterSpacing: '-0.02em',
                   lineHeight: 1,
                 }}
               >
                 {value}
               </div>
-              <div className="text-[0.85rem] mt-1.5" style={{ color: 'rgba(255,255,255,0.65)' }}>
+              <div className="text-[0.85rem] mt-1.5" style={{ color: 'rgba(28,44,19,0.65)' }}>
                 {label}
               </div>
             </div>

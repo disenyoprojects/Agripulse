@@ -27,7 +27,7 @@ const baloo2 = Baloo_2({
 })
 
 export const metadata: Metadata = {
-  title: 'AgriPulse System',
+  title: 'AgriPulse',
   description: 'The Pulse of Predictive Farming — Real-Time Agricultural Intelligence for BLISTT',
 }
 

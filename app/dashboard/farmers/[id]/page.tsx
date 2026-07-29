@@ -70,7 +70,7 @@ export default async function FarmerPortfolioPage({
         className="text-white px-[5%] py-8 relative overflow-hidden"
         style={{
           background:
-            'radial-gradient(ellipse 50% 120% at 88% 0%, rgba(93,158,135,0.28) 0%, transparent 60%), linear-gradient(135deg, #2D5016 0%, #38541F 60%, #234011 100%)',
+            'radial-gradient(ellipse 50% 120% at 88% 0%, rgba(93,158,135,0.28) 0%, transparent 60%), linear-gradient(135deg, #2D5016 0%, #4C7A2A 60%, #37661F 100%)',
           boxShadow: 'var(--shadow-lg)',
         }}
       >

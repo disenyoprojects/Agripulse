@@ -15,7 +15,7 @@ const partnerLinks = [
 
 export default function LandingFooter() {
   return (
-    <footer style={{ background: '#0c150a', color: 'rgba(255,255,255,0.68)', padding: '72px 5% 36px' }}>
+    <footer style={{ background: '#173812', color: 'rgba(255,255,255,0.68)', padding: '72px 5% 36px' }}>
       <div style={{
         maxWidth: '1200px',
         margin: '0 auto',

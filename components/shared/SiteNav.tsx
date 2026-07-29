@@ -155,7 +155,7 @@ export default function SiteNav() {
           maxWidth: '340px',
           height: '100%',
           zIndex: 'var(--z-drawer)',
-          background: 'linear-gradient(180deg, #142010 0%, #0c150a 100%)',
+          background: 'linear-gradient(180deg, #234A1A 0%, #173812 100%)',
           borderLeft: '1px solid rgba(93,158,135,0.18)',
           boxShadow: '-24px 0 60px -20px rgba(0,0,0,0.6)',
           display: 'flex',

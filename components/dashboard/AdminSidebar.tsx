@@ -10,8 +10,8 @@ type Item = { label: string; href: string; icon: string }
 const NAV: Item[] = [
   { label: 'Dashboard', href: '/dashboard', icon: '📊' },
   { label: 'Farmers', href: '/dashboard/farmers', icon: '👥' },
-  { label: 'Farmer Form', href: '/mobile-wizard', icon: '📝' },
-  { label: 'Price Advisor', href: '/price-advisor', icon: '💰' },
+  { label: 'Farmer Form', href: '/dashboard/farmer-form', icon: '📝' },
+  { label: 'Price Advisor', href: '/dashboard/price-advisor', icon: '💰' },
   { label: 'Settings', href: '/dashboard/settings', icon: '⚙️' },
 ]
 
@@ -20,7 +20,7 @@ function isActive(pathname: string | null, href: string): boolean {
   return pathname?.startsWith(href) ?? false
 }
 
-const PANEL_BG = 'linear-gradient(180deg, #142010 0%, #0c150a 100%)'
+const PANEL_BG = 'linear-gradient(180deg, #234A1A 0%, #173812 100%)'
 
 export default function AdminSidebar({ email }: { email: string }) {
   const pathname = usePathname()

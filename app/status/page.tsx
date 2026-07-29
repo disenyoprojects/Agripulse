@@ -138,7 +138,7 @@ export default function StatusPage() {
       className="min-h-screen pt-20 pb-24 md:pb-12 flex items-start justify-center px-4"
       style={{
         background:
-          'radial-gradient(ellipse 80% 60% at 50% -10%, rgba(93,158,135,0.14) 0%, transparent 55%), linear-gradient(160deg, #1a2e10 0%, #0c150a 100%)',
+          'radial-gradient(ellipse 80% 60% at 50% -10%, rgba(93,158,135,0.14) 0%, transparent 55%), linear-gradient(160deg, #2A5320 0%, #173812 100%)',
       }}
     >
       <div className="w-full max-w-md mt-8">

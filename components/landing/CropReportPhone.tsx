@@ -46,7 +46,7 @@ export default function CropReportPhone({
         maxWidth: '340px',
         padding: '10px',
         borderRadius: '46px',
-        background: '#0b120a',
+        background: '#183814',
         border: '1px solid rgba(255,255,255,0.1)',
         boxShadow: '0 40px 80px -30px rgba(0,0,0,0.7), 0 0 0 1px rgba(93,158,135,0.08)',
       }}
@@ -60,7 +60,7 @@ export default function CropReportPhone({
           overflow: 'hidden',
           background:
             'radial-gradient(ellipse 85% 40% at 50% -5%, rgba(93,158,135,0.20) 0%, transparent 60%),' +
-            'linear-gradient(180deg, #17291a 0%, #101d0f 55%, #0c150a 100%)',
+            'linear-gradient(180deg, #2E5432 0%, #234420 55%, #173812 100%)',
         }}
       >
         {/* Dynamic-island notch */}

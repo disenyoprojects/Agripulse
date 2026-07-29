@@ -22,7 +22,7 @@
   --accent-turquoise-100: #dcebe4;
   --accent-turquoise-200: #c4ddd2;
   /* text that sits ON a turquoise fill (near-black green, 5.75:1) */
-  --on-turquoise: #10190b;
+  --on-turquoise: #1C4015;
 
   /* --- Soft, layered elevation. Two-part shadows (ambient + key)
          tinted toward the brand's dark earth, not neutral black. --- */
@@ -87,9 +87,9 @@
   --color-accent-turquoise-100: var(--accent-turquoise-100);
 
   /* Earth tones */
-  --color-earth-very-dark: #10190B;
+  --color-earth-very-dark: #1C4015;
   --color-earth-dark: #2D5016;
-  --color-earth-medium: #38541F;
+  --color-earth-medium: #4C7A2A;
   --color-earth-medium-2: #4A7C2C;
   --color-earth-light: #7FA34A;
   --color-earth-light-2: #A8C686;
@@ -134,6 +134,10 @@
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Future-proof guard: nothing may cause horizontal scroll on any device.
+       `clip` (not `hidden`) so it never creates a scroll container that would
+       break position: sticky / fixed descendants. */
+    overflow-x: clip;
   }
 
   /* Display / heading font, tightened for a premium feel. */

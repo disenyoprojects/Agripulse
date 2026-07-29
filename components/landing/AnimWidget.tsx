@@ -32,7 +32,7 @@ export default function AnimWidget() {
       aspectRatio: '16/10',
       overflow: 'hidden',
       borderRadius: '20px',
-      background: 'linear-gradient(155deg, #10190B 0%, #38541F 55%, #7FA34A 100%)',
+      background: 'linear-gradient(155deg, #1C4015 0%, #4C7A2A 55%, #7FA34A 100%)',
       boxShadow: '0 30px 80px rgba(0,0,0,0.45)',
       marginBottom: '1.5rem',
     }}>

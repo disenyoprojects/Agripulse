@@ -31,7 +31,7 @@ export default function LeaderboardRankings({ rankings }: { rankings: Ranking[] 
 
   if (rankings.length === 0) {
     return (
-      <div className="text-center py-12" style={{ color: 'rgba(255,255,255,0.55)' }}>
+      <div className="text-center py-12" style={{ color: 'rgba(28,44,19,0.55)' }}>
         <p className="text-5xl mb-4">🌱</p>
         <p>Walang datos pa. Mag-submit sa Farmer Portal!</p>
       </div>
@@ -51,9 +51,9 @@ export default function LeaderboardRankings({ rankings }: { rankings: Ranking[] 
                 onClick={() => setSelected(m)}
                 className="shrink-0 rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors"
                 style={{
-                  background: active ? 'var(--accent-turquoise)' : 'rgba(255,255,255,0.07)',
-                  color: active ? 'var(--on-turquoise)' : 'rgba(255,255,255,0.8)',
-                  border: `1px solid ${active ? 'var(--accent-turquoise)' : 'rgba(255,255,255,0.14)'}`,
+                  background: active ? 'var(--accent-turquoise)' : 'rgba(45,80,22,0.05)',
+                  color: active ? 'var(--on-turquoise)' : 'rgba(28,44,19,0.75)',
+                  border: `1px solid ${active ? 'var(--accent-turquoise)' : 'rgba(45,80,22,0.12)'}`,
                 }}
                 aria-pressed={active}
               >
@@ -70,8 +70,8 @@ export default function LeaderboardRankings({ rankings }: { rankings: Ranking[] 
             key={r.rank}
             className="ranking-row flex items-center gap-4 rounded-2xl p-5"
             style={{
-              background: 'rgba(255,255,255,0.07)',
-              border: '1px solid rgba(255,255,255,0.07)',
+              background: 'rgba(45,80,22,0.04)',
+              border: '1px solid rgba(45,80,22,0.08)',
               transition: 'all var(--dur-base) var(--ease-out-quart)',
             }}
           >
@@ -79,7 +79,7 @@ export default function LeaderboardRankings({ rankings }: { rankings: Ranking[] 
               className="w-11 text-center font-heading text-[1.45rem] shrink-0"
               style={{
                 color:
-                  r.rank === 1 ? '#FFD700' : r.rank === 2 ? '#C0C0C0' : r.rank === 3 ? '#CD7F32' : 'rgba(255,255,255,0.45)',
+                  r.rank === 1 ? '#D4A017' : r.rank === 2 ? '#8A8D91' : r.rank === 3 ? '#B06A2E' : 'rgba(28,44,19,0.40)',
                 letterSpacing: '-0.02em',
               }}
             >
@@ -87,8 +87,8 @@ export default function LeaderboardRankings({ rankings }: { rankings: Ranking[] 
             </div>
 
             <div className="flex-1 min-w-0">
-              <div className="font-bold text-white text-[1.1rem] truncate">{r.name}</div>
-              <div className="text-[0.82rem] mt-0.5 flex gap-3 flex-wrap" style={{ color: 'rgba(255,255,255,0.50)' }}>
+              <div className="font-bold text-[1.1rem] truncate" style={{ color: 'var(--color-primary-green)' }}>{r.name}</div>
+              <div className="text-[0.82rem] mt-0.5 flex gap-3 flex-wrap" style={{ color: 'rgba(28,44,19,0.55)' }}>
                 <span>📍 {r.municipality}</span>
                 <span>🌾 {r.cropName}</span>
                 {r.hectares && <span>📏 {r.hectares}ha</span>}
@@ -103,15 +103,15 @@ export default function LeaderboardRankings({ rankings }: { rankings: Ranking[] 
               >
                 {r.points}
               </div>
-              <div className="text-[0.68rem] mt-0.5" style={{ color: 'rgba(255,255,255,0.38)' }}>POINTS</div>
-              <div className="text-[0.78rem] mt-1" style={{ color: 'rgba(255,255,255,0.50)' }}>
+              <div className="text-[0.68rem] mt-0.5" style={{ color: 'rgba(28,44,19,0.45)' }}>POINTS</div>
+              <div className="text-[0.78rem] mt-1" style={{ color: 'rgba(28,44,19,0.55)' }}>
                 {r.submissions} sub{r.submissions !== 1 ? 's' : ''}
               </div>
             </div>
           </div>
         ))}
         {filtered.length === 0 && (
-          <p className="text-center py-8" style={{ color: 'rgba(255,255,255,0.5)' }}>
+          <p className="text-center py-8" style={{ color: 'rgba(28,44,19,0.55)' }}>
             Walang magsasaka mula sa {selected}.
           </p>
         )}

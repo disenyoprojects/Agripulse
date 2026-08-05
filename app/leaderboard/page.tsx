@@ -142,12 +142,12 @@ export default async function LeaderboardPage() {
 
         {/* Rankings panel */}
         <div
-          className="surface-glass rounded-3xl p-6 mb-8"
+          className="card rounded-3xl p-6 mb-8"
           style={{ border: '1px solid rgba(93,158,135,0.18)' }}
         >
           <h2
             className="font-heading text-[1.5rem] mb-5 flex items-center gap-3"
-            style={{ color: 'white', letterSpacing: '-0.01em' }}
+            style={{ color: 'var(--color-primary-green)', letterSpacing: '-0.01em' }}
           >
             <span aria-hidden="true">🏆</span>
             Top 10 Contributors
@@ -160,7 +160,7 @@ export default async function LeaderboardPage() {
           <Link href="/mobile-wizard" className="btn btn-primary btn-sm">
             Farmer Portal →
           </Link>
-          <Link href="/" className="btn btn-on-dark btn-sm">
+          <Link href="/" className="btn btn-secondary btn-sm">
             Home
           </Link>
         </div>
@@ -168,13 +168,13 @@ export default async function LeaderboardPage() {
         <footer
           className="text-center text-[0.8rem] pb-4"
           style={{
-            color: 'rgba(255,255,255,0.30)',
-            borderTop: '1px solid rgba(255,255,255,0.07)',
+            color: 'rgba(28,44,19,0.45)',
+            borderTop: '1px solid rgba(45,80,22,0.10)',
             paddingTop: '24px',
           }}
         >
           <p>
-            <strong style={{ color: 'rgba(255,255,255,0.50)' }}>AgriPulse System</strong> — The Pulse of
+            <strong style={{ color: 'rgba(28,44,19,0.65)' }}>AgriPulse System</strong> — The Pulse of
             Predictive Farming
           </p>
           <p className="mt-2">
